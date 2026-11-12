@@ -2,6 +2,7 @@
 session_start();
 require_once '../includes/db.php';
 require_once __DIR__ . '/image_upload.php';
+require_once __DIR__ . '/notifications.php';
 
 if (!isset($_SESSION['admin_logged_in'])) {
     header('Location: login.php');
@@ -65,7 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         remove_menu_image($existing['qr_image']);
                     }
 
-                    header('Location: payment_accounts.php?saved=1');
+                    set_admin_flash($id > 0 ? 'Payment account updated successfully.' : 'Payment account created successfully.', $id > 0 ? 'Account updated' : 'Account created');
+                    header('Location: payment_accounts.php');
                     exit;
                 } catch (RuntimeException $e) {
                     $message = $e->getMessage();
@@ -93,7 +95,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (!empty($account['qr_image'])) {
                         remove_menu_image($account['qr_image']);
                     }
-                    header('Location: payment_accounts.php?deleted=1');
+                    set_admin_flash('Payment account deleted successfully.', 'Account deleted');
+                    header('Location: payment_accounts.php');
                     exit;
                 }
                 $message = 'This payment account no longer exists.';
@@ -115,16 +118,8 @@ include 'header.php';
 
 <div class="max-w-5xl mx-auto">
     <header class="mb-8">
-        <span class="text-orange-500 font-bold uppercase tracking-widest text-[10px] mb-1 block">Checkout details</span>
         <h2 class="text-3xl font-bold text-gray-900">Payment Accounts</h2>
-        <p class="mt-2 text-sm text-gray-500">Manage the account details and optional QR codes shown to customers.</p>
-    </header>
-
-    <?php if (isset($_GET['saved']) || isset($_GET['deleted'])): ?>
-        <div class="bg-emerald-50 border border-emerald-100 text-emerald-700 p-4 rounded-2xl mb-6 font-semibold">
-            <?= isset($_GET['saved']) ? 'Payment account saved.' : 'Payment account removed.' ?>
-        </div>
-    <?php endif; ?>
+        </header>
 
     <?php if ($message !== ''): ?>
         <div class="bg-rose-50 border border-rose-100 text-rose-700 p-4 rounded-2xl mb-6 font-semibold">
@@ -177,12 +172,13 @@ include 'header.php';
                 Show this account to customers
             </label>
 
-            <div class="flex gap-3 md:col-span-2">
-                <button class="px-6 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold transition-colors">
+            <div class="flex flex-col items-center gap-3 md:col-span-2">
+                <button type="submit"
+                    class="w-full rounded-full bg-gradient-to-r from-amber-300 to-orange-300 px-6 py-3.5 font-bold text-[#25342d] shadow-lg shadow-orange-950/10 transition-all hover:-translate-y-0.5 hover:from-amber-200 hover:to-orange-200 focus:outline-none focus:ring-4 focus:ring-amber-400/30 md:w-3/5">
                     <?= $editing ? 'Save changes' : 'Add account' ?>
                 </button>
                 <?php if ($editing): ?>
-                    <a href="payment_accounts.php" class="px-6 py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold">Cancel</a>
+                    <a href="payment_accounts.php" class="rounded-full px-5 py-2 text-sm font-semibold text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800">Cancel editing</a>
                 <?php endif; ?>
             </div>
         </form>
@@ -213,12 +209,24 @@ include 'header.php';
                 </div>
                 <div class="flex gap-2">
                     <a href="payment_accounts.php?edit=<?= (int) $account['id'] ?>"
-                        class="px-4 py-2 rounded-lg bg-orange-50 text-orange-700 text-sm font-semibold">Edit</a>
-                    <form method="POST" onsubmit="return confirm('Remove this payment account?')">
+                        aria-label="Edit <?= htmlspecialchars($account['provider']) ?> account" title="Edit account"
+                        class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-amber-300/60 bg-gradient-to-br from-amber-200 to-orange-200 text-[#25342d] transition-all hover:-translate-y-0.5 hover:from-amber-100 hover:to-orange-100 focus:outline-none focus:ring-4 focus:ring-amber-400/30">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                d="m15.5 5.5 3 3M4 20l4.3-.9L19 8.4a2.1 2.1 0 0 0-3-3L5.3 16.1 4 20Z" />
+                        </svg>
+                    </a>
+                    <form method="POST">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['payment_accounts_token']) ?>">
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="id" value="<?= (int) $account['id'] ?>">
-                        <button class="px-4 py-2 rounded-lg bg-rose-50 text-rose-700 text-sm font-semibold">Delete</button>
+                        <button type="button" @click="requestConfirmation('Remove this payment account? This action cannot be undone.', () => $el.closest('form').requestSubmit())" aria-label="Delete <?= htmlspecialchars($account['provider']) ?> account" title="Delete account"
+                            class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-700 transition-all hover:-translate-y-0.5 hover:bg-rose-100 focus:outline-none focus:ring-4 focus:ring-rose-500/20">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                    d="M4 7h16m-10 4v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3" />
+                            </svg>
+                        </button>
                     </form>
                 </div>
             </article>

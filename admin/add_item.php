@@ -2,6 +2,7 @@
 session_start();
 require_once '../includes/db.php';
 require_once __DIR__ . '/image_upload.php';
+require_once __DIR__ . '/notifications.php';
 
 // Auth check
 if (!isset($_SESSION['admin_logged_in'])) {
@@ -25,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image_path = store_menu_image($_FILES['image'] ?? []);
         $stmt = $pdo->prepare("INSERT INTO menu_items (name, category_id, description, price, image_url, is_available, is_fasting) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$name, $category_id, $description, $price, $image_path, $is_available, $is_fasting]);
+        set_admin_flash('Menu item created successfully.', 'Item created');
         header("Location: index.php");
         exit;
     } catch (RuntimeException $e) {
@@ -98,7 +100,7 @@ include 'header.php';
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-gray-700 ml-1 uppercase tracking-wider">Visual</label>
                     <input type="file" name="image" accept="image/*" required
-                        class="w-full px-4 py-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-orange-500 file:text-white hover:file:bg-orange-600 transition-all cursor-pointer text-xs">
+                        class="w-full px-4 py-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-amber-300 file:text-[#25342d] hover:file:bg-amber-200 transition-all cursor-pointer text-xs">
                 </div>
             </div>
 
@@ -146,7 +148,7 @@ include 'header.php';
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" name="is_available" id="is_available" checked class="sr-only peer">
                     <div
-                        class="w-12 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600">
+                        class="w-12 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-400">
                     </div>
                 </label>
             </div>
@@ -154,7 +156,7 @@ include 'header.php';
             <!-- Actions -->
             <div class="flex flex-row gap-3 pt-2">
                 <button type="submit"
-                    class="flex-[2] py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-orange-600/20 transform hover:-translate-y-1 text-sm sm:text-base">
+                    class="flex-[2] py-3 bg-gradient-to-r from-amber-300 to-orange-300 hover:from-amber-200 hover:to-orange-200 text-[#25342d] rounded-xl font-bold transition-all shadow-lg shadow-orange-950/10 transform hover:-translate-y-0.5 text-sm sm:text-base">
                     Save Item
                 </button>
                 <a href="index.php"

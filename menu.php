@@ -658,14 +658,46 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
         </div>
     </main>
 
-    <!-- Footer Matching Header -->
-    <footer
-        class="bg-gradient-to-r from-orange-500/95 to-orange-400/95 backdrop-blur-xl border-t border-orange-400/30 text-white py-12 shadow-lg">
-        <div class="container mx-auto px-6 text-center">
+    <footer class="mt-10 border-t border-orange-300/40 bg-gradient-to-r from-[#1f322e] via-[#153b34] to-[#3a2314] text-white shadow-[0_-12px_30px_rgba(0,0,0,0.08)]">
+        <div class="container mx-auto px-4 py-8 sm:px-6 lg:px-12">
+            <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div class="text-center md:text-left">
+                    <span class="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-orange-100">
+                        Fresh from our kitchen
+                    </span>
+                    <p class="mt-3 text-lg font-semibold text-white sm:text-xl">Tasty Pizza & Burger</p>
+                </div>
 
-            <p class="text-orange-100 text-sm mb-4">Copyrights &copy; 2026 Tasty Pizza & Burger. Developed By Y-Global
-                System Solution All rights reserved.</p>
+                <div class="flex items-center justify-center gap-3 md:justify-end">
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"
+                        class="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-orange-600">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M13.5 22v-8h2.5l.4-3h-2.9V7.5c0-.9.3-1.5 1.6-1.5H16V3.1c-.3-.1-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4V11H7.5v3h2.3v8h3.7Z"/>
+                        </svg>
+                    </a>
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+                        class="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-orange-600">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.2A4.8 4.8 0 1 1 7.2 12 4.8 4.8 0 0 1 12 7.2Zm0 2A2.8 2.8 0 1 0 14.8 12 2.8 2.8 0 0 0 12 9.2Zm5.2-3.1a1.1 1.1 0 1 1-1.1 1.1 1.1 1.1 0 0 1 1.1-1.1Z"/>
+                        </svg>
+                    </a>
+                    <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" aria-label="TikTok"
+                        class="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-orange-600">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M16 3c.6 1.8 2 3 4 3v2.7c-1.3 0-2.4-.2-3.4-.8V13a5.5 5.5 0 1 1-5.5-5.5c.3 0 .6.1.9.1v2.8a3.1 3.1 0 0 0-.9-.1A3.1 3.1 0 0 0 7 13a3.1 3.1 0 0 0 3.1 3.1A3.1 3.1 0 0 0 13.2 13V3h2.8Z"/>
+                        </svg>
+                    </a>
+                </div>
 
+                <div class="text-center md:text-right">
+                    <p class="text-xs font-medium uppercase tracking-[0.2em] text-orange-100/90">Open daily</p>
+                    <p class="mt-2 text-sm text-white/80">Fresh meals, warm service, and a great dining vibe.</p>
+                </div>
+            </div>
+
+            <div class="mt-6 border-t border-white/10 pt-4 text-center text-xs text-orange-100/80 sm:text-sm">
+                <p>Copyrights &copy; 2026 Tasty Pizza & Burger. Developed By Y-Global System Solution All rights reserved.</p>
+            </div>
         </div>
     </footer>
 

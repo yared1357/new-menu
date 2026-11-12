@@ -62,7 +62,7 @@ include 'header.php';
                             </a>
                         <?php endif; ?>
                         <a href="delete_feedback.php?id=<?= $fb['id'] ?>"
-                            onclick="return confirm('Archive this masterpiece review forever?')"
+                            @click.prevent="requestConfirmation('Delete this feedback permanently?', () => window.location.href = 'delete_feedback.php?id=<?= (int) $fb['id'] ?>')"
                             class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm"
                             title="Delete">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

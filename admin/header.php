@@ -1,3 +1,7 @@
+<?php
+$admin_flash = $_SESSION['admin_flash'] ?? null;
+unset($_SESSION['admin_flash']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,16 +15,39 @@
     <script defer src="../assets/js/alpine.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --admin-footer-height: 72px;
+        }
+
         body {
             font-family: 'Outfit', sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
+            background: #f7f7f2;
+            color: #20332b;
         }
 
         .glass-card {
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(31, 50, 46, 0.08);
+            box-shadow: 0 12px 36px rgba(31, 50, 46, 0.07);
+        }
+
+        .sidebar {
+            height: calc(100vh - var(--admin-footer-height));
+            height: calc(100dvh - var(--admin-footer-height));
+        }
+
+        .admin-page-content {
+            padding-bottom: calc(var(--admin-footer-height) + 2rem);
+        }
+
+        .admin-footer {
+            height: var(--admin-footer-height);
+        }
+
+        @media (max-width: 640px) {
+            :root {
+                --admin-footer-height: 88px;
+            }
         }
 
         @media (max-width: 1024px) {
@@ -40,21 +67,86 @@
     </style>
 </head>
 
-<body class="bg-gray-50" x-data="{ sidebarOpen: false, search: '' }">
+<body class="bg-[#f7f7f2]" x-data="{ sidebarOpen: false, search: '', confirmOpen: false, confirmMessage: '', confirmAction: null, requestConfirmation(message, action) { this.confirmMessage = message; this.confirmAction = action; this.confirmOpen = true; } }">
+    <?php if ($admin_flash): ?>
+        <div x-data="{ visible: true }" x-show="visible" x-cloak x-init="setTimeout(() => visible = false, 2800)"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-3 sm:translate-y-0 sm:translate-x-4"
+            x-transition:enter-end="opacity-100 translate-y-0 sm:translate-x-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            role="status" aria-live="polite"
+            class="fixed right-4 top-4 z-[200] w-[calc(100%-2rem)] max-w-sm overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-2xl shadow-emerald-950/15 sm:right-6 sm:top-6">
+            <div class="flex items-start gap-3 p-4">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="m5 12 4 4L19 6" />
+                    </svg>
+                </span>
+                <div class="min-w-0 flex-1 pt-0.5">
+                    <p class="font-bold text-[#20332b]"><?= htmlspecialchars($admin_flash['title'], ENT_QUOTES, 'UTF-8') ?></p>
+                    <p class="mt-1 text-sm leading-5 text-gray-600"><?= htmlspecialchars($admin_flash['message'], ENT_QUOTES, 'UTF-8') ?></p>
+                </div>
+                <button type="button" @click="visible = false" aria-label="Dismiss notification"
+                    class="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 6 12 12M18 6 6 18" />
+                    </svg>
+                </button>
+            </div>
+            <div class="h-1 bg-emerald-50">
+                <div class="h-full origin-left bg-emerald-500" style="animation: admin-toast-progress 3s linear forwards"></div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <div x-show="confirmOpen" x-cloak x-transition.opacity @keydown.escape.window="confirmOpen = false"
+        @click.self="confirmOpen = false" class="fixed inset-0 z-[210] flex items-center justify-center bg-[#102720]/55 p-4 backdrop-blur-sm">
+        <section role="dialog" aria-modal="true" aria-labelledby="admin-confirm-title"
+            class="w-full max-w-md rounded-3xl border border-white/60 bg-white p-6 shadow-2xl sm:p-7">
+            <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                        d="M12 9v3m0 4h.01M10.3 3.86 1.82 18.5A2 2 0 0 0 3.55 21h16.9a2 2 0 0 0 1.73-2.5L13.7 3.86a2 2 0 0 0-3.4 0Z" />
+                </svg>
+            </div>
+            <h2 id="admin-confirm-title" class="text-xl font-bold text-[#20332b]">Please confirm</h2>
+            <p class="mt-2 text-sm leading-6 text-gray-600" x-text="confirmMessage"></p>
+            <div class="mt-7 flex justify-end gap-3">
+                <button type="button" @click="confirmOpen = false"
+                    class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button type="button"
+                    @click="confirmOpen = false; if (confirmAction) confirmAction()"
+                    class="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-rose-700">
+                    Confirm delete
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <style>
+        @keyframes admin-toast-progress {
+            to { transform: scaleX(0); }
+        }
+    </style>
     <!-- Mobile Header -->
-    <div class="lg:hidden bg-white border-b border-gray-100 p-4 flex justify-between items-center sticky top-0 z-40">
+    <div class="lg:hidden sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-gradient-to-r from-[#1f322e] to-[#17503d] p-4 text-white shadow-md">
         <div class="flex items-center gap-2">
             <?php
             $admin_name = $_SESSION['admin_user'] ?? 'Admin';
             $admin_initial = strtoupper(substr($admin_name, 0, 1));
             ?>
             <div
-                class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-sm shadow-orange-500/20">
+                class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-300 to-orange-400 flex items-center justify-center font-bold text-[#25342d] text-sm shadow-sm">
                 <?= $admin_initial ?>
             </div>
-            <span class="font-bold text-gray-800"><?= htmlspecialchars(ucfirst($admin_name)) ?></span>
+            <span class="font-bold text-white"><?= htmlspecialchars(ucfirst($admin_name)) ?></span>
         </div>
-        <button @click="sidebarOpen = !sidebarOpen" class="p-2 hover:bg-gray-100 rounded-xl">
+        <button type="button" @click="sidebarOpen = !sidebarOpen" aria-label="Toggle navigation"
+            class="rounded-xl p-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
             </svg>
@@ -64,4 +156,4 @@
     <div class="flex">
         <?php include 'sidebar.php'; ?>
         <main class="flex-1 flex flex-col min-h-screen">
-            <div class="p-8 lg:p-12 flex-1">
+            <div class="admin-page-content flex-1 px-5 pt-6 sm:px-8 sm:pt-8 lg:px-12 lg:pt-12">

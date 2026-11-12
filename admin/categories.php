@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../includes/db.php';
+require_once __DIR__ . '/notifications.php';
 
 // Auth check
 if (!isset($_SESSION['admin_logged_in'])) {
@@ -24,6 +25,7 @@ $edit_name = '';
 if (isset($_GET['toggle'])) {
     $id = $_GET['toggle'];
     $pdo->prepare("UPDATE categories SET is_active = 1 - COALESCE(is_active, 1) WHERE id = ?")->execute([$id]);
+    set_admin_flash('Category visibility updated.', 'Category updated');
     header("Location: categories.php");
     exit;
 }
@@ -35,7 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $stmt = $pdo->prepare("INSERT INTO categories (name) VALUES (?)");
             $stmt->execute([$name]);
-            $message = "Category added successfully!";
+            set_admin_flash('Category created successfully.', 'Category created');
+            header('Location: categories.php');
+            exit;
         } catch (PDOException $e) {
             $message = "Error: " . $e->getMessage();
         }
@@ -45,7 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $stmt = $pdo->prepare("UPDATE categories SET name = ? WHERE id = ?");
             $stmt->execute([$name, $id]);
-            $message = "Category updated successfully!";
+            set_admin_flash('Category updated successfully.', 'Category updated');
+            header('Location: categories.php');
+            exit;
         } catch (PDOException $e) {
             $message = "Error: " . $e->getMessage();
         }
@@ -70,6 +76,9 @@ if (isset($_GET['delete'])) {
     try {
         $stmt = $pdo->prepare("DELETE FROM categories WHERE id = ?");
         $stmt->execute([$id]);
+        if ($stmt->rowCount() > 0) {
+            set_admin_flash('Category deleted successfully.', 'Category deleted');
+        }
         header("Location: categories.php");
         exit;
     } catch (PDOException $e) {
@@ -103,7 +112,7 @@ include 'header.php';
             </div>
 
             <button @click="showForm = !showForm"
-                class="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold transition-all transform hover:-translate-y-1 shadow-lg shadow-orange-500/20 whitespace-nowrap shrink-0">
+                class="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 bg-gradient-to-r from-amber-300 to-orange-300 hover:from-amber-200 hover:to-orange-200 text-[#25342d] rounded-xl font-bold transition-all transform hover:-translate-y-0.5 shadow-lg shadow-orange-950/10 whitespace-nowrap shrink-0">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
@@ -132,7 +141,7 @@ include 'header.php';
                     </div>
                     <div class="flex gap-3">
                         <button type="submit" name="<?= $edit_mode ? 'update_category' : 'add_category' ?>"
-                            class="flex-1 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold transition-all transform hover:-translate-y-1">
+                            class="flex-1 py-3 bg-gradient-to-r from-amber-300 to-orange-300 hover:from-amber-200 hover:to-orange-200 text-[#25342d] rounded-xl font-bold transition-all transform hover:-translate-y-0.5 shadow-lg shadow-orange-950/10">
                             <?= $edit_mode ? 'Update' : 'Create Category' ?>
                         </button>
                         <?php if ($edit_mode): ?>
@@ -143,8 +152,8 @@ include 'header.php';
                 </form>
                 <?php if ($message): ?>
                     <p
-                        class="mt-4 text-sm font-semibold <?= strpos($message, 'Error') === false ? 'text-emerald-500' : 'text-rose-500' ?>">
-                        <?= $message ?>
+                        class="mt-4 text-sm font-semibold text-rose-500">
+                        <?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?>
                     </p>
                 <?php endif; ?>
             </div>
@@ -211,15 +220,15 @@ include 'header.php';
                                                 </path>
                                             </svg>
                                         </a>
-                                        <a href="?delete=<?= $cat['id'] ?>" title="Delete Category"
-                                            onclick="return confirm('Delete this category?')"
+                                        <button type="button" title="Delete Category"
+                                            @click="requestConfirmation('Delete this category? This action cannot be undone.', () => window.location.href = '?delete=<?= (int) $cat['id'] ?>')"
                                             class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path
                                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
                                                 </path>
                                             </svg>
-                                        </a>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>

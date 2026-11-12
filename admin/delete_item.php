@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../includes/db.php';
+require_once __DIR__ . '/notifications.php';
 
 // Auth check
 if (!isset($_SESSION['admin_logged_in'])) {
@@ -12,9 +13,11 @@ if (isset($_GET['id'])) {
     $id = $_GET['id'];
     try {
         $stmt = $pdo->prepare("DELETE FROM menu_items WHERE id = ?");
-        $stmt->execute([$id]);
+        if ($stmt->execute([$id]) && $stmt->rowCount() > 0) {
+            set_admin_flash('Menu item deleted successfully.', 'Item deleted');
+        }
     } catch (PDOException $e) {
-        // Handle error
+        error_log('Unable to delete menu item: ' . $e->getMessage());
     }
 }
 

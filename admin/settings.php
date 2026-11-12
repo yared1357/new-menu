@@ -38,33 +38,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$page_title = "Account Settings";
+$page_title = "Change Password";
 include 'header.php';
 ?>
 
-<header class="mb-10">
-    <h2 class="text-3xl font-bold text-gray-900">Change PassWord</h2>
-</header>
+<section class="flex flex-1 flex-col items-center justify-center py-8 sm:py-12">
+    <header class="mb-8 max-w-xl text-center">
+        <span class="inline-flex items-center gap-2 rounded-full border border-emerald-800/10 bg-emerald-800/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-800">
+            Change Password
+        </span>
+        <h2 class="mt-4 text-3xl font-bold tracking-tight text-[#20332b] sm:text-4xl">Change password</h2>
+        </header>
 
-<div class="max-w-xl">
-    <div class="glass-card rounded-[2.5rem] p-10">
-        <h3 class="text-xl font-bold mb-6 text-gray-900">Change Password</h3>
+    <div class="glass-card w-full max-w-xl rounded-[2rem] border border-white p-6 shadow-[0_20px_60px_rgba(27,52,43,0.10)] sm:p-9">
+        <div class="mb-7 flex items-center gap-4 border-b border-gray-100 pb-6">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-300 to-orange-400 text-[#25342d] shadow-md shadow-orange-900/10">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 10V7a5 5 0 0 1 10 0v3m-11 0h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Zm6 4v3" />
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-[#20332b]">Update your credentials</h3>
+                </div>
+        </div>
 
         <?php if ($message): ?>
-            <div
-                class="border p-4 rounded-2xl mb-6 text-sm font-semibold text-center <?= $success ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100' ?>">
+            <div role="<?= $success ? 'status' : 'alert' ?>"
+                class="mb-6 rounded-2xl border p-4 text-center text-sm font-semibold <?= $success ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100' ?>">
                 <?= $message ?>
             </div>
         <?php endif; ?>
 
-        <form method="POST" class="space-y-6" x-data="{ showCurr: false, showNew: false, showConf: false }">
+        <form method="POST" class="space-y-5" x-data="{ showCurr: false, showNew: false, showConf: false }">
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Current Password</label>
+                <label for="current_password" class="mb-2 block text-sm font-semibold text-gray-700">Current password</label>
                 <div class="relative">
-                    <input :type="showCurr ? 'text' : 'password'" name="current_password" required
-                        class="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-orange-500 transition-all">
+                    <input id="current_password" :type="showCurr ? 'text' : 'password'" name="current_password" required autocomplete="current-password"
+                        class="w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-5 py-4 pr-14 text-sm outline-none transition focus:border-emerald-700 focus:bg-white focus:ring-4 focus:ring-emerald-700/10">
                     <button type="button" @click="showCurr = !showCurr"
-                        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        :aria-label="showCurr ? 'Hide current password' : 'Show current password'"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-emerald-800">
                         <svg x-show="!showCurr" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -81,12 +94,13 @@ include 'header.php';
                 </div>
             </div>
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">New Password</label>
+                <label for="new_password" class="mb-2 block text-sm font-semibold text-gray-700">New password</label>
                 <div class="relative">
-                    <input :type="showNew ? 'text' : 'password'" name="new_password" required
-                        class="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-orange-500 transition-all">
+                    <input id="new_password" :type="showNew ? 'text' : 'password'" name="new_password" required autocomplete="new-password"
+                        class="w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-5 py-4 pr-14 text-sm outline-none transition focus:border-emerald-700 focus:bg-white focus:ring-4 focus:ring-emerald-700/10">
                     <button type="button" @click="showNew = !showNew"
-                        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        :aria-label="showNew ? 'Hide new password' : 'Show new password'"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-emerald-800">
                         <svg x-show="!showNew" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -103,12 +117,13 @@ include 'header.php';
                 </div>
             </div>
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Confirm New Password</label>
+                <label for="confirm_password" class="mb-2 block text-sm font-semibold text-gray-700">Confirm new password</label>
                 <div class="relative">
-                    <input :type="showConf ? 'text' : 'password'" name="confirm_password" required
-                        class="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-orange-500 transition-all">
+                    <input id="confirm_password" :type="showConf ? 'text' : 'password'" name="confirm_password" required autocomplete="new-password"
+                        class="w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-5 py-4 pr-14 text-sm outline-none transition focus:border-emerald-700 focus:bg-white focus:ring-4 focus:ring-emerald-700/10">
                     <button type="button" @click="showConf = !showConf"
-                        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        :aria-label="showConf ? 'Hide confirmation password' : 'Show confirmation password'"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-emerald-800">
                         <svg x-show="!showConf" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -125,11 +140,14 @@ include 'header.php';
                 </div>
             </div>
             <button type="submit"
-                class="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl transition-all shadow-lg shadow-orange-500/20 transform hover:-translate-y-1">
+                class="group flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#1f322e] via-[#17503d] to-[#246447] py-4 font-bold text-white shadow-lg shadow-emerald-950/20 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-950/25 focus:outline-none focus:ring-4 focus:ring-emerald-700/20">
                 Update Password
+                <svg class="h-4 w-4 text-amber-200 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-6-6 6 6-6 6" />
+                </svg>
             </button>
         </form>
     </div>
-</div>
+</section>
 
 <?php include 'footer.php'; ?>

@@ -66,7 +66,7 @@ include 'header.php';
             </div>
 
             <a href="add_item.php"
-                class="flex w-full sm:w-auto justify-center items-center gap-2 px-6 py-3.5 bg-orange-500 hover:bg-orange-600 text-white rounded-[1.2rem] font-bold transition-all transform hover:-translate-y-1 shadow-lg shadow-orange-500/20 group shrink-0">
+                class="flex w-full sm:w-auto justify-center items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-amber-300 to-orange-300 hover:from-amber-200 hover:to-orange-200 text-[#25342d] rounded-[1.2rem] font-bold transition-all transform hover:-translate-y-0.5 shadow-lg shadow-orange-950/10 group shrink-0">
                 <svg class="w-5 h-5 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -150,7 +150,7 @@ include 'header.php';
                                             </svg>
                                         </a>
                                         <a href="delete_item.php?id=<?= $item['id'] ?>"
-                                            onclick="return confirm('Archive this masterpiece permanently?')"
+                                            @click.prevent="requestConfirmation('Delete this menu item permanently?', () => window.location.href = 'delete_item.php?id=<?= (int) $item['id'] ?>')"
                                             class="flex-1 md:flex-none flex items-center justify-center py-2 px-1 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm"
                                             title="Delete">
                                             <svg class="w-4 h-4 md:mr-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

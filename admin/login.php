@@ -49,89 +49,116 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Admin Login | Tasty Pizza & Burger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="../assets/js/alpine.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: #f3f4f6;
-        }
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <style>
+            body {
+                font-family: 'Outfit', sans-serif;
+                background: #f7f7f2;
+            }
 
-        .glass-login {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+            [x-cloak] {
+                display: none !important;
+            }
+        </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center p-6" x-data="{ showPassword: false }">
-    <div class="max-w-md w-full glass-login rounded-[2.5rem] p-10">
-        <div class="text-center mb-10">
-            <div
-                class="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-orange-500/30">
-                <span class="font-bold text-white text-2xl">T</span>
-            </div>
-            <h1 class="text-3xl font-bold text-gray-900">Admin Login</h1>
-            <p class="text-gray-500 mt-2">Enter your credentials to manage the menu</p>
-        </div>
+<body class="relative flex min-h-screen flex-col overflow-x-hidden px-4 py-6 sm:px-6 sm:py-8" x-data="{ showPassword: false }">
+        <div class="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-emerald-200/50 blur-3xl"></div>
+        <div class="pointer-events-none absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-orange-200/60 blur-3xl"></div>
 
-        <?php if ($error): ?>
-            <div
-                class="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-center text-sm font-semibold">
-                <?= $error ?>
-            </div>
-        <?php endif; ?>
+        <header class="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between">
+            <a href="../index.php" class="group inline-flex items-center gap-3" aria-label="Tasty Pizza and Burger home">
+                <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-xl font-black text-white shadow-lg shadow-orange-600/20 transition-transform group-hover:-rotate-3 group-hover:scale-105">T</span>
+                <span class="leading-tight">
+                    <span class="block text-sm font-black uppercase tracking-wide text-[#20332b]">Tasty Pizza &amp; Burger</span>
+                    <span class="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-800">Management portal</span>
+                </span>
+            </a>
+            <a href="../index.php" class="rounded-full border border-gray-200 bg-white/70 px-4 py-2 text-xs font-bold text-gray-600 transition-colors hover:border-emerald-700/30 hover:text-emerald-800">View storefront</a>
+        </header>
 
-        <form method="POST" class="space-y-6">
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Username</label>
-                <input type="text" name="username" required
-                    class="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-orange-500 transition-all"
-                    placeholder="Enter username">
-            </div>
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Password</label>
-                <div class="relative">
-                    <input :type="showPassword ? 'text' : 'password'" name="password" required
-                        class="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-orange-500 transition-all"
-                        placeholder="••••••••">
-                    <button type="button" @click="showPassword = !showPassword"
-                        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors">
-                        <svg x-show="!showPassword" class="w-6 h-6" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                            </path>
-                        </svg>
-                        <svg x-show="showPassword" class="w-6 h-6" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.076m1.406-1.407A10.015 10.015 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.059 10.059 0 01-4.29 5.764M10.735 10.735L13.265 13.265M15 12a3 3 0 11-6 0 3 3 0 016 0zM3 3l18 18">
-                            </path>
-                        </svg>
-                    </button>
+        <main class="relative z-10 mx-auto flex w-full max-w-6xl flex-1 items-center py-8 sm:py-12">
+            <section class="grid w-full overflow-hidden rounded-[2rem] border border-white/80 bg-white/85 shadow-[0_30px_90px_rgba(27,52,43,0.14)] backdrop-blur-xl lg:grid-cols-[1.05fr_0.95fr]">
+                <div class="relative flex min-h-56 flex-col justify-between overflow-hidden bg-gradient-to-br from-[#1f322e] via-[#17503d] to-[#3a2314] p-7 text-white sm:p-10 lg:min-h-[590px] lg:p-14">
+                    <div class="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full border-[40px] border-white/5"></div>
+                    <div class="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-orange-400/15 blur-2xl"></div>
+                    <div class="relative">
+                        <span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-100">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-300"></span>
+                            Fresh from our kitchen
+                        </span>
+                        <h1 class="mt-7 max-w-md text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">Good food starts with a well-run kitchen.</h1>
+                        <p class="mt-4 max-w-sm text-sm leading-6 text-white/70 sm:text-base">Sign in to manage your menu, categories, payments, and customer feedback.</p>
+                    </div>
+                    <div class="relative mt-10 hidden items-center gap-3 text-xs font-medium text-white/65 lg:flex">
+                        <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/10">
+                            <svg class="h-5 w-5 text-orange-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M4 7h16M4 12h10M4 17h7M19 11v7m-3.5-3.5h7" />
+                            </svg>
+                        </span>
+                        <span>Everything you need to keep service running smoothly.</span>
+                    </div>
                 </div>
-            </div>
-            <button type="submit"
-                class="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl transition-all shadow-lg shadow-orange-500/20 transform hover:-translate-y-1">
-                Sign In
-            </button>
-        </form>
 
-        <div class="mt-8 text-center text-gray-400 text-sm">
-            <p class="mb-4 leading-relaxed">
-                You can try adding a new row to the users table manually now (e.g., Username: <span
-                    class="text-orange-500 font-semibold">superadmin</span>, Password: <span
-                    class="text-orange-500 font-semibold">mycustompass</span>) and you will be able to log right in!
-                Everything is ready for you to scale smoothly.
-            </p>
-            <a href="../index.php" class="hover:text-orange-500 transition-colors inline-block mt-2">← Back to
-                website</a>
-        </div>
-    </div>
+                <div class="flex items-center p-7 sm:p-10 lg:p-14">
+                    <div class="mx-auto w-full max-w-md">
+                        <div class="mb-8">
+                            <p class="text-xs font-bold uppercase tracking-[0.2em] text-emerald-800">Welcome back</p>
+                            <h2 class="mt-2 text-3xl font-bold tracking-tight text-[#20332b]">Admin sign in</h2>
+                            <p class="mt-2 text-sm leading-6 text-gray-500">Enter your account details to continue to the dashboard.</p>
+                        </div>
+
+                        <?php if ($error): ?>
+                            <div role="alert" class="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                                <svg class="mt-0.5 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.3 3.9 1.8 18.5A1.7 1.7 0 0 0 3.3 21h17.4a1.7 1.7 0 0 0 1.5-2.5L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+                                </svg>
+                                <span><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></span>
+                            </div>
+                        <?php endif; ?>
+
+                        <form method="POST" class="space-y-5">
+                            <div>
+                                <label for="username" class="mb-2 block text-sm font-semibold text-gray-700">Username</label>
+                                <input id="username" type="text" name="username" required autocomplete="username"
+                                    class="w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-5 py-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-700 focus:bg-white focus:ring-4 focus:ring-emerald-700/10"
+                                    placeholder="Enter your username">
+                            </div>
+                            <div>
+                                <label for="password" class="mb-2 block text-sm font-semibold text-gray-700">Password</label>
+                                <div class="relative">
+                                    <input id="password" :type="showPassword ? 'text' : 'password'" name="password" required autocomplete="current-password"
+                                        class="w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-5 py-4 pr-14 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-700 focus:bg-white focus:ring-4 focus:ring-emerald-700/10"
+                                        placeholder="Enter your password">
+                                    <button type="button" @click="showPassword = !showPassword" :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700/30">
+                                        <svg x-show="!showPassword" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.5 12s3.4-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.4 6.5-9.5 6.5S2.5 12 2.5 12Z" />
+                                            <circle cx="12" cy="12" r="3" stroke-width="1.8" />
+                                        </svg>
+                                        <svg x-show="showPassword" x-cloak class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.7A10.8 10.8 0 0 1 12 5.5c6.1 0 9.5 6.5 9.5 6.5a16.5 16.5 0 0 1-3.2 4.1M6.2 6.2C3.8 7.8 2.5 12 2.5 12S5.9 18.5 12 18.5a10 10 0 0 0 3-.5" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="submit" class="group flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-800 to-[#246447] py-4 font-bold text-white shadow-lg shadow-emerald-900/20 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-900/25 focus:outline-none focus:ring-4 focus:ring-emerald-700/20">
+                                Sign in to dashboard
+                                <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-6-6 6 6-6 6" />
+                                </svg>
+                            </button>
+                        </form>
+                        <p class="mt-7 text-center text-xs text-gray-400">Authorized staff only</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-2 border-t border-gray-200/80 py-5 text-center text-xs text-gray-500 sm:flex-row sm:text-left">
+            <span>&copy; <?= date('Y') ?> Tasty Pizza &amp; Burger</span>
+            <a href="../index.php" class="font-semibold text-emerald-800 transition-colors hover:text-orange-600">Back to the menu</a>
+        </footer>
 </body>
 
 </html>
