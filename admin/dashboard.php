@@ -28,8 +28,8 @@ include 'header.php';
 ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<header class="mb-12">
-    <h2 class="text-4xl font-bold text-gray-900 leading-tight">TastyPizza <span class="text-orange-500">Dashboard</span>
+<header class="mb-12 flex justify-start lg:justify-end">
+    <h2 class="text-4xl font-bold text-gray-900 leading-tight text-left lg:text-right">TastyPizza <span class="text-orange-500">Dashboard</span>
     </h2>
 </header>
 

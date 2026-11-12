@@ -34,7 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = $_POST['description'];
     $price = $_POST['price'];
     $is_available = isset($_POST['is_available']) ? 1 : 0;
-    $is_fasting = isset($_POST['is_fasting']) ? $_POST['is_fasting'] : 0;
+    $is_fasting = in_array($_POST['is_fasting'] ?? '2', ['0', '1', '2'], true)
+        ? (int) $_POST['is_fasting']
+        : 2;
 
     $image_path = $item['image_url'];
     $new_image_path = '';
@@ -134,17 +136,20 @@ include 'header.php';
                     </div>
                 </div>
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-bold text-gray-700 ml-1 uppercase tracking-wider">Visual</label>
+                    <label class="block text-xs font-bold text-gray-700 ml-1 uppercase tracking-wider">Item Image <span class="font-medium normal-case tracking-normal text-gray-400">(Optional)</span></label>
                     <div class="flex flex-col gap-2">
                         <?php if ($item['image_url']): ?>
                             <div class="flex items-center gap-3 p-2 bg-gray-50 rounded-xl border border-gray-100 w-fit">
-                                <img src="../<?= $item['image_url'] ?>" class="w-10 h-10 rounded-lg object-cover shadow-sm"
+                                <img src="../<?= htmlspecialchars($item['image_url'], ENT_QUOTES, 'UTF-8') ?>" class="w-10 h-10 rounded-lg object-cover shadow-sm"
                                     alt="Current">
                                 <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Current</span>
                             </div>
+                        <?php else: ?>
+                            <p class="text-xs text-gray-400">No image currently set. The menu will show a placeholder until you upload one.</p>
                         <?php endif; ?>
                         <input type="file" name="image" accept="image/*"
                             class="w-full px-4 py-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-amber-300 file:text-[#25342d] hover:file:bg-amber-200 transition-all cursor-pointer text-xs">
+                        <p class="ml-1 text-xs text-gray-400">Leave empty to keep the current image.</p>
                     </div>
                 </div>
             </div>
@@ -154,8 +159,9 @@ include 'header.php';
                 <div class="relative">
                     <select name="is_fasting" required
                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:border-orange-500 text-sm text-gray-900 appearance-none">
-                        <option value="0" <?= !$item['is_fasting'] ? 'selected' : '' ?>>Non-Fasting</option>
-                        <option value="1" <?= $item['is_fasting'] ? 'selected' : '' ?>>Fasting</option>
+                        <option value="2" <?= (int) $item['is_fasting'] === 2 ? 'selected' : '' ?>>Not applicable</option>
+                        <option value="0" <?= (int) $item['is_fasting'] === 0 ? 'selected' : '' ?>>Non-Fasting</option>
+                        <option value="1" <?= (int) $item['is_fasting'] === 1 ? 'selected' : '' ?>>Fasting</option>
                     </select>
                     <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

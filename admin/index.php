@@ -107,9 +107,16 @@ include 'header.php';
                                 x-show="(categoryFilter === 'all' || '<?= addslashes(strtolower($item['category_name'])) ?>' === categoryFilter) && '<?= addslashes(strtolower($item['name'])) ?> <?= addslashes(strtolower($item['category_name'])) ?>'.includes(search.toLowerCase())">
                                 <td class="px-0 md:px-8 py-2 md:py-5 flex justify-center md:table-cell">
                                     <div
-                                        class="relative w-20 h-20 md:w-16 md:h-16 rounded-2xl overflow-hidden border border-gray-100 group-hover:scale-105 transition-transform duration-500 mb-2 md:mb-0">
-                                        <img src="<?= strpos($item['image_url'], 'http') === 0 ? $item['image_url'] : '../' . htmlspecialchars($item['image_url']) ?>"
-                                            class="w-full h-full object-cover">
+                                        class="relative flex w-20 h-20 md:w-16 md:h-16 items-center justify-center rounded-2xl overflow-hidden border border-gray-100 bg-gradient-to-br from-amber-50 to-emerald-50 group-hover:scale-105 transition-transform duration-500 mb-2 md:mb-0">
+                                        <?php if (!empty($item['image_url'])): ?>
+                                            <img src="<?= strpos($item['image_url'], 'http') === 0 ? htmlspecialchars($item['image_url'], ENT_QUOTES, 'UTF-8') : '../' . htmlspecialchars($item['image_url'], ENT_QUOTES, 'UTF-8') ?>"
+                                                alt="<?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>"
+                                                class="w-full h-full object-cover">
+                                        <?php else: ?>
+                                            <svg class="h-7 w-7 text-emerald-800/35" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16.5 8.5 12l3 3L16 9l4 4.5M5 20h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z" />
+                                            </svg>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                                 <td
@@ -127,10 +134,13 @@ include 'header.php';
                                         class="px-2 md:px-3 py-1 bg-gray-50 text-gray-500 text-[8px] md:text-[10px] font-bold uppercase rounded-lg border border-gray-100 italic mb-1">
                                         <?= htmlspecialchars($item['category_name']) ?>
                                     </span>
-                                    <span
-                                        class="text-[8px] font-bold uppercase tracking-widest <?= $item['is_fasting'] ? 'text-emerald-500' : 'text-rose-500' ?> block">
-                                        <?= $item['is_fasting'] ? 'Fasting' : 'Non-Fasting' ?>
-                                    </span>
+                                    <?php if ((int) $item['is_fasting'] === 1): ?>
+                                        <span class="text-[8px] font-bold uppercase tracking-widest text-emerald-500 block">Fasting</span>
+                                    <?php elseif ((int) $item['is_fasting'] === 0): ?>
+                                        <span class="text-[8px] font-bold uppercase tracking-widest text-rose-500 block">Non-Fasting</span>
+                                    <?php else: ?>
+                                        <span class="text-[8px] font-bold uppercase tracking-widest text-gray-400 block">Not applicable</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="px-0 md:px-8 py-1.5 md:py-5 flex justify-center md:table-cell">
                                     <span

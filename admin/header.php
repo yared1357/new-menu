@@ -104,8 +104,8 @@ unset($_SESSION['admin_flash']);
     <div x-show="confirmOpen" x-cloak x-transition.opacity @keydown.escape.window="confirmOpen = false"
         @click.self="confirmOpen = false" class="fixed inset-0 z-[210] flex items-center justify-center bg-[#102720]/55 p-4 backdrop-blur-sm">
         <section role="dialog" aria-modal="true" aria-labelledby="admin-confirm-title"
-            class="w-full max-w-md rounded-3xl border border-white/60 bg-white p-6 shadow-2xl sm:p-7">
-            <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+            class="w-full max-w-md rounded-3xl border border-white/60 bg-white p-6 text-center shadow-2xl sm:p-7">
+            <div class="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                         d="M12 9v3m0 4h.01M10.3 3.86 1.82 18.5A2 2 0 0 0 3.55 21h16.9a2 2 0 0 0 1.73-2.5L13.7 3.86a2 2 0 0 0-3.4 0Z" />
@@ -113,7 +113,7 @@ unset($_SESSION['admin_flash']);
             </div>
             <h2 id="admin-confirm-title" class="text-xl font-bold text-[#20332b]">Please confirm</h2>
             <p class="mt-2 text-sm leading-6 text-gray-600" x-text="confirmMessage"></p>
-            <div class="mt-7 flex justify-end gap-3">
+            <div class="mt-7 flex justify-center gap-3">
                 <button type="button" @click="confirmOpen = false"
                     class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-50">
                     Cancel

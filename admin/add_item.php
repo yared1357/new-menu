@@ -19,11 +19,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = $_POST['description'];
     $price = $_POST['price'];
     $is_available = isset($_POST['is_available']) ? 1 : 0;
-    $is_fasting = isset($_POST['is_fasting']) ? $_POST['is_fasting'] : 0;
+    $is_fasting = in_array($_POST['is_fasting'] ?? '2', ['0', '1', '2'], true)
+        ? (int) $_POST['is_fasting']
+        : 2;
 
     $image_path = '';
     try {
-        $image_path = store_menu_image($_FILES['image'] ?? []);
+        if (isset($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $image_path = store_menu_image($_FILES['image']);
+        }
         $stmt = $pdo->prepare("INSERT INTO menu_items (name, category_id, description, price, image_url, is_available, is_fasting) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$name, $category_id, $description, $price, $image_path, $is_available, $is_fasting]);
         set_admin_flash('Menu item created successfully.', 'Item created');
@@ -98,9 +102,10 @@ include 'header.php';
                     </div>
                 </div>
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-bold text-gray-700 ml-1 uppercase tracking-wider">Visual</label>
-                    <input type="file" name="image" accept="image/*" required
+                    <label class="block text-xs font-bold text-gray-700 ml-1 uppercase tracking-wider">Item Image <span class="font-medium normal-case tracking-normal text-gray-400">(Optional)</span></label>
+                    <input type="file" name="image" accept="image/*"
                         class="w-full px-4 py-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-amber-300 file:text-[#25342d] hover:file:bg-amber-200 transition-all cursor-pointer text-xs">
+                    <p class="ml-1 text-xs text-gray-400">You can add or replace the photo later.</p>
                 </div>
             </div>
 
@@ -110,6 +115,7 @@ include 'header.php';
                 <div class="relative">
                     <select name="is_fasting" required
                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:border-orange-500 text-sm text-gray-900 appearance-none">
+                        <option value="2" selected>Not applicable</option>
                         <option value="0">Non-Fasting</option>
                         <option value="1">Fasting</option>
                     </select>

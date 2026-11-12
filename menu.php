@@ -196,7 +196,7 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
 
         .menu-page-title {
             color: #20332b;
-            font-size: clamp(1.75rem, 3vw, 2.35rem);
+            font-size: clamp(1.25rem, 3vw, 2.35rem);
             font-weight: 600;
             letter-spacing: -0.045em;
             line-height: 1.15;
@@ -206,6 +206,25 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
             width: min(22rem, calc(100vw - 2rem));
             max-height: min(75vh, 38rem);
             overflow-y: auto;
+        }
+
+        .call-action:hover .call-action-icon,
+        .call-action:focus-visible .call-action-icon {
+            animation: phone-ring 0.55s ease-in-out;
+            transform-origin: 50% 50%;
+        }
+
+        @keyframes phone-ring {
+            0%, 100% { transform: rotate(0); }
+            20%, 60% { transform: rotate(-12deg); }
+            40%, 80% { transform: rotate(12deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .call-action:hover .call-action-icon,
+            .call-action:focus-visible .call-action-icon {
+                animation: none;
+            }
         }
 
         .sticky-category-rail {
@@ -241,7 +260,7 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
 </head>
 
 <body class="bg-[#f7f7f2] text-[#20332b]"
-    x-data="{ mobileMenu: false, scrolled: false, searchQuery: '', dietFilter: 'all', paymentOpen: false, selectedPaymentQr: '', scrollCategoryRail(direction) { const rail = this.$refs.categoryRail; const scrollAmount = 200; if (direction === 'left') { rail.scrollLeft -= scrollAmount; } else { rail.scrollLeft += scrollAmount; } } }"
+    x-data="{ mobileMenu: false, scrolled: false, searchQuery: '', dietFilter: 'all', paymentOpen: false, selectedPaymentQr: '', categoryRailHasOverflow: false, categoryRailAtStart: true, categoryRailAtEnd: false, updateCategoryRail(rail) { if (!rail) return; this.categoryRailHasOverflow = rail.scrollWidth > rail.clientWidth + 2; this.categoryRailAtStart = rail.scrollLeft <= 2; this.categoryRailAtEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2; }, scrollCategoryRail(direction, rail) { if (rail) rail.scrollBy({ left: direction === 'left' ? -220 : 220, behavior: 'smooth' }); } }"
     @scroll.window="scrolled = window.pageYOffset > 50">
 
 
@@ -271,6 +290,13 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
 
                 <!-- Desktop payment menu -->
                 <div class="hidden md:flex items-center gap-5 lg:gap-6">
+                    <a href="tel:0926862255" aria-label="Call Tasty Pizza & Burger" title="Call us"
+                        class="call-action inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white transition-colors hover:border-amber-200/70 hover:bg-white/20 hover:text-amber-100 focus:outline-none focus:ring-2 focus:ring-white/70">
+                        <svg class="call-action-icon h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                d="M3 5a2 2 0 0 1 2-2h2.3a1 1 0 0 1 .95.68l1.1 3.3a1 1 0 0 1-.5 1.2l-1.65.82a11 11 0 0 0 4.8 4.8l.82-1.65a1 1 0 0 1 1.2-.5l3.3 1.1a1 1 0 0 1 .68.95V16a2 2 0 0 1-2 2h-1C8.4 18 3 12.6 3 6V5Z" />
+                        </svg>
+                    </a>
                     <div class="relative" @click.away="paymentOpen = false">
                         <button type="button" @click="paymentOpen = !paymentOpen" :aria-expanded="paymentOpen"
                             class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-white/20">
@@ -340,6 +366,13 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
 
                 <!-- Mobile payment menu -->
                 <div class="md:hidden flex items-center gap-2">
+                    <a href="tel:0926862255" aria-label="Call Tasty Pizza & Burger" title="Call us"
+                        class="call-action inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white transition-colors hover:border-amber-200/70 hover:bg-white/20 hover:text-amber-100 focus:outline-none focus:ring-2 focus:ring-white/70">
+                        <svg class="call-action-icon h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                d="M3 5a2 2 0 0 1 2-2h2.3a1 1 0 0 1 .95.68l1.1 3.3a1 1 0 0 1-.5 1.2l-1.65.82a11 11 0 0 0 4.8 4.8l.82-1.65a1 1 0 0 1 1.2-.5l3.3 1.1a1 1 0 0 1 .68.95V16a2 2 0 0 1-2 2h-1C8.4 18 3 12.6 3 6V5Z" />
+                        </svg>
+                    </a>
                     <div class="relative" @click.away="paymentOpen = false">
                         <button type="button" @click="paymentOpen = !paymentOpen" :aria-expanded="paymentOpen"
                             class="rounded-full border border-white/30 bg-white/10 px-3 py-2 text-xs font-bold text-white"
@@ -399,25 +432,29 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
             </div>
 
             <!-- Category rail (visible on all screens) -->
-            <div class="border-t border-gray-100/60 pt-5 mt-3">
+            <div class="border-t border-gray-100/60 pt-5 mt-3" x-init="$nextTick(() => updateCategoryRail($refs.categoryRail))" @resize.window="updateCategoryRail($refs.categoryRail)">
                 <div class="relative">
-                    <button @click="scrollCategoryRail('left')"
-                        class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur rounded-full p-2 shadow md:hidden">
+                    <div x-show="categoryRailHasOverflow && !categoryRailAtStart" x-cloak
+                        class="pointer-events-none absolute inset-y-0 left-0 z-[5] w-10 bg-gradient-to-r from-white/95 to-transparent"></div>
+                    <button type="button" x-show="categoryRailHasOverflow && !categoryRailAtStart" x-cloak
+                        @click="scrollCategoryRail('left', $refs.categoryRail)" aria-label="Scroll categories left"
+                        class="absolute left-1 top-1/2 -translate-y-1/2 z-10 bg-white/95 backdrop-blur rounded-full p-2 shadow-lg ring-1 ring-gray-200/80">
                         <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
                     </button>
 
-                    <div x-ref="categoryRail" class="flex gap-3 overflow-x-auto pb-3 scrollbar-hide px-4 md:px-0">
+                    <div x-ref="categoryRail" @scroll.passive="updateCategoryRail($el)"
+                        class="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth pb-3 scrollbar-hide px-4 md:px-0">
                         <a href="index.php"
-                            class="category-pill whitespace-nowrap px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider border transition-all <?= !$category_id ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-gray-600 border-gray-200 hover:border-orange-400 hover:text-orange-600' ?>">
+                            class="category-pill snap-start whitespace-nowrap px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider border transition-all <?= !$category_id ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-gray-600 border-gray-200 hover:border-orange-400 hover:text-orange-600' ?>">
                             All
                         </a>
 
                         <!-- Diet Filters (Dynamic) -->
                         <button @click="dietFilter = dietFilter === '1' ? 'all' : '1'"
                             :class="dietFilter === '1' ? 'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/20' : 'bg-white text-emerald-600 border-emerald-100 hover:border-emerald-500'"
-                            class="category-pill whitespace-nowrap px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider border transition-all flex items-center gap-1.5 focus:outline-none">
+                            class="category-pill snap-start whitespace-nowrap px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider border transition-all flex items-center gap-1.5 focus:outline-none">
                             <svg class="w-3.5 h-3.5" x-show="dietFilter === '1'" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
@@ -428,7 +465,7 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
 
                         <button @click="dietFilter = dietFilter === '0' ? 'all' : '0'"
                             :class="dietFilter === '0' ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/20' : 'bg-white text-rose-600 border-rose-100 hover:border-rose-500'"
-                            class="category-pill whitespace-nowrap px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider border transition-all flex items-center gap-1.5 focus:outline-none">
+                            class="category-pill snap-start whitespace-nowrap px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider border transition-all flex items-center gap-1.5 focus:outline-none">
                             <span class="w-2.5 h-2.5 rounded-full"
                                 :class="dietFilter === '0' ? 'bg-white animate-pulse' : 'bg-rose-500'"></span>
                             Non-Fasting
@@ -437,14 +474,17 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
                         <div class="w-px bg-gray-200 my-2 mx-1 hidden md:block"></div>
                         <?php foreach ($categories as $cat): ?>
                             <a href="index.php?cat=<?= $cat['id'] ?>"
-                                class="category-pill whitespace-nowrap px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider border transition-all <?= $category_id == $cat['id'] ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-gray-600 border-gray-200 hover:border-orange-400 hover:text-orange-600' ?>">
+                                class="category-pill snap-start whitespace-nowrap px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider border transition-all <?= $category_id == $cat['id'] ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-gray-600 border-gray-200 hover:border-orange-400 hover:text-orange-600' ?>">
                                 <?= htmlspecialchars($cat['name']) ?>
                             </a>
                         <?php endforeach; ?>
                     </div>
 
-                    <button @click="scrollCategoryRail('right')"
-                        class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur rounded-full p-2 shadow md:hidden">
+                    <div x-show="categoryRailHasOverflow && !categoryRailAtEnd" x-cloak
+                        class="pointer-events-none absolute inset-y-0 right-0 z-[5] w-14 bg-gradient-to-l from-white/95 via-white/75 to-transparent"></div>
+                    <button type="button" x-show="categoryRailHasOverflow && !categoryRailAtEnd" x-cloak
+                        @click="scrollCategoryRail('right', $refs.categoryRail)" aria-label="Scroll categories right"
+                        class="absolute right-1 top-1/2 -translate-y-1/2 z-10 bg-white/95 backdrop-blur rounded-full p-2 shadow-lg ring-1 ring-gray-200/80">
                         <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
@@ -535,18 +575,14 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
     <main class="pt-16 pb-32 md:pt-20 md:pb-48 min-h-screen">
         <div class="container mx-auto px-6 lg:px-12">
             <!-- Search & Page Title -->
-            <div class="flex flex-col lg:flex-row justify-between items-center mb-12 md:mb-16 gap-4 lg:gap-8">
-                <div class="reveal flex-1 text-center lg:text-left">
-                    <p class="menu-eyebrow uppercase mb-2">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500" aria-hidden="true"></span>
-                        Fresh from our kitchen
-                    </p>
-                    <h1 class="menu-page-title mb-0">
+            <div class="flex flex-row items-center justify-between mb-8 md:mb-16 gap-3 sm:gap-6">
+                <div class="reveal min-w-0 flex-[1.1] text-left">
+                    <h1 class="menu-page-title mb-0 truncate whitespace-nowrap">
                         <?= htmlspecialchars($current_category['name'] ?? 'The Vault') ?>
                     </h1>
                 </div>
 
-                <div class="w-full lg:w-96 relative group reveal delay-1">
+                <div class="w-[44%] shrink-0 sm:w-72 lg:w-96 relative group reveal delay-1">
                     <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -555,7 +591,7 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
                         </svg>
                     </div>
                     <input type="text" placeholder="Search Masterpieces..." x-model="searchQuery"
-                        class="w-full pl-12 pr-6 py-3 lg:py-4 bg-white border border-gray-100 rounded-full text-xs focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/5 transition-all shadow-sm">
+                        class="w-full pl-9 pr-3 py-3 sm:pl-12 sm:pr-6 lg:py-4 bg-white border border-gray-100 rounded-full text-[10px] sm:text-xs focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/5 transition-all shadow-sm">
                 </div>
             </div>
 
@@ -574,7 +610,7 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
                 <?php else: ?>
                     <?php foreach ($items as $index => $item): ?>
                         <div class="group relative flex flex-col h-full reveal menu-item-card" style="animation-delay: <?= $index * 0.05 ?>s"
-                            x-show="(searchQuery === '' || '<?= addslashes(strtolower($item['name'])) ?>'.includes(searchQuery.toLowerCase())) && (dietFilter === 'all' || dietFilter === '<?= isset($item['is_fasting']) ? $item['is_fasting'] : '0' ?>')">
+                            x-show="(searchQuery === '' || '<?= addslashes(strtolower($item['name'])) ?>'.includes(searchQuery.toLowerCase())) && (dietFilter === 'all' || dietFilter === '<?= isset($item['is_fasting']) ? (int) $item['is_fasting'] : '0' ?>')">
                             <!-- Image Container -->
                             <div
                                 class="menu-item-image rounded-[3rem] overflow-hidden relative mb-8 shadow-sm group-hover:shadow-2xl transition-all duration-500">
@@ -584,7 +620,7 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
 
                                 <!-- Dietary Badge Overlay -->
                                 <div class="absolute top-4 left-4 z-10 transition-transform duration-500 group-hover:scale-105">
-                                    <?php if (isset($item['is_fasting']) && $item['is_fasting']): ?>
+                                    <?php if (isset($item['is_fasting']) && (int) $item['is_fasting'] === 1): ?>
                                         <span
                                             class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-500/40 backdrop-blur-xl text-white text-[9px] font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-500/20 border border-white/30">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -593,7 +629,7 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
                                             </svg>
                                             Fasting
                                         </span>
-                                    <?php else: ?>
+                                    <?php elseif (isset($item['is_fasting']) && (int) $item['is_fasting'] === 0): ?>
                                         <span
                                             class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-600/40 backdrop-blur-xl text-white text-[9px] font-black uppercase tracking-[0.2em] shadow-lg shadow-rose-600/20 border border-white/30">
                                             <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
