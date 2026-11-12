@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1f322e">
+    <title>You're offline | Tasty Pizza &amp; Burger</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background: #f7f7f2;
+            color: #20332b;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        main {
+            width: min(100%, 440px);
+            padding: 40px 32px;
+            border: 1px solid rgba(31, 50, 46, .1);
+            border-radius: 28px;
+            background: #fff;
+            box-shadow: 0 20px 60px rgba(27, 52, 43, .1);
+            text-align: center;
+        }
+        .mark {
+            display: grid;
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 24px;
+            place-items: center;
+            border-radius: 24px;
+            background: #1f4d3e;
+            color: #ffd052;
+            font-size: 34px;
+            font-weight: 800;
+        }
+        h1 { margin: 0; font-size: 25px; }
+        p { margin: 12px 0 24px; color: #66716b; line-height: 1.6; }
+        a {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 14px;
+            background: #1f4d3e;
+            color: white;
+            font-weight: 700;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="mark" aria-hidden="true">T</div>
+        <h1>You're offline</h1>
+        <p>Reconnect to the internet to refresh the menu and payment details. Any menu page you previously opened may still be available.</p>
+        <a href="./index.php">Try again</a>
+    </main>
+</body>
+</html>

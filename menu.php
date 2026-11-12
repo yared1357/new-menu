@@ -57,6 +57,11 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($current_category['name'] ?? 'Menu') ?> | Tasty Pizza & Burger</title>
+    <meta name="theme-color" content="#1f322e">
+    <meta name="description" content="Browse the Tasty Pizza & Burger menu, payment details, and customer feedback.">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="assets/pwa/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="assets/pwa/icon-192.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -375,8 +380,19 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
                     </a>
                     <div class="relative" @click.away="paymentOpen = false">
                         <button type="button" @click="paymentOpen = !paymentOpen" :aria-expanded="paymentOpen"
-                            class="rounded-full border border-white/30 bg-white/10 px-3 py-2 text-xs font-bold text-white"
-                            aria-label="Payment accounts">Pay</button>
+                            class="inline-flex items-center justify-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3.5 py-2 text-xs font-bold text-white transition-colors hover:bg-white/20"
+                            aria-label="Payment accounts">
+                            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                    d="M3 7h18M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm1 13h5" />
+                            </svg>
+                            Payment
+                            <svg class="h-3.5 w-3.5 shrink-0 transition-transform" :class="paymentOpen ? 'rotate-180' : ''"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="m19 9-7 7-7-7" />
+                            </svg>
+                        </button>
                         <div x-show="paymentOpen" x-cloak
                             class="payment-menu-panel absolute right-0 top-full z-[220] mt-3 rounded-2xl border border-gray-100 bg-white p-4 text-left text-gray-800 shadow-2xl">
                             <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">Payment accounts</h2>
@@ -702,6 +718,13 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
                         Fresh from our kitchen
                     </span>
                     <p class="mt-3 text-lg font-semibold text-white sm:text-xl">Tasty Pizza & Burger</p>
+                    <button id="pwa-install-button" type="button"
+                        class="hidden mt-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold text-white transition hover:border-amber-200/50 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-amber-200/70">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" />
+                        </svg>
+                        Install app
+                    </button>
                 </div>
 
                 <div class="flex items-center justify-center gap-3 md:justify-end">
@@ -736,6 +759,23 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
             </div>
         </div>
     </footer>
+
+    <dialog id="pwa-install-help" aria-labelledby="pwa-install-title"
+        class="w-[calc(100%-2rem)] max-w-md rounded-3xl border border-white/70 bg-white p-0 text-[#20332b] shadow-2xl backdrop:bg-[#102720]/60">
+        <div class="p-6 sm:p-8">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800">
+                <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" />
+                </svg>
+            </div>
+            <h2 id="pwa-install-title" class="mt-4 text-center text-xl font-bold">Install Tasty Pizza</h2>
+            <p id="pwa-install-instructions" class="mt-2 text-center text-sm leading-6 text-gray-600"></p>
+            <button type="button" id="pwa-install-close"
+                class="mt-6 w-full rounded-xl bg-[#1f4d3e] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#173b34]">
+                Got it
+            </button>
+        </div>
+    </dialog>
 
     <!-- Floating Feedback Trigger -->
     <div x-data="{
@@ -853,6 +893,50 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
             </div>
         </div>
     </div>
+
+    <script>
+        (() => {
+            const installButton = document.getElementById('pwa-install-button');
+            const installDialog = document.getElementById('pwa-install-help');
+            const instructions = document.getElementById('pwa-install-instructions');
+            const closeButton = document.getElementById('pwa-install-close');
+            let installPrompt = null;
+            const isInstalled = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+
+            installButton.classList.toggle('hidden', isInstalled);
+
+            window.addEventListener('beforeinstallprompt', event => {
+                event.preventDefault();
+                installPrompt = event;
+                installButton.classList.remove('hidden');
+            });
+
+            installButton.addEventListener('click', async () => {
+                if (installPrompt) {
+                    installPrompt.prompt();
+                    await installPrompt.userChoice;
+                    installPrompt = null;
+                    return;
+                }
+
+                const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+                instructions.textContent = isIos
+                    ? 'In Safari, tap Share, then choose “Add to Home Screen”.'
+                    : 'Open your browser menu and choose “Install app” or “Add to Home Screen”.';
+                installDialog.showModal();
+            });
+
+            closeButton.addEventListener('click', () => installDialog.close());
+            installDialog.addEventListener('click', event => {
+                if (event.target === installDialog) installDialog.close();
+            });
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .catch(error => console.error('Service worker registration failed:', error));
+            }
+        })();
+    </script>
 
 </body>
 
