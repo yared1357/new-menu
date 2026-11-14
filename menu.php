@@ -211,6 +211,12 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
             width: min(22rem, calc(100vw - 2rem));
             max-height: min(75vh, 38rem);
             overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 1.5rem;
+            background: linear-gradient(135deg, #1f322e, #153b34 58%, #3a2314);
+            color: white;
+            padding: 1.25rem;
+            box-shadow: 0 24px 60px rgba(16, 39, 32, 0.3);
         }
 
         .call-action:hover .call-action-icon,
@@ -317,26 +323,50 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
                             </svg>
                         </button>
                         <div x-show="paymentOpen" x-cloak
-                            class="payment-menu-panel absolute right-0 top-full z-[220] mt-3 rounded-2xl border border-gray-100 bg-white p-4 text-left text-gray-800 shadow-2xl">
-                            <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">Payment accounts</h2>
+                            class="payment-menu-panel absolute right-0 top-full z-[220] mt-3 text-left">
+                            <div class="mb-5 flex items-center justify-between gap-3">
+                                <div class="flex min-w-0 items-center gap-3">
+                                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-amber-200">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7.5A2.5 2.5 0 0 1 5.5 5h13A2.5 2.5 0 0 1 21 7.5V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5Zm0 0H21M7 11h4" />
+                                        </svg>
+                                    </span>
+                                    <div class="min-w-0">
+                                        <h2 class="text-base font-bold text-white">Payment</h2>
+                                        <p class="text-xs text-orange-100/75">Choose a method to pay</p>
+                                    </div>
+                                </div>
+                                <button type="button" @click="paymentOpen = false"
+                                    class="shrink-0 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-orange-100 transition hover:bg-white/10">Close</button>
+                            </div>
                             <?php if (!$payment_accounts): ?>
-                                <p class="rounded-xl bg-gray-50 p-4 text-sm text-gray-500">Payment details are not available yet.</p>
+                                <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
+                                    <p class="text-sm font-semibold text-white">No payment methods available</p>
+                                    <p class="mt-1 text-xs text-orange-100/70">Please check back later.</p>
+                                </div>
                             <?php else: ?>
                                 <div class="space-y-3">
                                     <?php foreach ($payment_accounts as $account): ?>
-                                        <article class="rounded-xl border border-gray-100 p-3">
-                                            <h3 class="font-bold text-gray-900"><?= htmlspecialchars($account['provider']) ?></h3>
-                                            <p class="mt-1 text-xs text-gray-500"><?= htmlspecialchars($account['account_name']) ?></p>
-                                            <p class="mt-1 break-all font-semibold text-gray-800"><?= htmlspecialchars($account['account_number']) ?></p>
+                                        <article class="rounded-2xl border border-white/15 bg-white/[0.08] p-4">
+                                            <div class="flex items-center justify-between gap-3">
+                                                <div class="min-w-0">
+                                                    <h3 class="truncate text-sm font-bold text-white"><?= htmlspecialchars($account['provider']) ?></h3>
+                                                    <p class="mt-0.5 truncate text-xs text-orange-100/70"><?= htmlspecialchars($account['account_name']) ?></p>
+                                                </div>
+                                                <?php if (!empty($account['qr_image'])): ?>
+                                                    <button type="button"
+                                                        @click.stop="selectedPaymentQr = '<?= htmlspecialchars($account['qr_image'], ENT_QUOTES) ?>'; paymentOpen = false"
+                                                        class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-amber-300 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-[#263b30] transition hover:bg-amber-200">
+                                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM19 14v2m-5 3h2m3 2h2v-3" />
+                                                        </svg>
+                                                        View QR
+                                                    </button>
+                                                <?php endif; ?>
+                                            </div>
+                                            <p class="mt-3 break-all rounded-xl border border-white/10 bg-black/10 px-3 py-2.5 text-sm font-semibold tracking-wide text-white"><?= htmlspecialchars($account['account_number']) ?></p>
                                             <?php if (!empty($account['qr_image'])): ?>
-                                                <button type="button"
-                                                    @click.stop="selectedPaymentQr = '<?= htmlspecialchars($account['qr_image'], ENT_QUOTES) ?>'"
-                                                    class="mt-3 flex w-full items-center gap-3 rounded-lg bg-gray-50 p-2 text-left hover:bg-emerald-50">
-                                                    <img src="<?= htmlspecialchars($account['qr_image']) ?>"
-                                                        alt="QR code for <?= htmlspecialchars($account['provider']) ?>"
-                                                        class="h-14 w-14 rounded-md bg-white object-contain p-1">
-                                                    <span class="text-xs font-semibold text-emerald-800">View QR code</span>
-                                                </button>
+                                                <p class="mt-2 text-right text-[10px] font-medium text-orange-100/60">Scan to pay</p>
                                             <?php endif; ?>
                                         </article>
                                     <?php endforeach; ?>
@@ -394,26 +424,50 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
                             </svg>
                         </button>
                         <div x-show="paymentOpen" x-cloak
-                            class="payment-menu-panel absolute right-0 top-full z-[220] mt-3 rounded-2xl border border-gray-100 bg-white p-4 text-left text-gray-800 shadow-2xl">
-                            <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">Payment accounts</h2>
+                            class="payment-menu-panel absolute right-0 top-full z-[220] mt-3 text-left">
+                            <div class="mb-5 flex items-center justify-between gap-3">
+                                <div class="flex min-w-0 items-center gap-3">
+                                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-amber-200">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7.5A2.5 2.5 0 0 1 5.5 5h13A2.5 2.5 0 0 1 21 7.5V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5Zm0 0H21M7 11h4" />
+                                        </svg>
+                                    </span>
+                                    <div class="min-w-0">
+                                        <h2 class="text-base font-bold text-white">Payment</h2>
+                                        <p class="text-xs text-orange-100/75">Choose a method to pay</p>
+                                    </div>
+                                </div>
+                                <button type="button" @click="paymentOpen = false"
+                                    class="shrink-0 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-orange-100 transition hover:bg-white/10">Close</button>
+                            </div>
                             <?php if (!$payment_accounts): ?>
-                                <p class="rounded-xl bg-gray-50 p-4 text-sm text-gray-500">Payment details are not available yet.</p>
+                                <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
+                                    <p class="text-sm font-semibold text-white">No payment methods available</p>
+                                    <p class="mt-1 text-xs text-orange-100/70">Please check back later.</p>
+                                </div>
                             <?php else: ?>
                                 <div class="space-y-3">
                                     <?php foreach ($payment_accounts as $account): ?>
-                                        <article class="rounded-xl border border-gray-100 p-3">
-                                            <h3 class="font-bold text-gray-900"><?= htmlspecialchars($account['provider']) ?></h3>
-                                            <p class="mt-1 text-xs text-gray-500"><?= htmlspecialchars($account['account_name']) ?></p>
-                                            <p class="mt-1 break-all font-semibold text-gray-800"><?= htmlspecialchars($account['account_number']) ?></p>
+                                        <article class="rounded-2xl border border-white/15 bg-white/[0.08] p-4">
+                                            <div class="flex items-center justify-between gap-3">
+                                                <div class="min-w-0">
+                                                    <h3 class="truncate text-sm font-bold text-white"><?= htmlspecialchars($account['provider']) ?></h3>
+                                                    <p class="mt-0.5 truncate text-xs text-orange-100/70"><?= htmlspecialchars($account['account_name']) ?></p>
+                                                </div>
+                                                <?php if (!empty($account['qr_image'])): ?>
+                                                    <button type="button"
+                                                        @click.stop="selectedPaymentQr = '<?= htmlspecialchars($account['qr_image'], ENT_QUOTES) ?>'; paymentOpen = false"
+                                                        class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-amber-300 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-[#263b30] transition hover:bg-amber-200">
+                                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM19 14v2m-5 3h2m3 2h2v-3" />
+                                                        </svg>
+                                                        View QR
+                                                    </button>
+                                                <?php endif; ?>
+                                            </div>
+                                            <p class="mt-3 break-all rounded-xl border border-white/10 bg-black/10 px-3 py-2.5 text-sm font-semibold tracking-wide text-white"><?= htmlspecialchars($account['account_number']) ?></p>
                                             <?php if (!empty($account['qr_image'])): ?>
-                                                <button type="button"
-                                                    @click.stop="selectedPaymentQr = '<?= htmlspecialchars($account['qr_image'], ENT_QUOTES) ?>'"
-                                                    class="mt-3 flex w-full items-center gap-3 rounded-lg bg-gray-50 p-2 text-left hover:bg-emerald-50">
-                                                    <img src="<?= htmlspecialchars($account['qr_image']) ?>"
-                                                        alt="QR code for <?= htmlspecialchars($account['provider']) ?>"
-                                                        class="h-14 w-14 rounded-md bg-white object-contain p-1">
-                                                    <span class="text-xs font-semibold text-emerald-800">View QR code</span>
-                                                </button>
+                                                <p class="mt-2 text-right text-[10px] font-medium text-orange-100/60">Scan to pay</p>
                                             <?php endif; ?>
                                         </article>
                                     <?php endforeach; ?>
