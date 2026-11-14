@@ -807,7 +807,7 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
                         <span class="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-orange-100">
                             Open daily
                         </span>
-                        <p class="font-heading mt-3 text-lg font-semibold leading-snug text-white sm:text-xl lg:text-2xl">Fresh meals, warm service, and a great dining vibe.</p>
+                        <p class="font-heading mt-3 text-lg font-semibold leading-snug text-white sm:text-xl lg:text-2xl">Fresh Meals</p>
                     </div>
                 </div>
             </div>
