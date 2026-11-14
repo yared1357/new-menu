@@ -265,7 +265,7 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
 </head>
 
 <body class="bg-[#f7f7f2] text-[#20332b]"
-    x-data="{ mobileMenu: false, scrolled: false, searchQuery: '', dietFilter: 'all', paymentOpen: false, selectedPaymentQr: '', categoryRailHasOverflow: false, categoryRailAtStart: true, categoryRailAtEnd: false, updateCategoryRail(rail) { if (!rail) return; this.categoryRailHasOverflow = rail.scrollWidth > rail.clientWidth + 2; this.categoryRailAtStart = rail.scrollLeft <= 2; this.categoryRailAtEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2; }, scrollCategoryRail(direction, rail) { if (rail) rail.scrollBy({ left: direction === 'left' ? -220 : 220, behavior: 'smooth' }); } }"
+    x-data="{ mobileMenu: false, scrolled: false, searchQuery: '', dietFilter: 'all', paymentOpen: false, selectedPaymentQr: '', categoryRailHasOverflow: false, categoryRailAtStart: true, categoryRailAtEnd: false, mobilePaymentOpen: false, mobileSocialOpen: false, updateCategoryRail(rail) { if (!rail) return; this.categoryRailHasOverflow = rail.scrollWidth > rail.clientWidth + 2; this.categoryRailAtStart = rail.scrollLeft <= 2; this.categoryRailAtEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2; }, scrollCategoryRail(direction, rail) { if (rail) rail.scrollBy({ left: direction === 'left' ? -220 : 220, behavior: 'smooth' }); } }"
     @scroll.window="scrolled = window.pageYOffset > 50">
 
 
@@ -588,7 +588,7 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
             </div>
         </div>
     </div>
-    <main class="pt-16 pb-32 md:pt-20 md:pb-48 min-h-screen">
+    <main id="menu-section" class="pt-16 pb-32 md:pt-20 md:pb-48 min-h-screen">
         <div class="container mx-auto px-6 lg:px-12">
             <!-- Search & Page Title -->
             <div class="flex flex-row items-center justify-between mb-8 md:mb-16 gap-3 sm:gap-6">
@@ -710,55 +710,178 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
         </div>
     </main>
 
-    <footer class="mt-10 border-t border-orange-300/40 bg-gradient-to-r from-[#1f322e] via-[#153b34] to-[#3a2314] text-white shadow-[0_-12px_30px_rgba(0,0,0,0.08)]">
-        <div class="container mx-auto px-4 py-8 sm:px-6 lg:px-12">
-            <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                <div class="text-center md:text-left">
-                    <span class="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-orange-100">
-                        Fresh from our kitchen
-                    </span>
-                    <p class="mt-3 text-lg font-semibold text-white sm:text-xl">Tasty Pizza & Burger</p>
-                    <button id="pwa-install-button" type="button"
-                        class="hidden mt-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold text-white transition hover:border-amber-200/50 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-amber-200/70">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" />
-                        </svg>
-                        Install app
-                    </button>
-                </div>
+    <footer class="mt-10 hidden border-t border-orange-300/40 bg-gradient-to-r from-[#1f322e] via-[#153b34] to-[#3a2314] text-white shadow-[0_-12px_30px_rgba(0,0,0,0.08)] md:block">
+        <div class="container mx-auto px-4 py-5 sm:px-6 lg:px-12">
+            <div class="hidden md:block">
+                <div class="flex flex-col gap-6 pb-6 md:flex-row md:items-center md:justify-between">
+                    <div class="text-center md:text-left">
+                        <span class="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-orange-100">
+                            Fresh from our kitchen
+                        </span>
+                        <p class="mt-3 text-lg font-semibold text-white sm:text-xl">Tasty Pizza &amp; Burger</p>
+                        <button id="pwa-install-button" type="button"
+                            class="hidden mt-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold text-white transition hover:border-amber-200/50 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-amber-200/70">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" />
+                            </svg>
+                            Install app
+                        </button>
+                    </div>
 
-                <div class="flex items-center justify-center gap-3 md:justify-end">
-                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"
-                        class="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-orange-600">
-                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M13.5 22v-8h2.5l.4-3h-2.9V7.5c0-.9.3-1.5 1.6-1.5H16V3.1c-.3-.1-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4V11H7.5v3h2.3v8h3.7Z"/>
-                        </svg>
-                    </a>
-                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
-                        class="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-orange-600">
-                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.2A4.8 4.8 0 1 1 7.2 12 4.8 4.8 0 0 1 12 7.2Zm0 2A2.8 2.8 0 1 0 14.8 12 2.8 2.8 0 0 0 12 9.2Zm5.2-3.1a1.1 1.1 0 1 1-1.1 1.1 1.1 1.1 0 0 1 1.1-1.1Z"/>
-                        </svg>
-                    </a>
-                    <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" aria-label="TikTok"
-                        class="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-orange-600">
-                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M16 3c.6 1.8 2 3 4 3v2.7c-1.3 0-2.4-.2-3.4-.8V13a5.5 5.5 0 1 1-5.5-5.5c.3 0 .6.1.9.1v2.8a3.1 3.1 0 0 0-.9-.1A3.1 3.1 0 0 0 7 13a3.1 3.1 0 0 0 3.1 3.1A3.1 3.1 0 0 0 13.2 13V3h2.8Z"/>
-                        </svg>
-                    </a>
-                </div>
+                    <div class="flex items-center justify-center gap-3 md:justify-end">
+                        <button type="button" aria-label="Facebook link coming soon" title="Facebook link coming soon"
+                            class="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-orange-600">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M13.5 22v-8h2.5l.4-3h-2.9V7.5c0-.9.3-1.5 1.6-1.5H16V3.1c-.3-.1-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4V11H7.5v3h2.3v8h3.7Z" />
+                            </svg>
+                        </button>
+                        <button type="button" aria-label="Instagram link coming soon" title="Instagram link coming soon"
+                            class="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-orange-600">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.2A4.8 4.8 0 1 1 7.2 12 4.8 4.8 0 0 1 12 7.2Zm0 2A2.8 2.8 0 1 0 14.8 12 2.8 2.8 0 0 0 12 9.2Zm5.2-3.1a1.1 1.1 0 1 1-1.1 1.1 1.1 1.1 0 0 1 1.1-1.1Z" />
+                            </svg>
+                        </button>
+                        <button type="button" aria-label="TikTok link coming soon" title="TikTok link coming soon"
+                            class="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-orange-600">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M16 3c.6 1.8 2 3 4 3v2.7c-1.3 0-2.4-.2-3.4-.8V13a5.5 5.5 0 1 1-5.5-5.5c.3 0 .6.1.9.1v2.8a3.1 3.1 0 0 0-.9-.1A3.1 3.1 0 0 0 7 13a3.1 3.1 0 0 0 3.1 3.1A3.1 3.1 0 0 0 13.2 13V3h2.8Z" />
+                            </svg>
+                        </button>
+                    </div>
 
-                <div class="text-center md:text-right">
-                    <p class="text-xs font-medium uppercase tracking-[0.2em] text-orange-100/90">Open daily</p>
-                    <p class="mt-2 text-sm text-white/80">Fresh meals, warm service, and a great dining vibe.</p>
+                    <div class="text-center md:text-right">
+                        <span class="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-orange-100">
+                            Open daily
+                        </span>
+                        <p class="mt-3 text-sm text-white/80">Fresh meals, warm service, and a great dining vibe.</p>
+                    </div>
                 </div>
             </div>
-
-            <div class="mt-6 border-t border-white/10 pt-4 text-center text-xs text-orange-100/80 sm:text-sm">
+            <div class="text-center text-xs text-orange-100/80 sm:text-sm">
                 <p>Copyrights &copy; 2026 Tasty Pizza & Burger. Developed By Y-Global System Solution All rights reserved.</p>
             </div>
         </div>
     </footer>
+
+    <nav class="fixed inset-x-0 bottom-3 z-[180] mx-auto w-[calc(100%-1.25rem)] rounded-[1.75rem] border border-orange-200/25 bg-gradient-to-r from-[#1f322e] via-[#153b34] to-[#3a2314] p-2 text-white shadow-[0_18px_50px_rgba(20,45,36,0.28)] backdrop-blur-xl md:hidden">
+        <div class="grid grid-cols-4 gap-1">
+            <button type="button"
+                @click="window.scrollTo({ top: 0, behavior: 'smooth' });"
+                class="flex flex-col items-center justify-center gap-1 rounded-2xl px-0 py-2 text-[9px] font-semibold text-orange-50 transition hover:bg-white/10">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1v-9.5Z" />
+                </svg>
+                <span>Home</span>
+            </button>
+
+            <button type="button"
+                @click="document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });"
+                class="flex flex-col items-center justify-center gap-1 rounded-2xl px-0 py-2 text-[9px] font-semibold text-orange-50 transition hover:bg-white/10">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-11Zm3 2h10M7 12h10M7 15.5h7" />
+                </svg>
+                <span>Dishes</span>
+            </button>
+
+            <button type="button"
+                @click="mobilePaymentOpen = true"
+                class="flex flex-col items-center justify-center gap-1 rounded-2xl px-0 py-2 text-[9px] font-semibold text-orange-50 transition hover:bg-white/10">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7.5A2.5 2.5 0 0 1 5.5 5h13A2.5 2.5 0 0 1 21 7.5V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5Zm0 0H21M7 11h4" />
+                </svg>
+                <span>Payment</span>
+            </button>
+
+            <button type="button" @click="mobileSocialOpen = true" :aria-expanded="mobileSocialOpen" aria-label="Open social media"
+                class="flex flex-col items-center justify-center gap-1 rounded-2xl px-0 py-2 text-[9px] font-semibold text-orange-50 transition hover:bg-white/10">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M18 8a3 3 0 1 0-2.83-4M6 14a3 3 0 1 0 0-4m12 11a3 3 0 1 0-2.83-4M8.7 10.7l6.6-3.4m-6.6 6 6.6 3.4" />
+                </svg>
+                <span>Social</span>
+            </button>
+        </div>
+    </nav>
+
+    <div x-show="mobilePaymentOpen" x-cloak x-transition
+        class="fixed inset-0 z-[190] flex items-end justify-center bg-[#102720]/50 p-4 md:hidden">
+        <div @click.away="mobilePaymentOpen = false" class="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-t-[2rem] bg-gradient-to-br from-[#1f322e] via-[#153b34] to-[#3a2314] p-5 text-white shadow-2xl">
+            <div class="mx-auto mb-4 h-1.5 w-16 rounded-full bg-white/30"></div>
+            <div class="mb-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-amber-200">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7.5A2.5 2.5 0 0 1 5.5 5h13A2.5 2.5 0 0 1 21 7.5V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5Zm0 0H21M7 11h4" />
+                        </svg>
+                    </span>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Payment</h3>
+                        <p class="text-xs text-orange-100/75">Choose a method to pay</p>
+                    </div>
+                </div>
+                <button type="button" @click="mobilePaymentOpen = false" class="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-orange-100 transition hover:bg-white/10">Close</button>
+            </div>
+            <div class="space-y-3">
+                <?php if (!$payment_accounts): ?>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-5 text-center">
+                        <p class="text-sm font-semibold text-white">No payment methods available</p>
+                        <p class="mt-1 text-xs text-orange-100/70">Please check back later.</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($payment_accounts as $account): ?>
+                        <div class="rounded-2xl border border-white/15 bg-white/[0.08] p-4 backdrop-blur-sm">
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="min-w-0">
+                                    <p class="truncate text-sm font-bold text-white"><?= htmlspecialchars($account['provider']) ?></p>
+                                    <p class="mt-0.5 truncate text-xs text-orange-100/70"><?= htmlspecialchars($account['account_name']) ?></p>
+                                </div>
+                                <?php if (!empty($account['qr_image'])): ?>
+                                    <button type="button" @click="selectedPaymentQr = '<?= htmlspecialchars($account['qr_image'], ENT_QUOTES) ?>'; mobilePaymentOpen = false;" class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-amber-300 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-[#263b30] transition hover:bg-amber-200">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM19 14v2m-5 3h2m3 2h2v-3" />
+                                        </svg>
+                                        View QR
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                            <p class="mt-3 break-all rounded-xl border border-white/10 bg-black/10 px-3 py-2.5 text-sm font-semibold tracking-wide text-white"><?= htmlspecialchars($account['account_number']) ?></p>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="mobileSocialOpen" x-cloak x-transition
+        class="fixed inset-0 z-[190] flex items-end justify-center bg-[#102720]/50 p-4 md:hidden">
+        <div @click.away="mobileSocialOpen = false" class="w-full max-w-md rounded-t-[2rem] bg-gradient-to-br from-[#1f322e] via-[#153b34] to-[#3a2314] p-5 text-white shadow-2xl">
+            <div class="mx-auto mb-4 h-1.5 w-16 rounded-full bg-white/30"></div>
+            <div class="mb-5 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-white">Social media</h3>
+                <button type="button" @click="mobileSocialOpen = false" class="text-sm font-medium text-orange-100">Close</button>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <button type="button" @click="mobileSocialOpen = false" class="flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-center transition hover:bg-white/10">
+                    <span class="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-white">
+                        <svg class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.5l.4-3h-2.9V7.5c0-.9.3-1.5 1.6-1.5H16V3.1c-.3-.1-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4V11H7.5v3h2.3v8h3.7Z" /></svg>
+                    </span>
+                    <span class="text-xs font-bold uppercase tracking-[0.18em] text-orange-100">Facebook</span>
+                </button>
+                <button type="button" @click="mobileSocialOpen = false" class="flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-center transition hover:bg-white/10">
+                    <span class="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-white">
+                        <svg class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.2A4.8 4.8 0 1 1 7.2 12 4.8 4.8 0 0 1 12 7.2Zm0 2A2.8 2.8 0 1 0 14.8 12 2.8 2.8 0 0 0 12 9.2Zm5.2-3.1a1.1 1.1 0 1 1-1.1 1.1 1.1 1.1 0 0 1 1.1-1.1Z" /></svg>
+                    </span>
+                    <span class="text-xs font-bold uppercase tracking-[0.18em] text-orange-100">Instagram</span>
+                </button>
+                <button type="button" @click="mobileSocialOpen = false" class="flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-center transition hover:bg-white/10">
+                    <span class="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-white">
+                        <svg class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3c.6 1.8 2 3 4 3v2.7c-1.3 0-2.4-.2-3.4-.8V13a5.5 5.5 0 1 1-5.5-5.5c.3 0 .6.1.9.1v2.8a3.1 3.1 0 0 0-.9-.1A3.1 3.1 0 0 0 7 13a3.1 3.1 0 0 0 3.1 3.1A3.1 3.1 0 0 0 13.2 13V3h2.8Z" /></svg>
+                    </span>
+                    <span class="text-xs font-bold uppercase tracking-[0.18em] text-orange-100">TikTok</span>
+                </button>
+            </div>
+            <p class="mt-5 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-center text-xs text-orange-100/80">Links are ready for your profile handles when you add them.</p>
+        </div>
+    </div>
 
     <dialog id="pwa-install-help" aria-labelledby="pwa-install-title"
         class="w-[calc(100%-2rem)] max-w-md rounded-3xl border border-white/70 bg-white p-0 text-[#20332b] shadow-2xl backdrop:bg-[#102720]/60">
@@ -784,11 +907,11 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
             stars: 0
          }"
         x-init="if(showSuccess) { setTimeout(() => { showSuccess = false; feedbackOpen = false; history.replaceState(null, '', window.location.pathname); }, 3000) }"
-        class="fixed bottom-8 right-8 z-[200]">
+        class="fixed bottom-24 right-4 z-[200] md:bottom-8 md:right-8">
 
         <!-- Floating Feedback Button -->
         <button @click="feedbackOpen = !feedbackOpen"
-            class="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-700 text-white rounded-full shadow-2xl shadow-orange-500/40 flex items-center justify-center hover:scale-110 transition-all duration-300 active:scale-95 relative">
+            class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-700 text-white shadow-2xl shadow-orange-500/40 transition-all duration-300 hover:scale-110 active:scale-95 relative md:h-16 md:w-16">
             <!-- Pulse ring -->
             <span class="absolute inset-0 rounded-full animate-ping bg-orange-400 opacity-20"></span>
             <!-- Chat icon -->
@@ -810,12 +933,6 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
             </template>
         </button>
 
-        <!-- Tooltip label -->
-        <div x-show="!feedbackOpen" x-transition
-            class="absolute bottom-0 right-20 whitespace-nowrap bg-orange-600 text-white text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-full shadow-xl pointer-events-none">
-            Feed Back
-        </div>
-
         <!-- Feedback Form Panel -->
         <div x-show="feedbackOpen" x-transition:enter="transition ease-out duration-300 transform"
             x-transition:enter-start="opacity-0 translate-y-10 scale-90"
@@ -823,7 +940,7 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
             x-transition:leave="transition ease-in duration-200 transform"
             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
             x-transition:leave-end="opacity-0 translate-y-10 scale-90" @click.away="feedbackOpen = false"
-            class="absolute bottom-20 right-0 w-72 sm:w-80 bg-white/95 backdrop-blur-2xl rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-gray-100 max-h-[80vh] overflow-y-auto"
+            class="absolute bottom-16 right-0 w-[min(20rem,calc(100vw-2rem))] overflow-y-auto rounded-3xl border border-gray-100 bg-white/95 shadow-[0_20px_60px_rgba(0,0,0,0.12)] backdrop-blur-2xl max-h-[calc(100dvh-10rem)] sm:w-80 md:bottom-20 md:max-h-[80vh]"
             x-cloak>
 
             <div class="p-6 text-gray-900 text-center">
@@ -903,33 +1020,36 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
             let installPrompt = null;
             const isInstalled = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 
-            installButton.classList.toggle('hidden', isInstalled);
+            if (installButton) {
+                installButton.classList.toggle('hidden', isInstalled);
 
-            window.addEventListener('beforeinstallprompt', event => {
-                event.preventDefault();
-                installPrompt = event;
-                installButton.classList.remove('hidden');
-            });
+                window.addEventListener('beforeinstallprompt', event => {
+                    if (!window.matchMedia('(min-width: 768px)').matches) return;
+                    event.preventDefault();
+                    installPrompt = event;
+                    installButton.classList.remove('hidden');
+                });
 
-            installButton.addEventListener('click', async () => {
-                if (installPrompt) {
-                    installPrompt.prompt();
-                    await installPrompt.userChoice;
-                    installPrompt = null;
-                    return;
-                }
+                installButton.addEventListener('click', async () => {
+                    if (installPrompt) {
+                        installPrompt.prompt();
+                        await installPrompt.userChoice;
+                        installPrompt = null;
+                        return;
+                    }
 
-                const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-                instructions.textContent = isIos
-                    ? 'In Safari, tap Share, then choose “Add to Home Screen”.'
-                    : 'Open your browser menu and choose “Install app” or “Add to Home Screen”.';
-                installDialog.showModal();
-            });
+                    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+                    instructions.textContent = isIos
+                        ? 'In Safari, tap Share, then choose “Add to Home Screen”.'
+                        : 'Open your browser menu and choose “Install app” or “Add to Home Screen”.';
+                    installDialog.showModal();
+                });
 
-            closeButton.addEventListener('click', () => installDialog.close());
-            installDialog.addEventListener('click', event => {
-                if (event.target === installDialog) installDialog.close();
-            });
+                closeButton.addEventListener('click', () => installDialog.close());
+                installDialog.addEventListener('click', event => {
+                    if (event.target === installDialog) installDialog.close();
+                });
+            }
 
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./service-worker.js')
