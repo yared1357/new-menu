@@ -98,4 +98,42 @@ CREATE TABLE `feedback` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `payment_accounts`
+--
+
+CREATE TABLE `payment_accounts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `provider` varchar(120) NOT NULL,
+  `account_name` varchar(160) NOT NULL,
+  `account_number` varchar(120) NOT NULL,
+  `qr_image` text,
+  `is_active` tinyint(1) DEFAULT 1,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `social_links`
+--
+
+CREATE TABLE `social_links` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `platform` varchar(50) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `url` text NOT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `sort_order` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `social_links` (`platform`, `name`, `url`, `is_active`, `sort_order`) VALUES
+('facebook', 'Facebook', 'https://facebook.com/yourpage', 1, 10),
+('instagram', 'Instagram', 'https://instagram.com/yourpage', 1, 20),
+('tiktok', 'TikTok', 'https://tiktok.com/@yourprofile', 1, 30),
+('telegram', 'Telegram', 'https://t.me/yourchannel', 1, 40);
+
 COMMIT;

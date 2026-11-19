@@ -112,6 +112,30 @@ try {
         is_active INTEGER DEFAULT 1
     )");
 
+    $pdo->exec("CREATE TABLE IF NOT EXISTS social_links (
+        id $pk,
+        platform VARCHAR(50) NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        url $longtext NOT NULL,
+        is_active INTEGER DEFAULT 1,
+        sort_order INTEGER DEFAULT 0
+    )");
+    $addColumn('social_links', 'sort_order', "INTEGER DEFAULT 0");
+
+    $stmt = $pdo->query("SELECT COUNT(*) FROM social_links");
+    if ((int) $stmt->fetchColumn() === 0) {
+        $seed_links = [
+            ['facebook', 'Facebook', 'https://facebook.com/yourpage', 1, 10],
+            ['instagram', 'Instagram', 'https://instagram.com/yourpage', 1, 20],
+            ['tiktok', 'TikTok', 'https://tiktok.com/@yourprofile', 1, 30],
+            ['telegram', 'Telegram', 'https://t.me/yourchannel', 1, 40],
+        ];
+        $insert = $pdo->prepare("INSERT INTO social_links (platform, name, url, is_active, sort_order) VALUES (?, ?, ?, ?, ?)");
+        foreach ($seed_links as $link) {
+            $insert->execute($link);
+        }
+    }
+
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
 }

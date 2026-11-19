@@ -58,6 +58,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </svg>
             Payments
         </a>
+        <a href="social_links.php"
+            class="group flex items-center gap-3 rounded-xl border px-3 py-3 transition-all duration-200 <?= $current_page == 'social_links.php' ? 'border-amber-200/20 bg-gradient-to-r from-amber-300 to-orange-300 font-semibold text-[#25342d] shadow-lg shadow-black/10' : 'border-transparent text-white/75 hover:border-white/10 hover:bg-white/10 hover:text-white' ?>">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M18 8a3 3 0 1 0-2.83-4M6 14a3 3 0 1 0 0-4m12 11a3 3 0 1 0-2.83-4M8.7 10.7l6.6-3.4m-6.6 6 6.6 3.4" />
+            </svg>
+            Social Links
+        </a>
         <a href="feedback.php"
             class="group flex items-center justify-between rounded-xl border px-3 py-3 transition-all duration-200 <?= $current_page == 'feedback.php' ? 'border-amber-200/20 bg-gradient-to-r from-amber-300 to-orange-300 font-semibold text-[#25342d] shadow-lg shadow-black/10' : 'border-transparent text-white/75 hover:border-white/10 hover:bg-white/10 hover:text-white' ?>">
             <div class="flex items-center gap-3">

@@ -49,6 +49,31 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
                                  FROM payment_accounts
                                  WHERE is_active = 1
                                  ORDER BY provider ASC, id ASC")->fetchAll();
+
+$social_links = $pdo->query("SELECT platform, name, url
+                              FROM social_links
+                              WHERE is_active = 1
+                              ORDER BY sort_order ASC, id ASC")->fetchAll();
+
+function social_link_icon(string $platform): string
+{
+    switch ($platform) {
+        case 'facebook':
+            return '<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.5l.4-3h-2.9V7.5c0-.9.3-1.5 1.6-1.5H16V3.1c-.3-.1-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4V11H7.5v3h2.3v8h3.7Z"/></svg>';
+        case 'instagram':
+            return '<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.2A4.8 4.8 0 1 1 7.2 12 4.8 4.8 0 0 1 12 7.2Zm0 2A2.8 2.8 0 1 0 14.8 12 2.8 2.8 0 0 0 12 9.2Zm5.2-3.1a1.1 1.1 0 1 1-1.1 1.1 1.1 1.1 0 0 1 1.1-1.1Z"/></svg>';
+        case 'telegram':
+            return '<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.8 3.2a1.1 1.1 0 0 0-1.2-.2L2.9 10.3c-.8.3-.8 1.4.1 1.7l4.6 1.5 1.8 5.7c.2.7 1.1.9 1.6.4l2.6-2.5 4.7 3.4c.7.5 1.7.1 1.8-.8l2.9-15.1c.1-.5-.1-1-.2-1.2ZM8.8 12.7l10.4-6.4-8.6 7.8-.4 3.1-1.4-4.5Z"/></svg>';
+        case 'whatsapp':
+            return '<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a9.8 9.8 0 0 0-8.4 14.8L2 22l5.4-1.6A10 10 0 1 0 12 2Zm0 17.9a8 8 0 0 1-4.1-1.1l-.3-.2-3.2 1 1-3.1-.2-.3A8 8 0 1 1 12 19.9Zm4.4-6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-1.9-1.2 7.2 7.2 0 0 1-1.3-1.7c-.1-.2 0-.4.1-.5l.4-.5.2-.4c.1-.1 0-.3 0-.4l-.7-1.7c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2 1 2.4c.1.2 1.7 2.6 4.1 3.6.6.2 1 .4 1.4.5.6.2 1.1.2 1.5.1.5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.3-.2-.5-.3Z"/></svg>';
+        case 'youtube':
+            return '<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>';
+        case 'tiktok':
+            return '<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3c.6 1.8 2 3 4 3v2.7c-1.3 0-2.4-.2-3.4-.8V13a5.5 5.5 0 1 1-5.5-5.5c.3 0 .6.1.9.1v2.8a3.1 3.1 0 0 0-.9-.1A3.1 3.1 0 0 0 7 13a3.1 3.1 0 0 0 3.1 3.1A3.1 3.1 0 0 0 13.2 13V3h2.8Z"/></svg>';
+        default:
+            return '<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20.1l1.1-1.1"/></svg>';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -783,24 +808,14 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
                     </div>
 
                     <div class="flex items-center justify-center gap-3 md:justify-end">
-                        <button type="button" aria-label="Facebook link coming soon" title="Facebook link coming soon"
-                            class="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-orange-600">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M13.5 22v-8h2.5l.4-3h-2.9V7.5c0-.9.3-1.5 1.6-1.5H16V3.1c-.3-.1-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4V11H7.5v3h2.3v8h3.7Z" />
-                            </svg>
-                        </button>
-                        <button type="button" aria-label="Instagram link coming soon" title="Instagram link coming soon"
-                            class="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-orange-600">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.2A4.8 4.8 0 1 1 7.2 12 4.8 4.8 0 0 1 12 7.2Zm0 2A2.8 2.8 0 1 0 14.8 12 2.8 2.8 0 0 0 12 9.2Zm5.2-3.1a1.1 1.1 0 1 1-1.1 1.1 1.1 1.1 0 0 1 1.1-1.1Z" />
-                            </svg>
-                        </button>
-                        <button type="button" aria-label="TikTok link coming soon" title="TikTok link coming soon"
-                            class="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-orange-600">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M16 3c.6 1.8 2 3 4 3v2.7c-1.3 0-2.4-.2-3.4-.8V13a5.5 5.5 0 1 1-5.5-5.5c.3 0 .6.1.9.1v2.8a3.1 3.1 0 0 0-.9-.1A3.1 3.1 0 0 0 7 13a3.1 3.1 0 0 0 3.1 3.1A3.1 3.1 0 0 0 13.2 13V3h2.8Z" />
-                            </svg>
-                        </button>
+                        <?php foreach ($social_links as $social): ?>
+                            <a href="<?= htmlspecialchars($social['url']) ?>" target="_blank" rel="noopener noreferrer"
+                                aria-label="<?= htmlspecialchars($social['name']) ?>" title="<?= htmlspecialchars($social['name']) ?>"
+                                class="group flex h-11 items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-200/60 hover:bg-white hover:text-orange-600">
+                                <?= social_link_icon($social['platform']) ?>
+                                <span class="text-xs font-bold"><?= htmlspecialchars($social['name']) ?></span>
+                            </a>
+                        <?php endforeach; ?>
                     </div>
 
                     <div class="text-center md:text-right">
@@ -913,27 +928,23 @@ $payment_accounts = $pdo->query("SELECT provider, account_name, account_number, 
                 <h3 class="text-lg font-bold text-white">Social media</h3>
                 <button type="button" @click="mobileSocialOpen = false" class="text-sm font-medium text-orange-100">Close</button>
             </div>
-            <div class="grid grid-cols-3 gap-3">
-                <button type="button" @click="mobileSocialOpen = false" class="flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-center transition hover:bg-white/10">
-                    <span class="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-white">
-                        <svg class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.5l.4-3h-2.9V7.5c0-.9.3-1.5 1.6-1.5H16V3.1c-.3-.1-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4V11H7.5v3h2.3v8h3.7Z" /></svg>
-                    </span>
-                    <span class="text-xs font-bold uppercase tracking-[0.18em] text-orange-100">Facebook</span>
-                </button>
-                <button type="button" @click="mobileSocialOpen = false" class="flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-center transition hover:bg-white/10">
-                    <span class="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-white">
-                        <svg class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.2A4.8 4.8 0 1 1 7.2 12 4.8 4.8 0 0 1 12 7.2Zm0 2A2.8 2.8 0 1 0 14.8 12 2.8 2.8 0 0 0 12 9.2Zm5.2-3.1a1.1 1.1 0 1 1-1.1 1.1 1.1 1.1 0 0 1 1.1-1.1Z" /></svg>
-                    </span>
-                    <span class="text-xs font-bold uppercase tracking-[0.18em] text-orange-100">Instagram</span>
-                </button>
-                <button type="button" @click="mobileSocialOpen = false" class="flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-center transition hover:bg-white/10">
-                    <span class="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-white">
-                        <svg class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3c.6 1.8 2 3 4 3v2.7c-1.3 0-2.4-.2-3.4-.8V13a5.5 5.5 0 1 1-5.5-5.5c.3 0 .6.1.9.1v2.8a3.1 3.1 0 0 0-.9-.1A3.1 3.1 0 0 0 7 13a3.1 3.1 0 0 0 3.1 3.1A3.1 3.1 0 0 0 13.2 13V3h2.8Z" /></svg>
-                    </span>
-                    <span class="text-xs font-bold uppercase tracking-[0.18em] text-orange-100">TikTok</span>
-                </button>
+            <div class="grid grid-cols-2 gap-3">
+                <?php if (!$social_links): ?>
+                    <p class="col-span-2 text-center text-sm text-orange-100/70">No social links available.</p>
+                <?php else: ?>
+                    <?php foreach ($social_links as $social): ?>
+                        <a href="<?= htmlspecialchars($social['url']) ?>" target="_blank" rel="noopener noreferrer"
+                            aria-label="<?= htmlspecialchars($social['name']) ?>" title="<?= htmlspecialchars($social['name']) ?>"
+                            @click="mobileSocialOpen = false"
+                            class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 text-white transition hover:-translate-y-0.5 hover:border-orange-300/50 hover:bg-orange-500/20">
+                            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10">
+                                <?= social_link_icon($social['platform']) ?>
+                            </span>
+                            <span class="text-sm font-bold"><?= htmlspecialchars($social['name']) ?></span>
+                        </a>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
-            <p class="mt-5 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-center text-xs text-orange-100/80">Links are ready for your profile handles when you add them.</p>
         </div>
     </div>
 
