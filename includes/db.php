@@ -112,6 +112,28 @@ try {
         is_active INTEGER DEFAULT 1
     )");
 
+    $pdo->exec("CREATE TABLE IF NOT EXISTS app_settings (
+        id $pk,
+        setting_key VARCHAR(100) NOT NULL UNIQUE,
+        setting_value $longtext
+    )");
+
+    $default_settings = [
+        'brand_name' => 'Tasty Pizza & Burger',
+        'brand_short_name' => 'Tasty Pizza',
+        'brand_tagline' => 'Digital Menu',
+        'phone_number' => '0926862255',
+        'copyright_name' => 'Tasty Pizza & Burger',
+    ];
+    $setting_insert = $pdo->prepare("INSERT INTO app_settings (setting_key, setting_value) VALUES (?, ?)");
+    foreach ($default_settings as $key => $value) {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM app_settings WHERE setting_key = ?");
+        $stmt->execute([$key]);
+        if ((int) $stmt->fetchColumn() === 0) {
+            $setting_insert->execute([$key, $value]);
+        }
+    }
+
     $pdo->exec("CREATE TABLE IF NOT EXISTS social_links (
         id $pk,
         platform VARCHAR(50) NOT NULL,
@@ -138,5 +160,19 @@ try {
 
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
+}
+
+if (!function_exists('get_app_setting')) {
+    function get_app_setting(string $key, string $default = ''): string
+    {
+        global $pdo;
+        static $settings = null;
+        if ($settings === null) {
+            $settings = [];
+            $rows = $pdo->query("SELECT setting_key, setting_value FROM app_settings")->fetchAll(PDO::FETCH_KEY_PAIR);
+            $settings = $rows ?: [];
+        }
+        return isset($settings[$key]) && $settings[$key] !== '' ? (string) $settings[$key] : $default;
+    }
 }
 ?>

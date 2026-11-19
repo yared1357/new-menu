@@ -98,6 +98,21 @@ CREATE TABLE `feedback` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `app_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `setting_key` varchar(100) NOT NULL,
+  `setting_value` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `setting_key` (`setting_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `app_settings` (`setting_key`, `setting_value`) VALUES
+('brand_name', 'Tasty Pizza & Burger'),
+('brand_short_name', 'Tasty Pizza'),
+('brand_tagline', 'Digital Menu'),
+('phone_number', '0926862255'),
+('copyright_name', 'Tasty Pizza & Burger');
+
 -- --------------------------------------------------------
 
 --

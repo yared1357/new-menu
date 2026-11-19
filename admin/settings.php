@@ -12,37 +12,121 @@ $message = '';
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $current_password = $_POST['current_password'];
-    $new_password = $_POST['new_password'];
-    $confirm_password = $_POST['confirm_password'];
+    $action = $_POST['action'] ?? 'password';
 
-    if ($new_password !== $confirm_password) {
-        $message = "Passwords do not match!";
-    } else {
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-        $stmt->execute([$_SESSION['admin_id']]);
-        $user = $stmt->fetch();
-
-        if ($user && password_verify($current_password, $user['password'])) {
-            $hashed = password_hash($new_password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
-            if ($stmt->execute([$hashed, $_SESSION['admin_id']])) {
-                $message = "Password updated successfully!";
-                $success = true;
-            } else {
-                $message = "Failed to update password.";
-            }
+    if ($action === 'branding') {
+        $branding = [
+            'brand_name' => trim($_POST['brand_name'] ?? ''),
+            'brand_short_name' => trim($_POST['brand_short_name'] ?? ''),
+            'brand_tagline' => trim($_POST['brand_tagline'] ?? ''),
+            'phone_number' => trim($_POST['phone_number'] ?? ''),
+            'copyright_name' => trim($_POST['copyright_name'] ?? ''),
+        ];
+        if ($branding['brand_name'] === '' || $branding['brand_short_name'] === '') {
+            $message = 'Business name and short name are required.';
         } else {
-            $message = "Incorrect current password.";
+            try {
+                $stmt = $pdo->prepare("UPDATE app_settings SET setting_value = ? WHERE setting_key = ?");
+                foreach ($branding as $key => $value) {
+                    $stmt->execute([$value, $key]);
+                }
+                $message = 'Business branding updated successfully!';
+                $success = true;
+            } catch (PDOException $e) {
+                $message = 'Could not update branding settings.';
+            }
+        }
+    } else {
+        $current_password = $_POST['current_password'] ?? '';
+        $new_password = $_POST['new_password'] ?? '';
+        $confirm_password = $_POST['confirm_password'] ?? '';
+
+        if ($new_password !== $confirm_password) {
+            $message = "Passwords do not match!";
+        } else {
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+            $stmt->execute([$_SESSION['admin_id']]);
+            $user = $stmt->fetch();
+
+            if ($user && password_verify($current_password, $user['password'])) {
+                $hashed = password_hash($new_password, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+                if ($stmt->execute([$hashed, $_SESSION['admin_id']])) {
+                    $message = "Password updated successfully!";
+                    $success = true;
+                } else {
+                    $message = "Failed to update password.";
+                }
+            } else {
+                $message = "Incorrect current password.";
+            }
         }
     }
 }
 
-$page_title = "Change Password";
+$page_title = "Settings";
 include 'header.php';
 ?>
 
-<section class="flex flex-1 flex-col items-center justify-center py-8 sm:py-12">
+<section class="flex flex-1 flex-col items-center py-8 sm:py-12">
+    <div class="glass-card mb-8 w-full max-w-3xl rounded-[2rem] border border-white p-6 shadow-[0_20px_60px_rgba(27,52,43,0.10)] sm:p-9">
+        <div class="mb-7 flex items-center gap-4 border-b border-gray-100 pb-6">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-700 to-[#153b34] text-white shadow-md">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 20V8l8-4 8 4v12M8 20v-7h8v7M3 20h18" />
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-[#20332b]">Business branding</h3>
+                <p class="mt-1 text-sm text-gray-500">Customize the name shown across the customer app and admin.</p>
+            </div>
+        </div>
+
+        <?php if ($message): ?>
+            <div role="<?= $success ? 'status' : 'alert' ?>"
+                class="mb-6 rounded-2xl border p-4 text-center text-sm font-semibold <?= $success ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100' ?>">
+                <?= htmlspecialchars($message) ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" class="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <input type="hidden" name="action" value="branding">
+            <label class="text-sm font-semibold text-gray-700">
+                Business name
+                <input name="brand_name" required maxlength="150" value="<?= htmlspecialchars(get_app_setting('brand_name', 'Tasty Pizza & Burger')) ?>"
+                    placeholder="Yisak Fast Food"
+                    class="mt-2 w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-4 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
+            </label>
+            <label class="text-sm font-semibold text-gray-700">
+                Header short name
+                <input name="brand_short_name" required maxlength="80" value="<?= htmlspecialchars(get_app_setting('brand_short_name', 'Tasty Pizza')) ?>"
+                    placeholder="Yisak"
+                    class="mt-2 w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-4 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
+            </label>
+            <label class="text-sm font-semibold text-gray-700">
+                Tagline
+                <input name="brand_tagline" maxlength="100" value="<?= htmlspecialchars(get_app_setting('brand_tagline', 'Digital Menu')) ?>"
+                    placeholder="Digital Menu"
+                    class="mt-2 w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-4 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
+            </label>
+            <label class="text-sm font-semibold text-gray-700">
+                Phone number
+                <input name="phone_number" maxlength="30" value="<?= htmlspecialchars(get_app_setting('phone_number', '0926862255')) ?>"
+                    placeholder="+251..."
+                    class="mt-2 w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-4 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
+            </label>
+            <label class="text-sm font-semibold text-gray-700 md:col-span-2">
+                Copyright name
+                <input name="copyright_name" maxlength="150" value="<?= htmlspecialchars(get_app_setting('copyright_name', 'Tasty Pizza & Burger')) ?>"
+                    placeholder="Yisak Fast Food"
+                    class="mt-2 w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-4 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
+            </label>
+            <button type="submit" class="rounded-2xl bg-gradient-to-r from-[#1f322e] via-[#17503d] to-[#246447] px-6 py-4 font-bold text-white shadow-lg md:col-span-2">
+                Save branding
+            </button>
+        </form>
+    </div>
+
     <header class="mb-8 max-w-xl text-center">
         <span class="inline-flex items-center gap-2 rounded-full border border-emerald-800/10 bg-emerald-800/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-800">
             Change Password

@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login | Tasty Pizza & Burger</title>
+    <title>Admin Login | <?= htmlspecialchars(get_app_setting('brand_name', 'Tasty Pizza & Burger')) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="../assets/js/alpine.min.js"></script>
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="../index.php" class="group inline-flex items-center gap-3" aria-label="Tasty Pizza and Burger home">
                 <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-xl font-black text-white shadow-lg shadow-orange-600/20 transition-transform group-hover:-rotate-3 group-hover:scale-105">T</span>
                 <span class="leading-tight">
-                    <span class="block text-sm font-black uppercase tracking-wide text-[#20332b]">Tasty Pizza &amp; Burger</span>
+                    <span class="block text-sm font-black uppercase tracking-wide text-[#20332b]"><?= htmlspecialchars(get_app_setting('brand_name', 'Tasty Pizza & Burger')) ?></span>
                     <span class="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-800">Management portal</span>
                 </span>
             </a>
@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </main>
 
         <footer class="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-2 border-t border-gray-200/80 py-5 text-center text-xs text-gray-500 sm:flex-row sm:text-left">
-            <span>&copy; <?= date('Y') ?> Tasty Pizza &amp; Burger</span>
+            <span>&copy; <?= date('Y') ?> <?= htmlspecialchars(get_app_setting('copyright_name', 'Tasty Pizza & Burger')) ?></span>
             <a href="../index.php" class="font-semibold text-emerald-800 transition-colors hover:text-orange-600">Back to the menu</a>
         </footer>
 </body>

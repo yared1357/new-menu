@@ -89,7 +89,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                     d="M7 10V8a5 5 0 0 1 10 0v2m-11 0h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z" />
             </svg>
-            Change Password
+            Settings
         </a>
     </nav>
     <div class="mt-auto shrink-0 space-y-2 border-t border-white/10 pt-4">

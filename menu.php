@@ -55,6 +55,12 @@ $social_links = $pdo->query("SELECT platform, name, url
                               WHERE is_active = 1
                               ORDER BY sort_order ASC, id ASC")->fetchAll();
 
+$brand_name = get_app_setting('brand_name', 'Tasty Pizza & Burger');
+$brand_short_name = get_app_setting('brand_short_name', 'Tasty Pizza');
+$brand_tagline = get_app_setting('brand_tagline', 'Digital Menu');
+$brand_phone = get_app_setting('phone_number', '0926862255');
+$copyright_name = get_app_setting('copyright_name', 'Tasty Pizza & Burger');
+
 function social_link_icon(string $platform): string
 {
     switch ($platform) {
@@ -81,9 +87,9 @@ function social_link_icon(string $platform): string
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($current_category['name'] ?? 'Menu') ?> | Tasty Pizza & Burger</title>
+    <title><?= htmlspecialchars($current_category['name'] ?? 'Menu') ?> | <?= htmlspecialchars($brand_name) ?></title>
     <meta name="theme-color" content="#1f322e">
-    <meta name="description" content="Browse the Tasty Pizza & Burger menu, payment details, and customer feedback.">
+    <meta name="description" content="Browse the <?= htmlspecialchars($brand_name) ?> menu, payment details, and customer feedback.">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="assets/pwa/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="assets/pwa/icon-192.png">
@@ -315,18 +321,16 @@ function social_link_icon(string $platform): string
                         <span class="text-orange-600 font-black text-lg sm:text-xl md:text-2xl">T</span>
                     </div>
                     <div class="flex flex-col leading-tight">
-                        <span
-                            class="text-base sm:text-lg md:text-2xl font-black tracking-tight uppercase text-white">Tasty<span
-                                class="text-orange-100">Pizza</span></span>
+                        <span class="text-base sm:text-lg md:text-2xl font-black tracking-tight uppercase text-white"><?= htmlspecialchars($brand_short_name) ?></span>
                         <span
                             class="text-[7px] sm:text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] text-orange-100 mt-0.5">
-                            Digital Menu</span>
+                            <?= htmlspecialchars($brand_tagline) ?></span>
                     </div>
                 </a>
 
                 <!-- Desktop payment menu -->
                 <div class="hidden md:flex items-center gap-5 lg:gap-6">
-                    <a href="tel:0926862255" aria-label="Call Tasty Pizza & Burger" title="Call us"
+                    <a href="tel:<?= htmlspecialchars(preg_replace('/[^0-9+]/', '', $brand_phone)) ?>" aria-label="Call <?= htmlspecialchars($brand_name) ?>" title="Call us"
                         class="call-action inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white transition-colors hover:border-amber-200/70 hover:bg-white/20 hover:text-amber-100 focus:outline-none focus:ring-2 focus:ring-white/70">
                         <svg class="call-action-icon h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
@@ -426,7 +430,7 @@ function social_link_icon(string $platform): string
 
                 <!-- Mobile payment menu -->
                 <div class="md:hidden flex items-center gap-2">
-                    <a href="tel:0926862255" aria-label="Call Tasty Pizza & Burger" title="Call us"
+                    <a href="tel:<?= htmlspecialchars(preg_replace('/[^0-9+]/', '', $brand_phone)) ?>" aria-label="Call <?= htmlspecialchars($brand_name) ?>" title="Call us"
                         class="call-action inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white transition-colors hover:border-amber-200/70 hover:bg-white/20 hover:text-amber-100 focus:outline-none focus:ring-2 focus:ring-white/70">
                         <svg class="call-action-icon h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
@@ -629,9 +633,8 @@ function social_link_icon(string $platform): string
                 class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-2xl mb-6 border-4 border-white/50 hover:scale-110 transition-transform duration-300">
                 <span class="text-orange-600 font-black text-3xl">T</span>
             </div>
-            <h2 class="text-3xl sm:text-4xl font-black tracking-tight uppercase text-white">Tasty<span
-                    class="text-orange-100">Pizza</span></h2>
-            <p class="text-orange-100 text-sm mt-2 font-medium">Digital Menu</p>
+            <h2 class="text-3xl sm:text-4xl font-black tracking-tight uppercase text-white"><?= htmlspecialchars($brand_short_name) ?></h2>
+            <p class="text-orange-100 text-sm mt-2 font-medium"><?= htmlspecialchars($brand_tagline) ?></p>
         </div>
 
 
@@ -797,7 +800,7 @@ function social_link_icon(string $platform): string
                         <span class="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-orange-100">
                             Fresh from our kitchen
                         </span>
-                        <p class="mt-3 text-lg font-semibold text-white sm:text-xl">Tasty Pizza &amp; Burger</p>
+                        <p class="mt-3 text-lg font-semibold text-white sm:text-xl"><?= htmlspecialchars($brand_name) ?></p>
                         <button id="pwa-install-button" type="button"
                             class="hidden mt-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold text-white transition hover:border-amber-200/50 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-amber-200/70">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -827,7 +830,7 @@ function social_link_icon(string $platform): string
                 </div>
             </div>
             <div class="text-center text-xs text-orange-100/80 sm:text-sm">
-                <p>Copyrights &copy; 2026 Tasty Pizza & Burger. Developed By Y-Global System Solution All rights reserved.</p>
+                <p>Copyrights &copy; <?= date('Y') ?> <?= htmlspecialchars($copyright_name) ?>. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -956,7 +959,7 @@ function social_link_icon(string $platform): string
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" />
                 </svg>
             </div>
-            <h2 id="pwa-install-title" class="mt-4 text-center text-xl font-bold">Install Tasty Pizza</h2>
+            <h2 id="pwa-install-title" class="mt-4 text-center text-xl font-bold">Install <?= htmlspecialchars($brand_short_name) ?></h2>
             <p id="pwa-install-instructions" class="mt-2 text-center text-sm leading-6 text-gray-600"></p>
             <button type="button" id="pwa-install-close"
                 class="mt-6 w-full rounded-xl bg-[#1f4d3e] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#173b34]">
@@ -1071,7 +1074,7 @@ function social_link_icon(string $platform): string
             </div>
 
             <div class="bg-gray-50/80 py-2.5 text-center border-t border-gray-100">
-                <p class="text-[8px] text-orange-400 font-bold uppercase tracking-[0.2em] italic">Tasty Pizza</p>
+                <p class="text-[8px] text-orange-400 font-bold uppercase tracking-[0.2em] italic"><?= htmlspecialchars($brand_short_name) ?></p>
             </div>
         </div>
     </div>

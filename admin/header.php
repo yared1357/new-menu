@@ -9,7 +9,7 @@ unset($_SESSION['admin_flash']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        <?= isset($page_title) ? $page_title . " | Tasty Pizza & Burger" : "Admin Panel | Tasty Pizza & Burger" ?>
+        <?= isset($page_title) ? $page_title . " | " : "Admin Panel | " ?><?= htmlspecialchars(get_app_setting('brand_name', 'Tasty Pizza & Burger')) ?>
     </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="../assets/js/alpine.min.js"></script>
