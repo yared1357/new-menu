@@ -121,6 +121,7 @@ try {
     $default_settings = [
         'brand_name' => 'Tasty Pizza & Burger',
         'brand_short_name' => 'Tasty Pizza',
+        'brand_logo' => '',
         'brand_tagline' => 'Digital Menu',
         'phone_number' => '0926862255',
         'copyright_name' => 'Tasty Pizza & Burger',

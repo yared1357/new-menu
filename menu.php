@@ -57,6 +57,7 @@ $social_links = $pdo->query("SELECT platform, name, url
 
 $brand_name = get_app_setting('brand_name', 'Tasty Pizza & Burger');
 $brand_short_name = get_app_setting('brand_short_name', 'Tasty Pizza');
+$brand_logo = get_app_setting('brand_logo');
 $brand_tagline = get_app_setting('brand_tagline', 'Digital Menu');
 $brand_phone = get_app_setting('phone_number', '0926862255');
 $copyright_name = get_app_setting('copyright_name', 'Tasty Pizza & Burger');
@@ -316,9 +317,14 @@ function social_link_icon(string $platform): string
             <div class="flex justify-between items-center">
                 <!-- Logo -->
                 <a href="index.php" class="flex items-center gap-2 sm:gap-3 md:gap-4 relative z-[120] group">
-                    <div
-                        class="w-9 h-9 sm:w-10 sm:h-11 md:w-12 md:h-12 bg-white rounded-2xl flex items-center justify-center shadow-xl shadow-black/20 group-hover:scale-105 transition-transform duration-400 border-2 border-white/50">
-                        <span class="text-orange-600 font-black text-lg sm:text-xl md:text-2xl">T</span>
+                    <div class="<?= $brand_logo !== ''
+                        ? 'flex h-9 w-fit max-w-[34vw] shrink-0 items-center justify-center rounded-xl border border-white/50 bg-white p-1 shadow-xl shadow-black/20 transition-transform duration-300 group-hover:scale-105 sm:h-10 sm:max-w-[30vw] md:h-12 md:max-w-[9rem]'
+                        : 'flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border-2 border-white/50 bg-white shadow-xl shadow-black/20 transition-transform duration-300 group-hover:scale-105 sm:h-10 sm:w-11 md:h-12 md:w-12' ?>">
+                        <?php if ($brand_logo !== ''): ?>
+                            <img src="<?= htmlspecialchars($brand_logo) ?>" alt="<?= htmlspecialchars($brand_short_name) ?> logo" class="block h-full w-auto max-w-full object-contain">
+                        <?php else: ?>
+                            <span class="text-orange-600 font-black text-lg sm:text-xl md:text-2xl">T</span>
+                        <?php endif; ?>
                     </div>
                     <div class="flex flex-col leading-tight">
                         <span class="text-base sm:text-lg md:text-2xl font-black tracking-tight uppercase text-white"><?= htmlspecialchars($brand_short_name) ?></span>
@@ -393,7 +399,15 @@ function social_link_icon(string $platform): string
                                                     </button>
                                                 <?php endif; ?>
                                             </div>
-                                            <p class="mt-3 break-all rounded-xl border border-white/10 bg-black/10 px-3 py-2.5 text-sm font-semibold tracking-wide text-white"><?= htmlspecialchars($account['account_number']) ?></p>
+                                            <div x-data="{ copied: false }" class="mt-3 flex items-center gap-2 rounded-xl border border-white/10 bg-black/10 px-3 py-2.5">
+                                                <p x-ref="accountNumber" class="min-w-0 flex-1 break-all text-sm font-semibold tracking-wide text-white"><?= htmlspecialchars($account['account_number']) ?></p>
+                                                <button type="button" @click.stop="navigator.clipboard.writeText($refs.accountNumber.textContent.trim()).then(() => { copied = true; setTimeout(() => copied = false, 1500) })"
+                                                    :aria-label="copied ? 'Account number copied' : 'Copy account number'" :title="copied ? 'Copied' : 'Copy account number'"
+                                                    class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-orange-100 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60">
+                                                    <svg x-show="!copied" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2" stroke-width="1.8"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" stroke-width="1.8"/></svg>
+                                                    <svg x-show="copied" x-cloak class="h-4 w-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 12 4 4L19 6"/></svg>
+                                                </button>
+                                            </div>
                                             <?php if (!empty($account['qr_image'])): ?>
                                                 <p class="mt-2 text-right text-[10px] font-medium text-orange-100/60">Scan to pay</p>
                                             <?php endif; ?>
@@ -494,7 +508,15 @@ function social_link_icon(string $platform): string
                                                     </button>
                                                 <?php endif; ?>
                                             </div>
-                                            <p class="mt-3 break-all rounded-xl border border-white/10 bg-black/10 px-3 py-2.5 text-sm font-semibold tracking-wide text-white"><?= htmlspecialchars($account['account_number']) ?></p>
+                                            <div x-data="{ copied: false }" class="mt-3 flex items-center gap-2 rounded-xl border border-white/10 bg-black/10 px-3 py-2.5">
+                                                <p x-ref="accountNumber" class="min-w-0 flex-1 break-all text-sm font-semibold tracking-wide text-white"><?= htmlspecialchars($account['account_number']) ?></p>
+                                                <button type="button" @click.stop="navigator.clipboard.writeText($refs.accountNumber.textContent.trim()).then(() => { copied = true; setTimeout(() => copied = false, 1500) })"
+                                                    :aria-label="copied ? 'Account number copied' : 'Copy account number'" :title="copied ? 'Copied' : 'Copy account number'"
+                                                    class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-orange-100 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60">
+                                                    <svg x-show="!copied" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2" stroke-width="1.8"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" stroke-width="1.8"/></svg>
+                                                    <svg x-show="copied" x-cloak class="h-4 w-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 12 4 4L19 6"/></svg>
+                                                </button>
+                                            </div>
                                             <?php if (!empty($account['qr_image'])): ?>
                                                 <p class="mt-2 text-right text-[10px] font-medium text-orange-100/60">Scan to pay</p>
                                             <?php endif; ?>
@@ -915,7 +937,15 @@ function social_link_icon(string $platform): string
                                     </button>
                                 <?php endif; ?>
                             </div>
-                            <p class="mt-3 break-all rounded-xl border border-white/10 bg-black/10 px-3 py-2.5 text-sm font-semibold tracking-wide text-white"><?= htmlspecialchars($account['account_number']) ?></p>
+                            <div x-data="{ copied: false }" class="mt-3 flex items-center gap-2 rounded-xl border border-white/10 bg-black/10 px-3 py-2.5">
+                                <p x-ref="accountNumber" class="min-w-0 flex-1 break-all text-sm font-semibold tracking-wide text-white"><?= htmlspecialchars($account['account_number']) ?></p>
+                                <button type="button" @click.stop="navigator.clipboard.writeText($refs.accountNumber.textContent.trim()).then(() => { copied = true; setTimeout(() => copied = false, 1500) })"
+                                    :aria-label="copied ? 'Account number copied' : 'Copy account number'" :title="copied ? 'Copied' : 'Copy account number'"
+                                    class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-orange-100 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60">
+                                    <svg x-show="!copied" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2" stroke-width="1.8"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" stroke-width="1.8"/></svg>
+                                    <svg x-show="copied" x-cloak class="h-4 w-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 12 4 4L19 6"/></svg>
+                                </button>
+                            </div>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -1008,18 +1038,18 @@ function social_link_icon(string $platform): string
             x-transition:leave="transition ease-in duration-200 transform"
             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
             x-transition:leave-end="opacity-0 translate-y-10 scale-90" @click.away="feedbackOpen = false"
-            class="absolute bottom-16 right-0 w-[min(20rem,calc(100vw-2rem))] overflow-y-auto rounded-3xl border border-gray-100 bg-white/95 shadow-[0_20px_60px_rgba(0,0,0,0.12)] backdrop-blur-2xl max-h-[calc(100dvh-10rem)] sm:w-80 md:bottom-20 md:max-h-[80vh]"
+            class="absolute bottom-16 right-0 w-[min(20rem,calc(100vw-2rem))] overflow-y-auto rounded-3xl border border-emerald-900/10 bg-white shadow-[0_20px_60px_rgba(16,39,32,0.18)] max-h-[calc(100dvh-10rem)] sm:w-80 md:bottom-20 md:max-h-[80vh]"
             x-cloak>
 
             <div class="p-6 text-gray-900 text-center">
                 <!-- Header -->
                 <div class="flex items-center justify-center gap-3 mb-4">
                     <div
-                        class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-700 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-600/20 shrink-0">
+                        class="w-10 h-10 bg-gradient-to-br from-emerald-700 to-[#153b34] rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-900/20 shrink-0">
                         <span class="text-white text-base">✨</span>
                     </div>
                     <div class="text-left">
-                        <h4 class="text-base font-black text-orange-500 tracking-tight uppercase leading-tight">Share
+                        <h4 class="text-base font-black text-emerald-800 tracking-tight uppercase leading-tight">Share
                             Your Experience
                         </h4>
 
@@ -1042,39 +1072,43 @@ function social_link_icon(string $platform): string
                     <input type="hidden" name="redirect" value="index.php">
 
                     <!-- Star Rating -->
-                    <div class="flex justify-center gap-1.5 mb-3">
-                        <template x-for="i in 5">
-                            <button type="button" @click="stars = i"
-                                class="text-2xl transition-all duration-300 hover:scale-125 focus:outline-none filter"
-                                :class="stars >= i ? 'drop-shadow-[0_6px_6px_rgba(249,115,22,0.4)]' : 'grayscale opacity-20'">⭐</button>
-                        </template>
+                    <div class="border-t border-gray-200 pt-4">
+                        <p class="mb-2 text-left text-xs font-bold text-gray-700">How was your experience?</p>
+                        <div role="group" aria-label="Select a star rating" class="flex justify-center gap-2">
+                            <template x-for="i in 5">
+                                <button type="button" @click="stars = i"
+                                    :aria-label="`${i} star${i === 1 ? '' : 's'}`" :aria-pressed="stars === i"
+                                    class="text-3xl leading-none transition-transform duration-200 hover:scale-110 focus:outline-none focus-visible:rounded focus-visible:ring-2 focus-visible:ring-amber-400"
+                                    :class="stars >= i ? 'text-amber-400 drop-shadow-[0_3px_4px_rgba(180,120,20,0.25)]' : 'text-gray-300 hover:text-amber-300'">★</button>
+                            </template>
+                        </div>
                         <input type="hidden" name="stars" :value="stars">
                     </div>
 
                     <div class="space-y-2.5">
                         <input type="tel" name="phone" required placeholder="Phone Number"
-                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 focus:outline-none text-xs text-gray-900 transition-all placeholder:text-gray-300 font-bold">
+                            class="w-full px-4 py-3 rounded-xl bg-[#f6f9f6] border border-gray-200 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/15 focus:outline-none text-sm text-gray-900 transition-all placeholder:text-gray-500 font-medium">
 
                         <div class="relative">
                             <input type="email" name="email" placeholder="Email Address"
-                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 focus:outline-none text-xs text-gray-900 transition-all placeholder:text-gray-300 font-bold pr-20">
+                                class="w-full px-4 py-3 rounded-xl bg-[#f6f9f6] border border-gray-200 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/15 focus:outline-none text-sm text-gray-900 transition-all placeholder:text-gray-500 font-medium pr-20">
                             <span
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-[7px] font-black uppercase tracking-widest text-orange-400 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-100">Optional</span>
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100">Optional</span>
                         </div>
 
                         <textarea name="comment" required rows="2" placeholder="Describe your flavor journey..."
-                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 focus:outline-none text-xs text-gray-900 transition-all placeholder:text-gray-300 font-bold resize-none"></textarea>
+                            class="w-full px-4 py-3 rounded-xl bg-[#f6f9f6] border border-gray-200 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/15 focus:outline-none text-sm text-gray-900 transition-all placeholder:text-gray-500 font-medium resize-none"></textarea>
                     </div>
 
                     <button type="submit"
-                        class="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-700 hover:from-orange-600 hover:to-orange-800 text-white rounded-2xl font-black text-[9px] uppercase tracking-widest transition-all shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 hover:scale-[1.02] active:scale-95">
-                        Submit Review ✦
+                        class="w-full py-3 bg-gradient-to-r from-[#1f322e] to-emerald-700 hover:from-[#153b34] hover:to-emerald-800 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-emerald-900/15 hover:shadow-emerald-900/25 hover:scale-[1.02] active:scale-95">
+                        Submit feedback
                     </button>
                 </form>
             </div>
 
-            <div class="bg-gray-50/80 py-2.5 text-center border-t border-gray-100">
-                <p class="text-[8px] text-orange-400 font-bold uppercase tracking-[0.2em] italic"><?= htmlspecialchars($brand_short_name) ?></p>
+            <div class="bg-[#f6f9f6] py-2.5 text-center border-t border-gray-200">
+                <p class="text-[9px] text-emerald-800 font-bold uppercase tracking-[0.2em]"><?= htmlspecialchars($brand_short_name) ?></p>
             </div>
         </div>
     </div>

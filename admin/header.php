@@ -111,7 +111,7 @@ unset($_SESSION['admin_flash']);
                         d="M12 9v3m0 4h.01M10.3 3.86 1.82 18.5A2 2 0 0 0 3.55 21h16.9a2 2 0 0 0 1.73-2.5L13.7 3.86a2 2 0 0 0-3.4 0Z" />
                 </svg>
             </div>
-            <h2 id="admin-confirm-title" class="text-xl font-bold text-[#20332b]">Please confirm</h2>
+            <h2 id="admin-confirm-title" class="text-xl font-bold text-[#20332b]">Are you sure?</h2>
             <p class="mt-2 text-sm leading-6 text-gray-600" x-text="confirmMessage"></p>
             <div class="mt-7 flex justify-center gap-3">
                 <button type="button" @click="confirmOpen = false"
@@ -121,7 +121,7 @@ unset($_SESSION['admin_flash']);
                 <button type="button"
                     @click="confirmOpen = false; if (confirmAction) confirmAction()"
                     class="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-rose-700">
-                    Confirm delete
+                    Yes, continue
                 </button>
             </div>
         </section>

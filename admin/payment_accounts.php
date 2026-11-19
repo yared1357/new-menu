@@ -205,7 +205,15 @@ include 'header.php';
                         </span>
                     </div>
                     <p class="text-sm text-gray-600"><?= htmlspecialchars($account['account_name']) ?></p>
-                    <p class="text-sm font-semibold text-gray-800"><?= htmlspecialchars($account['account_number']) ?></p>
+                    <div x-data="{ copied: false }" class="flex items-center gap-2">
+                        <p x-ref="accountNumber" class="text-sm font-semibold text-gray-800"><?= htmlspecialchars($account['account_number']) ?></p>
+                        <button type="button" @click="navigator.clipboard.writeText($refs.accountNumber.textContent.trim()).then(() => { copied = true; setTimeout(() => copied = false, 1500) })"
+                            :aria-label="copied ? 'Account number copied' : 'Copy account number'" :title="copied ? 'Copied' : 'Copy account number'"
+                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/50">
+                            <svg x-show="!copied" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2" stroke-width="1.8"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" stroke-width="1.8"/></svg>
+                            <svg x-show="copied" x-cloak class="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 12 4 4L19 6"/></svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="flex gap-2">
                     <a href="payment_accounts.php?edit=<?= (int) $account['id'] ?>"
