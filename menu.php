@@ -695,23 +695,23 @@ function social_link_icon(string $platform): string
     <main id="menu-section" class="pt-16 pb-32 md:pt-20 md:pb-48 min-h-screen">
         <div class="container mx-auto px-6 lg:px-12">
             <!-- Search & Page Title -->
-            <div class="flex flex-row items-center justify-between mb-8 md:mb-16 gap-3 sm:gap-6">
-                <div class="reveal min-w-0 flex-[1.1] text-left">
+            <div class="mb-8 flex flex-row items-center justify-between gap-2 sm:gap-6 md:mb-16">
+                <div class="reveal min-w-0 flex-1 text-left">
                     <h1 class="menu-page-title mb-0 truncate whitespace-nowrap">
                         <?= htmlspecialchars($current_category['name'] ?? 'The Vault') ?>
                     </h1>
                 </div>
 
-                <div class="w-[44%] shrink-0 sm:w-72 lg:w-96 relative group reveal delay-1">
-                    <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                        <svg class="w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors"
+                <div class="group reveal delay-1 relative w-[52%] shrink-0 sm:w-72 lg:w-96">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 sm:pl-4">
+                        <svg class="h-4 w-4 text-gray-500 transition-colors group-focus-within:text-orange-600 sm:h-5 sm:w-5"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
-                    <input type="text" placeholder="Search Masterpieces..." x-model="searchQuery"
-                        class="w-full pl-9 pr-3 py-3 sm:pl-12 sm:pr-6 lg:py-4 bg-white border border-gray-100 rounded-full text-[10px] sm:text-xs focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/5 transition-all shadow-sm">
+                    <input type="search" aria-label="Search menu items" placeholder="Search..." x-model="searchQuery"
+                        class="w-full rounded-2xl border border-gray-300 bg-white py-3 pl-9 pr-2 text-xs text-gray-900 shadow-md outline-none transition placeholder:text-gray-500 focus:border-orange-600 focus:ring-4 focus:ring-orange-500/15 sm:rounded-full sm:py-4 sm:pl-12 sm:pr-6 sm:text-sm">
                 </div>
             </div>
 

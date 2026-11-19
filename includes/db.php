@@ -6,6 +6,20 @@ $db_user = 'root';
 $db_pass = '';
 $db_file = __DIR__ . '/../pizzaburgar.db';
 
+if (!function_exists('normalize_ethiopian_phone')) {
+    function normalize_ethiopian_phone(string $phone): ?string
+    {
+        $phone = preg_replace('/[\s().-]/', '', trim($phone));
+        if (preg_match('/\A(?:\+?251|00251)0?([79][0-9]{8})\z/', $phone, $matches)) {
+            return '+251' . $matches[1];
+        }
+        if (preg_match('/\A0?([79][0-9]{8})\z/', $phone, $matches)) {
+            return '+251' . $matches[1];
+        }
+        return null;
+    }
+}
+
 try {
     // Try MySQL first (standard for XAMPP environments)
     try {
@@ -60,6 +74,42 @@ try {
         role VARCHAR(50) DEFAULT 'Admin'
     )");
     $addColumn('users', 'role', "VARCHAR(50) DEFAULT 'Admin'");
+    $addColumn('users', 'phone', "VARCHAR(30)");
+    $addColumn('users', 'full_name', "VARCHAR(150)");
+    $addColumn('users', 'must_change_password', "INTEGER DEFAULT 0");
+    $pdo->exec("UPDATE users SET full_name = username WHERE full_name IS NULL OR TRIM(full_name) = ''");
+    $pdo->prepare("UPDATE users SET full_name = 'Yared', phone = ? WHERE LOWER(TRIM(username)) = 'yared'")
+        ->execute([normalize_ethiopian_phone('0926862255')]);
+    foreach ($pdo->query("SELECT id, phone FROM users WHERE phone IS NOT NULL AND TRIM(phone) <> ''")->fetchAll() as $user_phone) {
+        $normalized_phone = normalize_ethiopian_phone($user_phone['phone']);
+        if ($normalized_phone !== null && $normalized_phone !== $user_phone['phone']) {
+            $pdo->prepare('UPDATE users SET phone = ? WHERE id = ?')->execute([$normalized_phone, $user_phone['id']]);
+        }
+    }
+    foreach ($pdo->query('SELECT id, phone FROM password_reset_requests')->fetchAll() as $reset_phone) {
+        $normalized_phone = normalize_ethiopian_phone($reset_phone['phone']);
+        if ($normalized_phone !== null && $normalized_phone !== $reset_phone['phone']) {
+            $pdo->prepare('UPDATE password_reset_requests SET phone = ? WHERE id = ?')->execute([$normalized_phone, $reset_phone['id']]);
+        }
+    }
+    try {
+        $pdo->exec('CREATE UNIQUE INDEX users_phone_unique ON users(phone)');
+    } catch (PDOException $e) {
+        // Keep startup working if legacy accounts still have duplicate phone numbers.
+    }
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS password_reset_requests (
+        id $pk,
+        user_id INT NOT NULL,
+        phone VARCHAR(30) NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'pending',
+        otp_hash $longtext,
+        attempts INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        otp_expires_at DATETIME,
+        verified_at DATETIME,
+        used_at DATETIME
+    )");
 
     // Seed initial admin ONLY if the users table is completely empty
     $stmt = $pdo->query("SELECT COUNT(*) FROM users");
@@ -67,6 +117,8 @@ try {
         $hashed_password = password_hash('admin123', PASSWORD_DEFAULT);
         $pdo->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)")->execute(['admin', $hashed_password, 'System Admin']);
     }
+
+    $pdo->prepare("UPDATE users SET role = 'Super Admin' WHERE LOWER(TRIM(username)) = 'yared'")->execute();
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS menu_items (
         id $pk,
@@ -175,5 +227,14 @@ if (!function_exists('get_app_setting')) {
         }
         return isset($settings[$key]) && $settings[$key] !== '' ? (string) $settings[$key] : $default;
     }
+}
+
+if (session_status() === PHP_SESSION_ACTIVE
+    && !empty($_SESSION['admin_logged_in'])
+    && !empty($_SESSION['admin_must_change_password'])
+    && strpos(str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? ''), '/admin/') !== false
+    && !in_array(basename($_SERVER['SCRIPT_NAME'] ?? ''), ['change_password.php', 'logout.php', 'login.php'], true)) {
+    header('Location: change_password.php');
+    exit;
 }
 ?>

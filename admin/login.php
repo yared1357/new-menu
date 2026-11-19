@@ -4,19 +4,20 @@ require_once '../includes/db.php';
 
 // Check if user is already logged in
 if (isset($_SESSION['admin_logged_in'])) {
-    header('Location: dashboard.php');
+    header('Location: ' . (!empty($_SESSION['admin_must_change_password']) ? 'change_password.php' : 'dashboard.php'));
     exit;
 }
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
+    $phone = normalize_ethiopian_phone($_POST['phone'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE LOWER(username) = LOWER(?) OR LOWER(TRIM(username)) = LOWER(?)");
-    $stmt->execute([$username, $username]);
-    $user = $stmt->fetch();
+    $stmt = $pdo->prepare('SELECT * FROM users WHERE phone = ?');
+    $stmt->execute([$phone]);
+    $matched_users = $phone === null ? [] : $stmt->fetchAll();
+    $user = count($matched_users) === 1 ? $matched_users[0] : null;
 
     // Verify password (allowing for trailing spaces if manually added via DB manager)
     $plain_match = $user ? (trim($password) === trim($user['password'])) : false;
@@ -31,12 +32,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $_SESSION['admin_logged_in'] = true;
         $_SESSION['admin_id'] = $user['id'];
-        $_SESSION['admin_user'] = $user['username'];
+        $_SESSION['admin_user'] = $user['full_name'] ?: $user['username'];
         $_SESSION['admin_role'] = $user['role'] ?? 'Admin';
-        header('Location: dashboard.php');
+        $_SESSION['admin_must_change_password'] = !empty($user['must_change_password']);
+        header('Location: ' . ($_SESSION['admin_must_change_password'] ? 'change_password.php' : 'dashboard.php'));
         exit;
     } else {
-        $error = 'Invalid username or password';
+        $error = 'Invalid phone number or password';
     }
 }
 ?>
@@ -119,10 +121,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <form method="POST" class="space-y-5">
                             <div>
-                                <label for="username" class="mb-2 block text-sm font-semibold text-gray-700">Username</label>
-                                <input id="username" type="text" name="username" required autocomplete="username"
+                                <label for="phone" class="mb-2 block text-sm font-semibold text-gray-700">Phone number <span class="ml-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-800">🇪🇹 +251</span></label>
+                                <input id="phone" type="tel" name="phone" required inputmode="tel" autocomplete="tel"
                                     class="w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-5 py-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-700 focus:bg-white focus:ring-4 focus:ring-emerald-700/10"
-                                    placeholder="Enter your username">
+                                    placeholder="09..., 07..., or +251...">
                             </div>
                             <div>
                                 <label for="password" class="mb-2 block text-sm font-semibold text-gray-700">Password</label>
@@ -149,6 +151,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </svg>
                             </button>
                         </form>
+                        <div class="mt-5 text-right">
+                            <a href="forgot_password.php" class="text-sm font-semibold text-emerald-800 transition-colors hover:text-orange-600">Forgot password?</a>
+                        </div>
                         <p class="mt-7 text-center text-xs text-gray-400">Authorized staff only</p>
                     </div>
                 </div>

@@ -1,6 +1,24 @@
 <?php
 // sidebar.php - Included in admin pages
 $current_page = basename($_SERVER['PHP_SELF']);
+$admin_name = $_SESSION['admin_user'] ?? 'Admin';
+$admin_initial = strtoupper(substr($admin_name, 0, 1));
+$admin_role = $_SESSION['admin_role'] ?? 'Admin';
+$is_super_admin = false;
+
+if (isset($_SESSION['admin_id'])) {
+    $current_admin_query = $pdo->prepare('SELECT username, full_name, role FROM users WHERE id = ?');
+    $current_admin_query->execute([$_SESSION['admin_id']]);
+    $current_admin = $current_admin_query->fetch();
+    if ($current_admin) {
+        $admin_name = $current_admin['full_name'] ?: $current_admin['username'];
+        $admin_initial = strtoupper(substr($admin_name, 0, 1));
+        $admin_role = $current_admin['role'] ?? 'Admin';
+        $_SESSION['admin_user'] = $admin_name;
+        $_SESSION['admin_role'] = $admin_role;
+        $is_super_admin = strtolower(trim($admin_name)) === 'yared' && $admin_role === 'Super Admin';
+    }
+}
 ?>
 <!-- Sidebar Backdrop -->
 <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" style="display: none;"
@@ -10,11 +28,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <aside :class="sidebarOpen ? 'active' : ''"
     class="sidebar w-64 fixed lg:sticky top-0 bg-gradient-to-b from-[#1f322e] via-[#173b34] to-[#122c27] border-r border-white/10 px-5 pt-5 pb-[2px] sm:px-6 sm:pt-6 z-50 flex flex-col shrink-0 text-white shadow-2xl shadow-[#102720]/20">
     <div class="mb-6 flex shrink-0 items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 sm:mb-8">
-        <?php
-        $admin_name = $_SESSION['admin_user'] ?? 'Admin';
-        $admin_initial = strtoupper(substr($admin_name, 0, 1));
-        $admin_role = $_SESSION['admin_role'] ?? 'Admin';
-        ?>
         <div class="w-10 h-10 bg-gradient-to-br from-amber-300 to-orange-400 rounded-xl flex items-center justify-center shadow-lg shadow-orange-950/30">
             <span class="font-black text-[#26352d] text-lg"><?= htmlspecialchars($admin_initial) ?></span>
         </div>
@@ -97,6 +110,20 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </svg>
             Change Password
         </a>
+        <?php if ($is_super_admin): ?>
+            <a href="admin_users.php"
+                class="group flex items-center gap-3 rounded-xl border px-3 py-3 transition-all duration-200 <?= $current_page == 'admin_users.php' ? 'border-amber-200/20 bg-gradient-to-r from-amber-300 to-orange-300 font-semibold text-[#25342d] shadow-lg shadow-black/10' : 'border-transparent text-white/75 hover:border-white/10 hover:bg-white/10 hover:text-white' ?>">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2m6-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm10 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                Manage Admins
+            </a>
+            <a href="password_reset_requests.php"
+                class="group flex items-center gap-3 rounded-xl border px-3 py-3 transition-all duration-200 <?= $current_page == 'password_reset_requests.php' ? 'border-amber-200/20 bg-gradient-to-r from-amber-300 to-orange-300 font-semibold text-[#25342d] shadow-lg shadow-black/10' : 'border-transparent text-white/75 hover:border-white/10 hover:bg-white/10 hover:text-white' ?>">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM8 3.5l-2 2m10-2 2 2"/></svg>
+                Password Requests
+            </a>
+        <?php endif; ?>
     </nav>
     <div class="mt-auto shrink-0 space-y-2 border-t border-white/10 pt-4">
         <a href="../menu.php" target="_blank" rel="noopener noreferrer"
