@@ -17,7 +17,7 @@ $request = $stmt->fetch();
 if (!$request
     || $request['phone'] !== $request['current_phone']
     || !$request['verified_at']
-    || strtotime($request['verified_at']) < time() - 600) {
+    || strtotime($request['verified_at']) < time() - 10800) {
     unset($_SESSION['password_reset_verified_id'], $_SESSION['password_reset_request_id']);
     header('Location: forgot_password.php');
     exit;

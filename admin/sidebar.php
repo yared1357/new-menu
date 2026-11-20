@@ -96,13 +96,15 @@ if (isset($_SESSION['admin_id'])) {
                     class="w-5 h-5 bg-orange-400 text-[#26352d] text-[10px] flex items-center justify-center rounded-full font-bold shadow-lg shadow-black/20"><?= $unread_count ?></span>
             <?php endif; ?>
         </a>
-        <a href="settings.php"
+        <?php if ($is_super_admin): ?>
+            <a href="settings.php"
             class="group flex items-center gap-3 rounded-xl border px-3 py-3 transition-all duration-200 <?= $current_page == 'settings.php' ? 'border-amber-200/20 bg-gradient-to-r from-amber-300 to-orange-300 font-semibold text-[#25342d] shadow-lg shadow-black/10' : 'border-transparent text-white/75 hover:border-white/10 hover:bg-white/10 hover:text-white' ?>">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0-6v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
             </svg>
             Settings
-        </a>
+            </a>
+        <?php endif; ?>
         <a href="change_password.php"
             class="group flex items-center gap-3 rounded-xl border px-3 py-3 transition-all duration-200 <?= $current_page == 'change_password.php' ? 'border-amber-200/20 bg-gradient-to-r from-amber-300 to-orange-300 font-semibold text-[#25342d] shadow-lg shadow-black/10' : 'border-transparent text-white/75 hover:border-white/10 hover:bg-white/10 hover:text-white' ?>">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

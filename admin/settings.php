@@ -8,6 +8,16 @@ if (!isset($_SESSION['admin_logged_in'])) {
     exit;
 }
 
+$current_admin_query = $pdo->prepare('SELECT username, role FROM users WHERE id = ?');
+$current_admin_query->execute([$_SESSION['admin_id'] ?? 0]);
+$current_admin = $current_admin_query->fetch();
+if (!$current_admin
+    || strtolower(trim($current_admin['username'])) !== 'yared'
+    || $current_admin['role'] !== 'Super Admin') {
+    http_response_code(403);
+    exit('You do not have permission to access settings.');
+}
+
 $message = '';
 $success = false;
 $brand_logo = get_app_setting('brand_logo');

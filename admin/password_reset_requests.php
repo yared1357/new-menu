@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = 'This reset request is no longer available.';
         } else {
             $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            $expires_at = date('Y-m-d H:i:s', time() + 600);
+            $expires_at = date('Y-m-d H:i:s', time() + 10800);
             $stmt = $pdo->prepare("UPDATE password_reset_requests SET status = 'otp_sent', otp_hash = ?, attempts = 0, otp_expires_at = ?, verified_at = NULL WHERE id = ?");
             $stmt->execute([password_hash($otp, PASSWORD_DEFAULT), $expires_at, $request_id]);
             $_SESSION['generated_reset_otp'] = [$request_id => $otp];
@@ -86,7 +86,7 @@ include 'header.php';
                         ? 'Waiting for code'
                         : ($request['status'] === 'verified' ? 'Code verified' : ($expired ? 'Code expired' : 'Code sent'));
                     $message_template = $visible_otp !== ''
-                        ? 'Hello ' . $request['full_name'] . ', your password reset code for ' . get_app_setting('brand_name', 'the menu') . ' is ' . $visible_otp . '. It expires in 10 minutes. If you did not request this, ignore this message.'
+                        ? 'Hello ' . $request['full_name'] . ', your password reset code for ' . get_app_setting('brand_name', 'the menu') . ' is ' . $visible_otp . '. It expires in 3 hours. If you did not request this, ignore this message.'
                         : '';
                     ?>
                     <li class="flex flex-col gap-4 p-5 sm:p-7 lg:flex-row lg:items-center lg:justify-between">
