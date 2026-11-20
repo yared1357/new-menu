@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             if (!$user) {
-                $_SESSION['password_reset_notice'] = 'If those details match an admin account, a password reset request has been sent to the Super Admin.';
+                $_SESSION['password_reset_notice'] = 'If an admin account matches those details, the reset request can be reviewed by the Super Admin. Check the phone number or contact the Super Admin if you need help.';
                 header('Location: forgot_password.php');
                 exit;
             }
@@ -232,8 +232,8 @@ $recovery_step = $request ? 2 : 1;
                 <form method="POST" class="space-y-4">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['password_reset_form_token']) ?>">
                     <input type="hidden" name="action" value="request">
-                    <label class="block text-sm font-semibold text-gray-700">Registered phone number <span class="ml-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-800">🇪🇹 +251</span>
-                        <input type="tel" name="phone" required maxlength="20" autocomplete="tel" inputmode="tel" placeholder="09..., 07..., or +251..." class="mt-2 w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
+                    <label class="block text-sm font-semibold text-gray-700">Registered phone number
+                        <input type="tel" name="phone" required maxlength="20" autocomplete="tel" inputmode="tel" placeholder="Enter your phone number" class="mt-2 w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
                     </label>
                     <button type="submit" class="w-full rounded-xl bg-emerald-800 px-4 py-3 font-bold text-white transition hover:bg-emerald-900 focus:outline-none focus:ring-4 focus:ring-emerald-700/20">Request reset code</button>
                 </form>

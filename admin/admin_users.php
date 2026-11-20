@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (strlen($full_name) < 2 || strlen($full_name) > 150) {
             $message = 'Enter a full name between 2 and 150 characters.';
         } elseif ($phone === null) {
-            $message = 'Enter a valid Ethiopian mobile number beginning with 07, 09, or +251.';
+            $message = 'Enter a valid Ethiopian mobile number.';
         } elseif (strlen($password) < 4) {
             $message = 'The password must be at least 4 characters.';
         } elseif ($password !== $confirm_password) {
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (strlen($full_name) < 2 || strlen($full_name) > 150) {
             $message = 'Enter a full name between 2 and 150 characters.';
         } elseif ($phone === null) {
-            $message = 'Enter a valid Ethiopian mobile number beginning with 07, 09, or +251.';
+            $message = 'Enter a valid Ethiopian mobile number.';
         } else {
             $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE phone = ? AND role = 'Super Admin'");
             $stmt->execute([$phone]);
@@ -184,7 +184,7 @@ include 'header.php';
                                     <label class="text-xs font-semibold text-gray-600">Full name
                                         <input name="full_name" required maxlength="150" value="<?= htmlspecialchars($admin['full_name'] ?: $admin['username'], ENT_QUOTES, 'UTF-8') ?>" class="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/10">
                                     </label>
-                                    <label class="text-xs font-semibold text-gray-600">Phone <span class="text-emerald-800">🇪🇹 +251</span>
+                                    <label class="text-xs font-semibold text-gray-600">Phone
                                         <input type="tel" name="phone" required maxlength="20" inputmode="tel" value="<?= htmlspecialchars($admin['phone'] ?? '', ENT_QUOTES, 'UTF-8') ?>" class="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/10">
                                     </label>
                                     <button type="submit" class="self-end rounded-lg bg-emerald-800 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-900">Save</button>
@@ -247,8 +247,8 @@ include 'header.php';
                         class="mt-2 w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
                 </label>
                 <label class="text-sm font-semibold text-gray-700">
-                    Phone number <span class="ml-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-800">🇪🇹 +251</span>
-                    <input type="tel" name="phone" required maxlength="20" autocomplete="tel" inputmode="tel" placeholder="09..., 07..., or +251..." value="<?= htmlspecialchars($_POST['phone'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                    Phone number
+                    <input type="tel" name="phone" required maxlength="20" autocomplete="tel" inputmode="tel" placeholder="Enter phone number" value="<?= htmlspecialchars($_POST['phone'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                         class="mt-2 w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
                 </label>
                 <label class="text-sm font-semibold text-gray-700">

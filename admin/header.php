@@ -1,6 +1,9 @@
 <?php
 $admin_flash = $_SESSION['admin_flash'] ?? null;
 unset($_SESSION['admin_flash']);
+$admin_brand_name = get_app_setting('brand_name', 'Tasty Pizza & Burger');
+$admin_brand_logo = get_app_setting('brand_logo');
+$admin_brand_initial = strtoupper(mb_substr(trim($admin_brand_name), 0, 1, 'UTF-8') ?: 'A');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -135,14 +138,16 @@ unset($_SESSION['admin_flash']);
     <!-- Mobile Header -->
     <div class="lg:hidden sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-gradient-to-r from-[#1f322e] to-[#17503d] p-4 text-white shadow-md">
         <div class="flex items-center gap-2">
-            <?php
-            $admin_name = $_SESSION['admin_user'] ?? 'Admin';
-            $admin_initial = strtoupper(substr($admin_name, 0, 1));
-            ?>
-            <div
-                class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-300 to-orange-400 flex items-center justify-center font-bold text-[#25342d] text-sm shadow-sm">
-                <?= $admin_initial ?>
-            </div>
+            <?php $admin_name = $_SESSION['admin_user'] ?? 'Admin'; ?>
+            <?php if ($admin_brand_logo !== ''): ?>
+                <div class="flex h-8 w-12 items-center justify-center rounded-lg border border-white/10 bg-white p-1">
+                    <img src="../<?= htmlspecialchars($admin_brand_logo) ?>" alt="<?= htmlspecialchars($admin_brand_name) ?> logo" class="h-full w-full object-contain">
+                </div>
+            <?php else: ?>
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-300 to-orange-400 font-bold text-sm text-[#25342d] shadow-sm">
+                    <?= htmlspecialchars($admin_brand_initial) ?>
+                </div>
+            <?php endif; ?>
             <span class="font-bold text-white"><?= htmlspecialchars(ucfirst($admin_name)) ?></span>
         </div>
         <button type="button" @click="sidebarOpen = !sidebarOpen" aria-label="Toggle navigation"

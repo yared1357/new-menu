@@ -9,6 +9,9 @@ if (isset($_SESSION['admin_logged_in'])) {
 }
 
 $error = '';
+$brand_name = get_app_setting('brand_name', 'Tasty Pizza & Burger');
+$brand_logo = get_app_setting('brand_logo');
+$brand_initial = strtoupper(mb_substr(trim($brand_name), 0, 1, 'UTF-8') ?: 'A');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = normalize_ethiopian_phone($_POST['phone'] ?? '');
@@ -69,14 +72,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="pointer-events-none absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-orange-200/60 blur-3xl"></div>
 
         <header class="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between">
-            <a href="../index.php" class="group inline-flex items-center gap-3" aria-label="Tasty Pizza and Burger home">
-                <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-xl font-black text-white shadow-lg shadow-orange-600/20 transition-transform group-hover:-rotate-3 group-hover:scale-105">T</span>
+            <a href="../index.php" class="group inline-flex items-center gap-3" aria-label="<?= htmlspecialchars($brand_name) ?> home">
+                <?php if ($brand_logo !== ''): ?>
+                    <span class="flex h-9 w-fit max-w-[34vw] shrink-0 items-center justify-center rounded-xl border border-white/50 bg-white p-1 shadow-xl shadow-black/20 transition-transform duration-300 group-hover:scale-105 sm:h-10 sm:max-w-[30vw] md:h-12 md:max-w-[9rem]">
+                        <img src="../<?= htmlspecialchars($brand_logo) ?>" alt="<?= htmlspecialchars($brand_name) ?> logo" class="block h-full w-auto max-w-full object-contain">
+                    </span>
+                <?php else: ?>
+                    <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-xl font-black text-white shadow-lg shadow-orange-600/20 transition-transform group-hover:-rotate-3 group-hover:scale-105"><?= htmlspecialchars($brand_initial) ?></span>
+                <?php endif; ?>
                 <span class="leading-tight">
-                    <span class="block text-sm font-black uppercase tracking-wide text-[#20332b]"><?= htmlspecialchars(get_app_setting('brand_name', 'Tasty Pizza & Burger')) ?></span>
+                    <span class="block text-sm font-black uppercase tracking-wide text-[#20332b]"><?= htmlspecialchars($brand_name) ?></span>
                     <span class="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-800">Management portal</span>
                 </span>
             </a>
-            <a href="../index.php" class="rounded-full border border-gray-200 bg-white/70 px-4 py-2 text-xs font-bold text-gray-600 transition-colors hover:border-emerald-700/30 hover:text-emerald-800">View storefront</a>
+            <a href="../index.php" class="rounded-full border border-gray-200 bg-white/70 px-4 py-2 text-xs font-bold text-gray-600 transition-colors hover:border-emerald-700/30 hover:text-emerald-800">Back to Home</a>
         </header>
 
         <main class="relative z-10 mx-auto flex w-full max-w-6xl flex-1 items-center py-8 sm:py-12">
@@ -84,31 +93,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="relative flex min-h-56 flex-col justify-between overflow-hidden bg-gradient-to-br from-[#1f322e] via-[#17503d] to-[#3a2314] p-7 text-white sm:p-10 lg:min-h-[590px] lg:p-14">
                     <div class="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full border-[40px] border-white/5"></div>
                     <div class="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-orange-400/15 blur-2xl"></div>
-                    <div class="relative">
+                    <div class="relative flex flex-1 flex-col items-center justify-center text-center">
                         <span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-100">
                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-300"></span>
-                            Fresh from our kitchen
+                            Admin Portal
                         </span>
-                        <h1 class="mt-7 max-w-md text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">Good food starts with a well-run kitchen.</h1>
-                        <p class="mt-4 max-w-sm text-sm leading-6 text-white/70 sm:text-base">Sign in to manage your menu, categories, payments, and customer feedback.</p>
-                    </div>
-                    <div class="relative mt-10 hidden items-center gap-3 text-xs font-medium text-white/65 lg:flex">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/10">
-                            <svg class="h-5 w-5 text-orange-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M4 7h16M4 12h10M4 17h7M19 11v7m-3.5-3.5h7" />
-                            </svg>
-                        </span>
-                        <span>Everything you need to keep service running smoothly.</span>
+                        <h1 class="mt-6 max-w-lg text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">Welcome to ሚራክል ሆቴል Admin Portal</h1>
                     </div>
                 </div>
 
                 <div class="flex items-center p-7 sm:p-10 lg:p-14">
                     <div class="mx-auto w-full max-w-md">
-                        <div class="mb-8">
+                        <div class="mb-8 text-center">
                             <p class="text-xs font-bold uppercase tracking-[0.2em] text-emerald-800">Welcome back</p>
                             <h2 class="mt-2 text-3xl font-bold tracking-tight text-[#20332b]">Admin sign in</h2>
-                            <p class="mt-2 text-sm leading-6 text-gray-500">Enter your account details to continue to the dashboard.</p>
-                        </div>
+                            </div>
 
                         <?php if ($error): ?>
                             <div role="alert" class="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
@@ -121,10 +120,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <form method="POST" class="space-y-5">
                             <div>
-                                <label for="phone" class="mb-2 block text-sm font-semibold text-gray-700">Phone number <span class="ml-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-800">🇪🇹 +251</span></label>
+                                <label for="phone" class="mb-2 block text-sm font-semibold text-gray-700">Phone number</label>
                                 <input id="phone" type="tel" name="phone" required inputmode="tel" autocomplete="tel"
                                     class="w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-5 py-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-700 focus:bg-white focus:ring-4 focus:ring-emerald-700/10"
-                                    placeholder="09..., 07..., or +251...">
+                                    placeholder="Enter your phone number">
                             </div>
                             <div>
                                 <label for="password" class="mb-2 block text-sm font-semibold text-gray-700">Password</label>
@@ -160,9 +159,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </section>
         </main>
 
-        <footer class="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-2 border-t border-gray-200/80 py-5 text-center text-xs text-gray-500 sm:flex-row sm:text-left">
-            <span>&copy; <?= date('Y') ?> <?= htmlspecialchars(get_app_setting('copyright_name', 'Tasty Pizza & Burger')) ?></span>
-            <a href="../index.php" class="font-semibold text-emerald-800 transition-colors hover:text-orange-600">Back to the menu</a>
+        <footer class="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between gap-2 border-t border-gray-200/80 py-5 text-left text-[10px] text-gray-500 sm:text-xs">
+            <span class="min-w-0 truncate">&copy; <?= date('Y') ?> <?= htmlspecialchars(get_app_setting('copyright_name', 'Tasty Pizza & Burger')) ?></span>
+            <a href="../index.php" class="shrink-0 whitespace-nowrap font-semibold text-emerald-800 transition-colors hover:text-orange-600">Back to the menu</a>
         </footer>
 </body>
 

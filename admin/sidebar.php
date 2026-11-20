@@ -5,6 +5,9 @@ $admin_name = $_SESSION['admin_user'] ?? 'Admin';
 $admin_initial = strtoupper(substr($admin_name, 0, 1));
 $admin_role = $_SESSION['admin_role'] ?? 'Admin';
 $is_super_admin = false;
+$brand_name = get_app_setting('brand_name', 'Tasty Pizza & Burger');
+$brand_logo = get_app_setting('brand_logo');
+$brand_initial = strtoupper(mb_substr(trim($brand_name), 0, 1, 'UTF-8') ?: 'A');
 
 if (isset($_SESSION['admin_id'])) {
     $current_admin_query = $pdo->prepare('SELECT username, full_name, role FROM users WHERE id = ?');
@@ -28,9 +31,15 @@ if (isset($_SESSION['admin_id'])) {
 <aside :class="sidebarOpen ? 'active' : ''"
     class="sidebar w-64 fixed lg:sticky top-0 bg-gradient-to-b from-[#1f322e] via-[#173b34] to-[#122c27] border-r border-white/10 px-5 pt-5 pb-[2px] sm:px-6 sm:pt-6 z-50 flex flex-col shrink-0 text-white shadow-2xl shadow-[#102720]/20">
     <div class="mb-6 flex shrink-0 items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 sm:mb-8">
-        <div class="w-10 h-10 bg-gradient-to-br from-amber-300 to-orange-400 rounded-xl flex items-center justify-center shadow-lg shadow-orange-950/30">
-            <span class="font-black text-[#26352d] text-lg"><?= htmlspecialchars($admin_initial) ?></span>
-        </div>
+        <?php if ($brand_logo !== ''): ?>
+            <div class="flex h-10 w-14 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white p-1">
+                <img src="../<?= htmlspecialchars($brand_logo) ?>" alt="<?= htmlspecialchars($brand_name) ?> logo" class="h-full w-full object-contain">
+            </div>
+        <?php else: ?>
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-300 to-orange-400 shadow-lg shadow-orange-950/30">
+                <span class="text-lg font-black text-[#26352d]"><?= htmlspecialchars($brand_initial) ?></span>
+            </div>
+        <?php endif; ?>
         <div class="flex flex-col pt-1">
             <h1 class="text-base font-bold tracking-tight leading-none text-white">
                 <?= htmlspecialchars(ucfirst($admin_name)) ?>
