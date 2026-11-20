@@ -87,8 +87,7 @@ include 'header.php';
             </div>
             <div>
                 <h2 class="text-lg font-bold text-[#20332b]">Business branding</h2>
-                <p class="mt-1 text-sm text-gray-500">Manage the name and logo shown to customers.</p>
-            </div>
+                 </div>
         </div>
 
         <?php if ($message !== ''): ?>

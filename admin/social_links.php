@@ -90,8 +90,7 @@ include 'header.php';
 <div class="mx-auto max-w-5xl">
     <header class="mb-8">
         <h2 class="text-3xl font-bold text-gray-900">Social Links</h2>
-        <p class="mt-2 text-sm text-gray-500">Control the social platforms displayed on the customer menu.</p>
-    </header>
+         </header>
 
     <?php if ($message): ?>
         <div role="alert" class="mb-6 rounded-2xl border border-rose-100 bg-rose-50 p-4 font-semibold text-rose-700">

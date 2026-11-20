@@ -11,8 +11,7 @@
                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-300"></span>
                 Operational
             </span>
-            <a href="../index.php" class="rounded-full border border-white/20 px-2.5 py-1.5 text-white/85 transition-colors hover:border-white/40 hover:bg-white/10 hover:text-white sm:px-3">View site</a>
-        </div>
+             </div>
     </div>
 </footer>
 </main>

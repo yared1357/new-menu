@@ -54,8 +54,7 @@ include 'header.php';
                 Account security
             </span>
             <h2 class="mt-4 text-3xl font-bold tracking-tight text-[#20332b] sm:text-4xl">Change password</h2>
-            <p class="mt-2 text-sm text-gray-500">Update the password you use to access the admin panel.</p>
-        </header>
+             </header>
 
         <div class="glass-card rounded-[2rem] border border-white p-6 shadow-[0_20px_60px_rgba(27,52,43,0.10)] sm:p-9">
             <?php if ($message !== ''): ?>
