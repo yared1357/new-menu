@@ -57,6 +57,8 @@ $social_links = $pdo->query("SELECT platform, name, url
 
 $brand_name = get_app_setting('brand_name', 'Tasty Pizza & Burger');
 $brand_short_name = get_app_setting('brand_short_name', 'Tasty Pizza');
+$brand_initial_source = trim($brand_short_name) !== '' ? trim($brand_short_name) : trim($brand_name);
+$brand_initial = strtoupper(mb_substr($brand_initial_source, 0, 1, 'UTF-8') ?: 'T');
 $brand_logo = get_app_setting('brand_logo');
 $brand_tagline = get_app_setting('brand_tagline', 'Digital Menu');
 $brand_phone = get_app_setting('phone_number', '0926862255');
@@ -323,7 +325,7 @@ function social_link_icon(string $platform): string
                         <?php if ($brand_logo !== ''): ?>
                             <img src="<?= htmlspecialchars($brand_logo) ?>" alt="<?= htmlspecialchars($brand_short_name) ?> logo" class="block h-full w-auto max-w-full object-contain">
                         <?php else: ?>
-                            <span class="text-orange-600 font-black text-lg sm:text-xl md:text-2xl">T</span>
+                            <span class="text-orange-600 font-black text-lg sm:text-xl md:text-2xl"><?= htmlspecialchars($brand_initial) ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="flex flex-col leading-tight">
@@ -653,7 +655,7 @@ function social_link_icon(string $platform): string
         <div class="mt-20 sm:mt-24 flex flex-col items-center relative z-10 hidden">
             <div
                 class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-2xl mb-6 border-4 border-white/50 hover:scale-110 transition-transform duration-300">
-                <span class="text-orange-600 font-black text-3xl">T</span>
+                <span class="text-orange-600 font-black text-3xl"><?= htmlspecialchars($brand_initial) ?></span>
             </div>
             <h2 class="text-3xl sm:text-4xl font-black tracking-tight uppercase text-white"><?= htmlspecialchars($brand_short_name) ?></h2>
             <p class="text-orange-100 text-sm mt-2 font-medium"><?= htmlspecialchars($brand_tagline) ?></p>

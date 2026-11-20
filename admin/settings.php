@@ -18,8 +18,10 @@ if (!$current_admin
     exit('You do not have permission to access settings.');
 }
 
-$message = '';
-$success = false;
+$settings_flash = $_SESSION['settings_flash'] ?? null;
+unset($_SESSION['settings_flash']);
+$message = $settings_flash['message'] ?? '';
+$success = (bool) ($settings_flash['success'] ?? false);
 $brand_logo = get_app_setting('brand_logo');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'branding') {
@@ -44,9 +46,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'brand
                 ? $uploaded_logo
                 : (!empty($_POST['remove_brand_logo']) ? '' : $current_logo);
 
-            $stmt = $pdo->prepare('UPDATE app_settings SET setting_value = ? WHERE setting_key = ?');
-            foreach ($branding as $key => $value) {
-                $stmt->execute([$value, $key]);
+            $pdo->beginTransaction();
+            try {
+                $stmt = $pdo->prepare('UPDATE app_settings SET setting_value = ? WHERE setting_key = ?');
+                foreach ($branding as $key => $value) {
+                    $stmt->execute([$value, $key]);
+                    if ($stmt->rowCount() === 0) {
+                        $exists = $pdo->prepare('SELECT 1 FROM app_settings WHERE setting_key = ?');
+                        $exists->execute([$key]);
+                        if (!$exists->fetchColumn()) {
+                            $pdo->prepare('INSERT INTO app_settings (setting_key, setting_value) VALUES (?, ?)')
+                                ->execute([$key, $value]);
+                        }
+                    }
+                }
+                $pdo->commit();
+            } catch (PDOException $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                throw $e;
             }
 
             $brand_logo = $branding['brand_logo'];
@@ -59,6 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'brand
                     $message = 'Branding updated, but the previous logo could not be removed.';
                 }
             }
+            $_SESSION['settings_flash'] = ['message' => $message, 'success' => $success];
+            header('Location: settings.php');
+            exit;
         } catch (RuntimeException $e) {
             if ($uploaded_logo !== '') {
                 remove_menu_image($uploaded_logo);

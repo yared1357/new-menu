@@ -32,8 +32,8 @@ if (isset($_SESSION['admin_id'])) {
     class="sidebar w-64 fixed lg:sticky top-0 bg-gradient-to-b from-[#1f322e] via-[#173b34] to-[#122c27] border-r border-white/10 px-5 pt-5 pb-[2px] sm:px-6 sm:pt-6 z-50 flex flex-col shrink-0 text-white shadow-2xl shadow-[#102720]/20">
     <div class="mb-6 flex shrink-0 items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 sm:mb-8">
         <?php if ($brand_logo !== ''): ?>
-            <div class="flex h-10 w-14 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white p-1">
-                <img src="../<?= htmlspecialchars($brand_logo) ?>" alt="<?= htmlspecialchars($brand_name) ?> logo" class="h-full w-full object-contain">
+            <div class="flex h-10 w-fit max-w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white">
+                <img src="../<?= htmlspecialchars($brand_logo) ?>" alt="<?= htmlspecialchars($brand_name) ?> logo" class="block h-full w-auto max-w-full object-contain">
             </div>
         <?php else: ?>
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-300 to-orange-400 shadow-lg shadow-orange-950/30">

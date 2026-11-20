@@ -140,8 +140,8 @@ $admin_brand_initial = strtoupper(mb_substr(trim($admin_brand_name), 0, 1, 'UTF-
         <div class="flex items-center gap-2">
             <?php $admin_name = $_SESSION['admin_user'] ?? 'Admin'; ?>
             <?php if ($admin_brand_logo !== ''): ?>
-                <div class="flex h-8 w-12 items-center justify-center rounded-lg border border-white/10 bg-white p-1">
-                    <img src="../<?= htmlspecialchars($admin_brand_logo) ?>" alt="<?= htmlspecialchars($admin_brand_name) ?> logo" class="h-full w-full object-contain">
+                <div class="flex h-8 w-fit max-w-12 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-white">
+                    <img src="../<?= htmlspecialchars($admin_brand_logo) ?>" alt="<?= htmlspecialchars($admin_brand_name) ?> logo" class="block h-full w-auto max-w-full object-contain">
                 </div>
             <?php else: ?>
                 <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-300 to-orange-400 font-bold text-sm text-[#25342d] shadow-sm">
