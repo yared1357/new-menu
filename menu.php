@@ -852,7 +852,11 @@ function social_link_icon(string $platform): string
                 </div>
             </div>
             <div class="text-center text-xs text-orange-100/80 sm:text-sm">
-                <p>Copyrights &copy; <?= date('Y') ?> <?= htmlspecialchars($copyright_name) ?>. All rights reserved.</p>
+                <p>
+                    Copyrights &copy; <?= date('Y') ?> <?= htmlspecialchars($copyright_name) ?>. All rights reserved.
+                    <span class="mx-1 text-white/40" aria-hidden="true">·</span>
+                    Developed by <a href="https://yared.infinityfreeapp.com/portfolio.php" target="_blank" rel="noopener noreferrer" class="font-semibold text-white transition-colors hover:text-amber-200">Yared</a>
+                </p>
             </div>
         </div>
     </footer>

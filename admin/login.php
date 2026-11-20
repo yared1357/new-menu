@@ -153,8 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="mt-5 text-right">
                             <a href="forgot_password.php" class="text-sm font-semibold text-emerald-800 transition-colors hover:text-orange-600">Forgot password?</a>
                         </div>
-                        <p class="mt-7 text-center text-xs text-gray-400">Authorized staff only</p>
-                    </div>
+                         </div>
                 </div>
             </section>
         </main>

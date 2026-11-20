@@ -190,8 +190,7 @@ $recovery_step = $request ? 2 : 1;
     <main class="w-full max-w-md overflow-hidden rounded-3xl border border-white bg-white shadow-2xl shadow-emerald-950/10">
         <div class="bg-gradient-to-br from-[#1f322e] via-[#17503d] to-[#28704f] p-6 text-white sm:p-8">
             <a href="login.php" class="text-xs font-semibold text-emerald-100 hover:text-white">&larr; Back to sign in</a>
-            <p class="mt-7 text-xs font-bold uppercase tracking-[0.2em] text-emerald-100">Account recovery</p>
-            <h1 class="mt-2 text-3xl font-bold tracking-tight">Forgot password?</h1>
+              <h1 class="mt-2 text-3xl font-bold tracking-tight">Forgot password?</h1>
         </div>
         <div class="p-6 sm:p-8">
             <ol aria-label="Password recovery steps" class="mb-6 grid grid-cols-3 gap-2 text-center text-[10px] font-bold sm:text-xs">
