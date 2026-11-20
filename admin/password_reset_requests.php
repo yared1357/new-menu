@@ -102,10 +102,10 @@ include 'header.php';
                             <?php if ($visible_otp !== ''): ?>
                                 <div class="mt-4 flex flex-wrap items-center gap-2">
                                     <code class="rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 font-mono text-lg font-bold tracking-[0.2em] text-emerald-900"><?= htmlspecialchars($visible_otp) ?></code>
-                                    <button type="button" data-copy-text="<?= htmlspecialchars($visible_otp, ENT_QUOTES, 'UTF-8') ?>" @click="navigator.clipboard.writeText($el.dataset.copyText)"
-                                        class="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs font-bold text-emerald-800 transition hover:bg-emerald-50">Copy code</button>
-                                    <button type="button" data-copy-text="<?= htmlspecialchars($message_template, ENT_QUOTES, 'UTF-8') ?>" @click="navigator.clipboard.writeText($el.dataset.copyText)"
-                                        class="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs font-bold text-emerald-800 transition hover:bg-emerald-50">Copy message</button>
+                                    <button type="button" x-data="{ copied: false }" data-copy-text="<?= htmlspecialchars($visible_otp, ENT_QUOTES, 'UTF-8') ?>" @click="navigator.clipboard.writeText($el.dataset.copyText).then(() => { copied = true; setTimeout(() => copied = false, 3000) })" :aria-label="copied ? 'Code copied' : 'Copy code'" aria-live="polite"
+                                        class="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs font-bold text-emerald-800 transition hover:bg-emerald-50"><span x-text="copied ? 'Copied' : 'Copy code'">Copy code</span></button>
+                                    <button type="button" x-data="{ copied: false }" data-copy-text="<?= htmlspecialchars($message_template, ENT_QUOTES, 'UTF-8') ?>" @click="navigator.clipboard.writeText($el.dataset.copyText).then(() => { copied = true; setTimeout(() => copied = false, 3000) })" :aria-label="copied ? 'Message copied' : 'Copy message'" aria-live="polite"
+                                        class="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs font-bold text-emerald-800 transition hover:bg-emerald-50"><span x-text="copied ? 'Copied' : 'Copy message'">Copy message</span></button>
                                 </div>
                             <?php endif; ?>
                         </div>

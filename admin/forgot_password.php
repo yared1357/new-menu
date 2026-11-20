@@ -13,6 +13,8 @@ if (empty($_SESSION['password_reset_form_token'])) {
 
 $message = '';
 $error = '';
+$daily_limit_reached = false;
+$super_admin_phone = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($_SESSION['password_reset_form_token'], $_POST['csrf_token'] ?? '')) {
         $error = 'Your session expired. Refresh the page and try again.';
@@ -29,19 +31,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = count($matching_users) === 1 ? $matching_users[0] : null;
 
             if ($user) {
-                $stmt = $pdo->prepare("SELECT id FROM password_reset_requests WHERE user_id = ? AND status IN ('pending', 'otp_sent') ORDER BY id DESC LIMIT 1");
-                $stmt->execute([$user['id']]);
-                $request_id = $stmt->fetchColumn();
+                $stmt = $pdo->prepare("SELECT phone FROM users WHERE role = 'Super Admin' ORDER BY id LIMIT 1");
+                $stmt->execute();
+                $super_admin_phone = $stmt->fetchColumn() ?: '';
 
-                if (!$request_id) {
-                    $stmt = $pdo->prepare("INSERT INTO password_reset_requests (user_id, phone, status) VALUES (?, ?, 'pending')");
-                    $stmt->execute([$user['id'], $phone]);
-                    $request_id = $pdo->lastInsertId();
+                $request_day = date('Y-m-d');
+                $stmt = $pdo->prepare('SELECT id, status, otp_expires_at, verified_at FROM password_reset_requests WHERE user_id = ? AND request_day = ? ORDER BY id DESC LIMIT 1');
+                $stmt->execute([$user['id'], $request_day]);
+                $existing_request = $stmt->fetch();
+
+                if ($existing_request && in_array($existing_request['status'], ['pending', 'otp_sent', 'verified'], true)) {
+                    $request_id = (int) $existing_request['id'];
+                    $_SESSION['password_reset_request_id'] = $request_id;
+
+                    if ($existing_request['status'] === 'otp_sent'
+                        && strtotime($existing_request['otp_expires_at'] ?? '') <= time()) {
+                        $pdo->prepare("UPDATE password_reset_requests SET status = 'pending', otp_hash = NULL, otp_expires_at = NULL, attempts = 0 WHERE id = ?")
+                            ->execute([$request_id]);
+                        $message = 'Your previous code expired. The Super Admin can generate a new code for this request.';
+                    } elseif ($existing_request['status'] === 'verified'
+                        && $existing_request['verified_at']
+                        && strtotime($existing_request['verified_at']) >= time() - 600) {
+                        $_SESSION['password_reset_verified_id'] = $request_id;
+                        header('Location: reset_password.php');
+                        exit;
+                    } elseif ($existing_request['status'] === 'verified') {
+                        $daily_limit_reached = true;
+                    } elseif ($existing_request['status'] === 'otp_sent') {
+                        $message = 'A code has already been generated. Enter it below to continue.';
+                    } else {
+                        $message = 'Your request is waiting for the Super Admin. This page will check for the code automatically.';
+                    }
+                } else {
+                    try {
+                        $stmt = $pdo->prepare("INSERT INTO password_reset_requests (user_id, phone, status, request_day) VALUES (?, ?, 'pending', ?)");
+                        $stmt->execute([$user['id'], $phone, $request_day]);
+                        $request_id = $pdo->lastInsertId();
+                        $_SESSION['password_reset_request_id'] = (int) $request_id;
+                        $message = 'Your reset request was sent to the Super Admin. This page will check for the code automatically.';
+                    } catch (PDOException $e) {
+                        $stmt = $pdo->prepare('SELECT id, status FROM password_reset_requests WHERE user_id = ? AND request_day = ? ORDER BY id DESC LIMIT 1');
+                        $stmt->execute([$user['id'], $request_day]);
+                        $existing_request = $stmt->fetch();
+                        if ($existing_request && in_array($existing_request['status'], ['pending', 'otp_sent'], true)) {
+                            $_SESSION['password_reset_request_id'] = (int) $existing_request['id'];
+                            $message = $existing_request['status'] === 'otp_sent'
+                                ? 'A code has already been generated. Enter it below to continue.'
+                                : 'Your request is waiting for the Super Admin. This page will check for the code automatically.';
+                        } else {
+                            $daily_limit_reached = true;
+                        }
+                    }
                 }
-                $_SESSION['password_reset_request_id'] = (int) $request_id;
-            }
 
-            $message = 'If those details match an admin account, a password reset request has been sent to the Super Admin.';
+                if ($daily_limit_reached) {
+                    $message = 'You have already requested a password reset today.';
+                }
+            }
+            if (!$user) {
+                $message = 'If those details match an admin account, a password reset request has been sent to the Super Admin.';
+            }
         }
     } elseif (($_POST['action'] ?? '') === 'verify') {
         $request_id = (int) ($_SESSION['password_reset_request_id'] ?? 0);
@@ -96,6 +145,7 @@ if ($request_id > 0) {
         $request = null;
     }
 }
+$recovery_step = $request ? 2 : 1;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -118,6 +168,20 @@ if ($request_id > 0) {
             <h1 class="mt-2 text-3xl font-bold tracking-tight">Forgot password?</h1>
         </div>
         <div class="p-6 sm:p-8">
+            <ol aria-label="Password recovery steps" class="mb-6 grid grid-cols-3 gap-2 text-center text-[10px] font-bold sm:text-xs">
+                <li class="flex flex-col items-center gap-1.5 <?= $recovery_step === 1 ? 'text-emerald-900' : 'text-emerald-700' ?>">
+                    <span class="flex h-7 w-7 items-center justify-center rounded-full <?= $recovery_step === 1 ? 'bg-emerald-800 text-white' : 'bg-emerald-100' ?>">1</span>
+                    Request
+                </li>
+                <li class="flex flex-col items-center gap-1.5 <?= $recovery_step === 2 ? 'text-emerald-900' : 'text-gray-400' ?>">
+                    <span class="flex h-7 w-7 items-center justify-center rounded-full <?= $recovery_step === 2 ? 'bg-emerald-800 text-white' : 'bg-gray-100' ?>">2</span>
+                    Verify code
+                </li>
+                <li class="flex flex-col items-center gap-1.5 text-gray-400">
+                    <span class="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100">3</span>
+                    New password
+                </li>
+            </ol>
             <?php if ($error !== ''): ?>
                 <div role="alert" class="mb-5 rounded-xl border border-red-100 bg-red-50 p-3 text-sm font-semibold text-red-700"><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
@@ -125,7 +189,17 @@ if ($request_id > 0) {
                 <div role="status" class="mb-5 rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800"><?= htmlspecialchars($message) ?></div>
             <?php endif; ?>
 
-            <?php if (!$request): ?>
+            <?php if ($daily_limit_reached): ?>
+                <div role="status" class="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                    <p class="font-bold text-amber-950">You have already sent a request today.</p>
+                    <p class="mt-1 text-sm leading-5 text-amber-900">For help with your password reset, contact the Super Admin using the registered number below.</p>
+                    <?php if ($super_admin_phone !== ''): ?>
+                        <a href="tel:<?= htmlspecialchars(preg_replace('/[^0-9+]/', '', $super_admin_phone)) ?>" class="mt-3 inline-flex font-bold text-emerald-900 underline decoration-emerald-700 underline-offset-2">
+                            <?= htmlspecialchars($super_admin_phone) ?>
+                        </a>
+                    <?php endif; ?>
+                </div>
+            <?php elseif (!$request): ?>
                 <p class="mb-5 text-sm leading-6 text-gray-600">Enter your registered phone number. The Super Admin will verify your request and send a one-time code.</p>
                 <form method="POST" class="space-y-4">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['password_reset_form_token']) ?>">

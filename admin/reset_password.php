@@ -82,6 +82,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h1 class="mt-2 text-3xl font-bold tracking-tight">Choose a new password</h1>
         </div>
         <div class="p-6 sm:p-8">
+            <ol aria-label="Password recovery steps" class="mb-6 grid grid-cols-3 gap-2 text-center text-[10px] font-bold sm:text-xs">
+                <li class="flex flex-col items-center gap-1.5 text-emerald-700"><span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100">1</span>Request</li>
+                <li class="flex flex-col items-center gap-1.5 text-emerald-700"><span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100">2</span>Verify code</li>
+                <li class="flex flex-col items-center gap-1.5 text-emerald-900"><span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-800 text-white">3</span>New password</li>
+            </ol>
             <?php if ($error !== ''): ?>
                 <div role="alert" class="mb-5 rounded-xl border border-red-100 bg-red-50 p-3 text-sm font-semibold text-red-700"><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>

@@ -4,8 +4,7 @@
     <div class="flex h-full flex-col items-center justify-center gap-2 sm:flex-row sm:justify-between sm:gap-4">
         <div class="text-center sm:text-left">
             <p class="text-xs font-semibold tracking-wide text-white sm:text-sm"><?= htmlspecialchars(get_app_setting('brand_name', 'Tasty Pizza & Burger')) ?></p>
-            <p class="mt-0.5 text-[10px] text-orange-100/75 sm:text-xs">Copyrights &copy; <?= date('Y') ?> Y-Global System Solution. All rights reserved.</p>
-        </div>
+           </div>
         <div class="flex flex-wrap items-center justify-center gap-2 text-[9px] font-bold uppercase tracking-[0.12em] sm:justify-end sm:gap-3 sm:text-[10px] sm:tracking-[0.16em]">
             <span class="rounded-full border border-white/15 bg-white/5 px-2.5 py-1.5 text-orange-100/80 sm:px-3">System v1.0</span>
             <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-400/10 px-2.5 py-1.5 text-emerald-100 sm:gap-2 sm:px-3">

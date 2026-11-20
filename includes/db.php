@@ -80,6 +80,28 @@ try {
     $pdo->exec("UPDATE users SET full_name = username WHERE full_name IS NULL OR TRIM(full_name) = ''");
     $pdo->prepare("UPDATE users SET full_name = 'Yared', phone = ? WHERE LOWER(TRIM(username)) = 'yared'")
         ->execute([normalize_ethiopian_phone('0926862255')]);
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS password_reset_requests (
+        id $pk,
+        user_id INT NOT NULL,
+        phone VARCHAR(30) NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'pending',
+        otp_hash $longtext,
+        attempts INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        request_day DATE,
+        otp_expires_at DATETIME,
+        verified_at DATETIME,
+        used_at DATETIME
+    )");
+    $addColumn('password_reset_requests', 'request_day', 'DATE');
+    $pdo->exec('UPDATE password_reset_requests SET request_day = DATE(created_at) WHERE request_day IS NULL');
+    try {
+        $pdo->exec('CREATE UNIQUE INDEX password_reset_user_day_unique ON password_reset_requests(user_id, request_day)');
+    } catch (PDOException $e) {
+        // Keep startup working if legacy requests already contain duplicates for a day.
+    }
+
     foreach ($pdo->query("SELECT id, phone FROM users WHERE phone IS NOT NULL AND TRIM(phone) <> ''")->fetchAll() as $user_phone) {
         $normalized_phone = normalize_ethiopian_phone($user_phone['phone']);
         if ($normalized_phone !== null && $normalized_phone !== $user_phone['phone']) {
@@ -97,19 +119,6 @@ try {
     } catch (PDOException $e) {
         // Keep startup working if legacy accounts still have duplicate phone numbers.
     }
-
-    $pdo->exec("CREATE TABLE IF NOT EXISTS password_reset_requests (
-        id $pk,
-        user_id INT NOT NULL,
-        phone VARCHAR(30) NOT NULL,
-        status VARCHAR(20) NOT NULL DEFAULT 'pending',
-        otp_hash $longtext,
-        attempts INTEGER DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        otp_expires_at DATETIME,
-        verified_at DATETIME,
-        used_at DATETIME
-    )");
 
     // Seed initial admin ONLY if the users table is completely empty
     $stmt = $pdo->query("SELECT COUNT(*) FROM users");

@@ -52,16 +52,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ((int) $stmt->fetchColumn() > 0) {
                     $message = 'The Super Admin phone number is reserved and cannot be assigned to another admin.';
                 } else {
-                $stmt = $pdo->prepare('SELECT COUNT(*) FROM users WHERE phone = ?');
-                $stmt->execute([$phone]);
-                if ((int) $stmt->fetchColumn() > 0) {
-                    $message = 'That phone number is already assigned to an account.';
-                } else {
-                    $stmt = $pdo->prepare('INSERT INTO users (username, full_name, password, role, phone, must_change_password) VALUES (?, ?, ?, ?, ?, ?)');
-                    $stmt->execute([$phone, $full_name, password_hash($password, PASSWORD_DEFAULT), 'Admin', $phone, 1]);
-                    $message = 'Admin account created successfully.';
-                    $success = true;
-                }
+                    $stmt = $pdo->prepare('SELECT COUNT(*) FROM users WHERE phone = ?');
+                    $stmt->execute([$phone]);
+                    if ((int) $stmt->fetchColumn() > 0) {
+                        $message = 'That phone number is already assigned to an account.';
+                    } else {
+                        $stmt = $pdo->prepare('INSERT INTO users (username, full_name, password, role, phone, must_change_password) VALUES (?, ?, ?, ?, ?, ?)');
+                        $stmt->execute([$phone, $full_name, password_hash($password, PASSWORD_DEFAULT), 'Admin', $phone, 1]);
+                        $_SESSION['admin_flash'] = [
+                            'title' => 'Admin created',
+                            'message' => $full_name . ' can sign in with their phone and temporary password. They will be asked to change it on first login.',
+                        ];
+                        header('Location: admin_users.php');
+                        exit;
+                    }
                 }
             } catch (PDOException $e) {
                 $message = 'That phone number is already assigned or the account could not be created.';
@@ -116,12 +120,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $admins = $pdo->query('SELECT id, username, full_name, role, phone FROM users ORDER BY full_name ASC')->fetchAll();
 $create_panel_open = $_SERVER['REQUEST_METHOD'] === 'POST'
     && ($_POST['action'] ?? '') === 'create'
-    && !$success;
+    && $message !== '';
 $page_title = 'Manage Admins';
 include 'header.php';
 ?>
 
-<div class="mx-auto w-full max-w-5xl" x-data="{ search: '', createOpen: <?= $create_panel_open ? 'true' : 'false' ?>, showPassword: false, showConfirmPassword: false }">
+<div class="mx-auto w-full max-w-5xl" x-data="{ search: '', createOpen: <?= $create_panel_open ? 'true' : 'false' ?> }">
     <header class="mb-6 flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-[#1f322e] via-[#17503d] to-[#28704f] p-4 text-white shadow-xl sm:p-8">
         <div class="min-w-0">
             <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-100 sm:text-xs sm:tracking-[0.2em]">Super Admin</p>
