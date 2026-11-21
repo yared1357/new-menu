@@ -20,7 +20,10 @@ if ($fresh_recovery_visit) {
 
 $message = $_SESSION['password_reset_notice'] ?? '';
 unset($_SESSION['password_reset_notice']);
-$error = '';
+$return_to_request_form = isset($_GET['request']) && !empty($_SESSION['password_reset_return_to_form']);
+unset($_SESSION['password_reset_return_to_form']);
+$error = $_SESSION['password_reset_error'] ?? '';
+unset($_SESSION['password_reset_error']);
 $daily_limit_reached = isset($_GET['limit']) && !empty($_SESSION['password_reset_limit_user_id']);
 $super_admin_phone = '';
 if ($daily_limit_reached) {
@@ -33,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Your session expired. Refresh the page and try again.';
     } elseif (($_POST['action'] ?? '') === 'request') {
         $daily_limit_reached = false;
+        unset($_SESSION['password_reset_return_to_form']);
         unset($_SESSION['password_reset_request_id'], $_SESSION['password_reset_verified_id'], $_SESSION['password_reset_limit_user_id']);
         $phone = normalize_ethiopian_phone($_POST['phone'] ?? '');
 
@@ -68,9 +72,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($existing_request && in_array($existing_request['status'], ['pending', 'otp_sent'], true)) {
                     $_SESSION['password_reset_request_id'] = (int) $existing_request['id'];
-                    $_SESSION['password_reset_notice'] ??= $existing_request['status'] === 'otp_sent'
-                        ? 'A code has already been generated. Enter it below to continue.'
-                        : 'Your request is waiting for the Super Admin. This page will check for the code automatically.';
+                    if ($existing_request['status'] === 'otp_sent') {
+                        $_SESSION['password_reset_notice'] ??= 'A code has already been generated. Enter it below to continue.';
+                    } else {
+                        $_SESSION['password_reset_notice'] ??= 'Your request is waiting for the Super Admin. Returning to the request form shortly.';
+                        $_SESSION['password_reset_return_to_form'] = true;
+                    }
                     header('Location: forgot_password.php?request=1');
                     exit;
                 }
@@ -89,7 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $pdo->prepare("INSERT INTO password_reset_requests (user_id, phone, status, request_day) VALUES (?, ?, 'pending', ?)");
                     $stmt->execute([$user['id'], $phone, $request_day]);
                     $_SESSION['password_reset_request_id'] = (int) $pdo->lastInsertId();
-                    $_SESSION['password_reset_notice'] = 'Your reset request was sent to the Super Admin. This page will check for the code automatically.';
+                    $_SESSION['password_reset_notice'] = 'Your reset request was sent to the Super Admin. Returning to the request form shortly.';
+                    $_SESSION['password_reset_return_to_form'] = true;
                     header('Location: forgot_password.php?request=1');
                     exit;
                 } catch (PDOException $e) {
@@ -98,9 +106,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $active_request = $stmt->fetch();
                     if ($active_request) {
                         $_SESSION['password_reset_request_id'] = (int) $active_request['id'];
-                        $_SESSION['password_reset_notice'] = $active_request['status'] === 'otp_sent'
-                            ? 'A code has already been generated. Enter it below to continue.'
-                            : 'Your request is waiting for the Super Admin. This page will check for the code automatically.';
+                        if ($active_request['status'] === 'otp_sent') {
+                            $_SESSION['password_reset_notice'] = 'A code has already been generated. Enter it below to continue.';
+                        } else {
+                            $_SESSION['password_reset_notice'] = 'Your request is waiting for the Super Admin. Returning to the request form shortly.';
+                            $_SESSION['password_reset_return_to_form'] = true;
+                        }
                         header('Location: forgot_password.php?request=1');
                         exit;
                     }
@@ -111,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             if (!$user) {
-                $_SESSION['password_reset_notice'] = 'If an admin account matches those details, the reset request can be reviewed by the Super Admin. Check the phone number or contact the Super Admin if you need help.';
+                $_SESSION['password_reset_error'] = 'Phone number not found. Check the number and try again.';
                 header('Location: forgot_password.php');
                 exit;
             }
@@ -179,7 +190,9 @@ $recovery_step = $request ? 2 : 1;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password | <?= htmlspecialchars(get_app_setting('brand_name', 'Menu')) ?></title>
-    <?php if ($request && $request['status'] === 'pending'): ?>
+    <?php if ($return_to_request_form): ?>
+        <meta http-equiv="refresh" content="3;url=forgot_password.php">
+    <?php elseif ($request && $request['status'] === 'pending'): ?>
         <meta http-equiv="refresh" content="8;url=forgot_password.php?request=1">
     <?php endif; ?>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -239,7 +252,9 @@ $recovery_step = $request ? 2 : 1;
             <?php elseif ($request['status'] === 'pending'): ?>
                 <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4">
                     <p class="font-bold text-amber-900">Request sent to the Super Admin</p>
-                    <p class="mt-1 text-sm leading-5 text-amber-800">This page checks for the code automatically. Enter it here after the Super Admin sends it to your registered phone.</p>
+                    <p class="mt-1 text-sm leading-5 text-amber-800"><?= $return_to_request_form
+                        ? 'You can submit a request for another account in a moment.'
+                        : 'This page checks for the code automatically. Enter it here after the Super Admin sends it to your registered phone.' ?></p>
                 </div>
                 <a href="forgot_password.php?request=1" class="mt-5 inline-flex text-sm font-semibold text-emerald-800 hover:text-emerald-950">Check for an updated request</a>
             <?php else: ?>
