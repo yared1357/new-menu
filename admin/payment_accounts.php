@@ -112,14 +112,27 @@ if (isset($_GET['edit'])) {
 }
 
 $accounts = $pdo->query("SELECT * FROM payment_accounts ORDER BY id DESC")->fetchAll();
+$account_form_open = $editing !== null
+    || ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save');
+$form_values = $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save'
+    ? $_POST
+    : ($editing ?? []);
 $page_title = 'Payment Accounts';
 include 'header.php';
 ?>
 
-<div class="max-w-5xl mx-auto">
-    <header class="mb-8">
-        <h2 class="text-3xl font-bold text-gray-900">Payment Accounts</h2>
-        </header>
+<div class="mx-auto max-w-5xl" x-data="{ accountFormOpen: <?= $account_form_open ? 'true' : 'false' ?> }">
+    <header class="mb-6 flex items-center justify-between gap-3">
+        <h2 class="min-w-0 text-2xl font-bold text-gray-900 sm:text-3xl">Payment Accounts</h2>
+        <button type="button" @click="accountFormOpen = !accountFormOpen"
+            :aria-expanded="accountFormOpen.toString()"
+            class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-[#1f322e] to-emerald-700 px-3 py-2.5 text-xs font-bold text-white shadow-md transition hover:to-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-700/20 sm:px-5 sm:text-sm">
+            <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14m-7-7h14" />
+            </svg>
+            <span x-text="accountFormOpen ? 'Close form' : 'Add payment'"><?= $editing ? 'Close form' : 'Add payment' ?></span>
+        </button>
+    </header>
 
     <?php if ($message !== ''): ?>
         <div class="bg-rose-50 border border-rose-100 text-rose-700 p-4 rounded-2xl mb-6 font-semibold">
@@ -127,7 +140,7 @@ include 'header.php';
         </div>
     <?php endif; ?>
 
-    <section class="glass-card rounded-3xl p-6 lg:p-8 mb-8">
+    <section x-show="accountFormOpen" x-cloak x-transition class="glass-card mb-8 rounded-3xl p-5 sm:p-6 lg:p-8">
         <h3 class="text-xl font-bold text-gray-900 mb-6">
             <?= $editing ? 'Edit payment account' : 'Add payment account' ?>
         </h3>
@@ -138,18 +151,18 @@ include 'header.php';
 
             <label class="block text-sm font-semibold text-gray-700">
                 Bank or payment provider
-                <input name="provider" required maxlength="120" value="<?= htmlspecialchars($editing['provider'] ?? '') ?>"
+                <input name="provider" required maxlength="120" value="<?= htmlspecialchars($form_values['provider'] ?? '') ?>"
                     placeholder="e.g. CBE, Telebirr"
                     class="mt-2 w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:border-orange-500">
             </label>
             <label class="block text-sm font-semibold text-gray-700">
                 Account holder name
-                <input name="account_name" required maxlength="160" value="<?= htmlspecialchars($editing['account_name'] ?? '') ?>"
+                <input name="account_name" required maxlength="160" value="<?= htmlspecialchars($form_values['account_name'] ?? '') ?>"
                     class="mt-2 w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:border-orange-500">
             </label>
             <label class="block text-sm font-semibold text-gray-700">
                 Account number
-                <input name="account_number" required maxlength="120" value="<?= htmlspecialchars($editing['account_number'] ?? '') ?>"
+                <input name="account_number" required maxlength="120" value="<?= htmlspecialchars($form_values['account_number'] ?? '') ?>"
                     class="mt-2 w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:border-orange-500">
             </label>
             <label class="block text-sm font-semibold text-gray-700">
@@ -167,7 +180,9 @@ include 'header.php';
             <?php endif; ?>
 
             <label class="flex items-center gap-3 text-sm font-semibold text-gray-700 md:col-span-2">
-                <input type="checkbox" name="is_active" value="1" <?= !isset($editing['is_active']) || $editing['is_active'] ? 'checked' : '' ?>
+                <input type="checkbox" name="is_active" value="1" <?= $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save'
+                    ? (isset($_POST['is_active']) ? 'checked' : '')
+                    : (!isset($editing['is_active']) || $editing['is_active'] ? 'checked' : '') ?>
                     class="h-4 w-4 accent-emerald-600">
                 Show this account to customers
             </label>
@@ -185,40 +200,43 @@ include 'header.php';
     </section>
 
     <section class="space-y-4">
-        <h3 class="text-xl font-bold text-gray-900">Configured accounts</h3>
+        <div class="flex items-center justify-between gap-3">
+            <h3 class="text-lg font-bold text-gray-900 sm:text-xl">Configured accounts</h3>
+            <span class="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800"><?= count($accounts) ?> total</span>
+        </div>
         <?php if (!$accounts): ?>
             <div class="glass-card rounded-2xl p-6 text-sm text-gray-500">No payment accounts have been added yet.</div>
         <?php endif; ?>
         <?php foreach ($accounts as $account): ?>
-            <article class="glass-card rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+            <article class="glass-card flex min-w-0 items-center gap-2.5 rounded-2xl p-3.5 sm:gap-4 sm:p-5">
                 <?php if (!empty($account['qr_image'])): ?>
                     <img src="../<?= htmlspecialchars($account['qr_image']) ?>" alt="QR code for <?= htmlspecialchars($account['provider']) ?>"
-                        class="w-20 h-20 rounded-xl border border-gray-200 object-contain bg-white p-1">
+                        class="h-14 w-14 shrink-0 rounded-xl border border-gray-200 bg-white object-contain p-1 sm:h-16 sm:w-16">
                 <?php else: ?>
-                    <div class="w-20 h-20 rounded-xl bg-gray-100 flex items-center justify-center text-xs text-gray-400">No QR</div>
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-[10px] text-gray-400 sm:h-16 sm:w-16 sm:text-xs">No QR</div>
                 <?php endif; ?>
-                <div class="flex-1 min-w-0">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <h4 class="font-bold text-gray-900"><?= htmlspecialchars($account['provider']) ?></h4>
-                        <span class="px-2 py-1 rounded-full text-[10px] font-bold <?= $account['is_active'] ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500' ?>">
+                <div class="min-w-0 flex-1">
+                    <div class="flex min-w-0 flex-wrap items-center gap-1.5 sm:gap-2">
+                        <h4 class="max-w-full truncate text-sm font-bold leading-5 text-gray-900"><?= htmlspecialchars($account['provider']) ?></h4>
+                        <span class="shrink-0 rounded-full px-2 py-1 text-[9px] font-bold leading-none sm:text-[10px] <?= $account['is_active'] ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500' ?>">
                             <?= $account['is_active'] ? 'Visible' : 'Hidden' ?>
                         </span>
                     </div>
-                    <p class="text-sm text-gray-600"><?= htmlspecialchars($account['account_name']) ?></p>
-                    <div x-data="{ copied: false }" class="flex items-center gap-2">
-                        <p x-ref="accountNumber" class="text-sm font-semibold text-gray-800"><?= htmlspecialchars($account['account_number']) ?></p>
+                    <p class="mt-0.5 truncate text-xs leading-4 text-gray-600 sm:text-sm"><?= htmlspecialchars($account['account_name']) ?></p>
+                    <div x-data="{ copied: false }" class="mt-0.5 flex min-w-0 items-center gap-1">
+                        <p x-ref="accountNumber" class="min-w-0 truncate text-xs font-semibold leading-4 text-gray-800 sm:text-sm"><?= htmlspecialchars($account['account_number']) ?></p>
                         <button type="button" @click="navigator.clipboard.writeText($refs.accountNumber.textContent.trim()).then(() => { copied = true; setTimeout(() => copied = false, 1500) })"
                             :aria-label="copied ? 'Account number copied' : 'Copy account number'" :title="copied ? 'Copied' : 'Copy account number'"
-                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/50">
+                            class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/50 sm:h-8 sm:w-8">
                             <svg x-show="!copied" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2" stroke-width="1.8"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" stroke-width="1.8"/></svg>
                             <svg x-show="copied" x-cloak class="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 12 4 4L19 6"/></svg>
                         </button>
                     </div>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex shrink-0 gap-1.5 sm:gap-2">
                     <a href="payment_accounts.php?edit=<?= (int) $account['id'] ?>"
                         aria-label="Edit <?= htmlspecialchars($account['provider']) ?> account" title="Edit account"
-                        class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-amber-300/60 bg-gradient-to-br from-amber-200 to-orange-200 text-[#25342d] transition-all hover:-translate-y-0.5 hover:from-amber-100 hover:to-orange-100 focus:outline-none focus:ring-4 focus:ring-amber-400/30">
+                        class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-amber-300/60 bg-gradient-to-br from-amber-200 to-orange-200 text-[#25342d] transition-all hover:-translate-y-0.5 hover:from-amber-100 hover:to-orange-100 focus:outline-none focus:ring-4 focus:ring-amber-400/30 sm:h-10 sm:w-10">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                                 d="m15.5 5.5 3 3M4 20l4.3-.9L19 8.4a2.1 2.1 0 0 0-3-3L5.3 16.1 4 20Z" />
@@ -229,7 +247,7 @@ include 'header.php';
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="id" value="<?= (int) $account['id'] ?>">
                         <button type="button" @click="requestConfirmation('Remove this payment account? This action cannot be undone.', () => $el.closest('form').requestSubmit())" aria-label="Delete <?= htmlspecialchars($account['provider']) ?> account" title="Delete account"
-                            class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-700 transition-all hover:-translate-y-0.5 hover:bg-rose-100 focus:outline-none focus:ring-4 focus:ring-rose-500/20">
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-700 transition-all hover:-translate-y-0.5 hover:bg-rose-100 focus:outline-none focus:ring-4 focus:ring-rose-500/20 sm:h-10 sm:w-10">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                                     d="M4 7h16m-10 4v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3" />
