@@ -22,11 +22,13 @@ $message = $_SESSION['password_reset_notice'] ?? '';
 unset($_SESSION['password_reset_notice']);
 $return_to_request_form = isset($_GET['request']) && !empty($_SESSION['password_reset_return_to_form']);
 unset($_SESSION['password_reset_return_to_form']);
+$repeated_pending_request = isset($_GET['request']) && !empty($_SESSION['password_reset_repeated_pending']);
+unset($_SESSION['password_reset_repeated_pending']);
 $error = $_SESSION['password_reset_error'] ?? '';
 unset($_SESSION['password_reset_error']);
 $daily_limit_reached = isset($_GET['limit']) && !empty($_SESSION['password_reset_limit_user_id']);
 $super_admin_phone = '';
-if ($daily_limit_reached) {
+if ($daily_limit_reached || $repeated_pending_request) {
     $super_admin_phone_query = $pdo->query("SELECT phone FROM users WHERE role = 'Super Admin' ORDER BY id LIMIT 1");
     $super_admin_phone = $super_admin_phone_query->fetchColumn() ?: '';
 }
@@ -37,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (($_POST['action'] ?? '') === 'request') {
         $daily_limit_reached = false;
         unset($_SESSION['password_reset_return_to_form']);
+        unset($_SESSION['password_reset_repeated_pending']);
         unset($_SESSION['password_reset_request_id'], $_SESSION['password_reset_verified_id'], $_SESSION['password_reset_limit_user_id']);
         $phone = normalize_ethiopian_phone($_POST['phone'] ?? '');
 
@@ -75,8 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($existing_request['status'] === 'otp_sent') {
                         $_SESSION['password_reset_notice'] ??= 'A code has already been generated. Enter it below to continue.';
                     } else {
-                        $_SESSION['password_reset_notice'] ??= 'Your request is waiting for the Super Admin. Returning to the request form shortly.';
-                        $_SESSION['password_reset_return_to_form'] = true;
+                        $_SESSION['password_reset_notice'] ??= 'Your request is waiting for the Super Admin.';
+                        $_SESSION['password_reset_repeated_pending'] = true;
                     }
                     header('Location: forgot_password.php?request=1');
                     exit;
@@ -109,8 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if ($active_request['status'] === 'otp_sent') {
                             $_SESSION['password_reset_notice'] = 'A code has already been generated. Enter it below to continue.';
                         } else {
-                            $_SESSION['password_reset_notice'] = 'Your request is waiting for the Super Admin. Returning to the request form shortly.';
-                            $_SESSION['password_reset_return_to_form'] = true;
+                            $_SESSION['password_reset_notice'] = 'Your request is waiting for the Super Admin.';
+                            $_SESSION['password_reset_repeated_pending'] = true;
                         }
                         header('Location: forgot_password.php?request=1');
                         exit;
@@ -192,7 +195,7 @@ $recovery_step = $request ? 2 : 1;
     <title>Reset Password | <?= htmlspecialchars(get_app_setting('brand_name', 'Menu')) ?></title>
     <?php if ($return_to_request_form): ?>
         <meta http-equiv="refresh" content="3;url=forgot_password.php">
-    <?php elseif ($request && $request['status'] === 'pending'): ?>
+    <?php elseif ($request && $request['status'] === 'pending' && !$repeated_pending_request): ?>
         <meta http-equiv="refresh" content="8;url=forgot_password.php?request=1">
     <?php endif; ?>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -223,19 +226,26 @@ $recovery_step = $request ? 2 : 1;
             <?php if ($error !== ''): ?>
                 <div role="alert" class="mb-5 rounded-xl border border-red-100 bg-red-50 p-3 text-sm font-semibold text-red-700"><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
-            <?php if ($message !== ''): ?>
+            <?php if ($message !== '' && !$daily_limit_reached && !$repeated_pending_request): ?>
                 <div role="status" class="mb-5 rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800"><?= htmlspecialchars($message) ?></div>
             <?php endif; ?>
 
             <?php if ($daily_limit_reached): ?>
-                <div role="status" class="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                    <p class="font-bold text-amber-950">You have already sent a request today.</p>
-                    <p class="mt-1 text-sm leading-5 text-amber-900">For help with your password reset, contact the Super Admin using the registered number below.</p>
-                    <?php if ($super_admin_phone !== ''): ?>
-                        <a href="tel:<?= htmlspecialchars(preg_replace('/[^0-9+]/', '', $super_admin_phone)) ?>" class="mt-3 inline-flex font-bold text-emerald-900 underline decoration-emerald-700 underline-offset-2">
-                            <?= htmlspecialchars($super_admin_phone) ?>
-                        </a>
-                    <?php endif; ?>
+                <div role="alert" class="mb-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="font-bold">You have already requested a password reset today.</p>
+                            <p class="mt-1 text-sm leading-5">For help, contact the Super Admin<?= $super_admin_phone !== '' ? ' at' : '' ?>.</p>
+                        <?php if ($super_admin_phone !== ''): ?>
+                            <a href="tel:<?= htmlspecialchars(preg_replace('/[^0-9+]/', '', $super_admin_phone)) ?>" class="mt-2 inline-flex font-bold text-emerald-900 underline decoration-emerald-700 underline-offset-2">
+                                <?= htmlspecialchars($super_admin_phone) ?>
+                            </a>
+                        <?php else: ?>
+                            <p class="mt-2 text-sm font-semibold">No Super Admin phone number is configured. Please contact the administrator directly.</p>
+                        <?php endif; ?>
+                        </div>
+                        <button type="button" aria-label="Close notice" onclick="this.closest('[role=alert]').remove()" class="shrink-0 rounded-lg px-3 py-1.5 text-sm font-bold text-amber-950 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-700">OK</button>
+                    </div>
                 </div>
             <?php endif; ?>
 
@@ -250,13 +260,31 @@ $recovery_step = $request ? 2 : 1;
                     <button type="submit" class="w-full rounded-xl bg-emerald-800 px-4 py-3 font-bold text-white transition hover:bg-emerald-900 focus:outline-none focus:ring-4 focus:ring-emerald-700/20">Request reset code</button>
                 </form>
             <?php elseif ($request['status'] === 'pending'): ?>
-                <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                    <p class="font-bold text-amber-900">Request sent to the Super Admin</p>
-                    <p class="mt-1 text-sm leading-5 text-amber-800"><?= $return_to_request_form
-                        ? 'You can submit a request for another account in a moment.'
-                        : 'This page checks for the code automatically. Enter it here after the Super Admin sends it to your registered phone.' ?></p>
+                <div role="<?= $repeated_pending_request ? 'alert' : 'status' ?>" class="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                    <?php if ($repeated_pending_request): ?>
+                        <div class="text-center">
+                            <p class="font-bold text-amber-900">Your request is already waiting for the Super Admin.</p>
+                            <p class="mt-1 text-sm leading-5 text-amber-800">Please wait for it to be reviewed. For help, contact the Super Admin<?= $super_admin_phone !== '' ? ' at' : '' ?>.</p>
+                            <?php if ($super_admin_phone !== ''): ?>
+                                <a href="tel:<?= htmlspecialchars(preg_replace('/[^0-9+]/', '', $super_admin_phone)) ?>" class="mt-2 inline-flex justify-center font-bold text-emerald-900 underline decoration-emerald-700 underline-offset-2">
+                                    <?= htmlspecialchars($super_admin_phone) ?>
+                                </a>
+                            <?php else: ?>
+                                <p class="mt-2 text-sm font-semibold text-amber-900">No Super Admin phone number is configured.</p>
+                            <?php endif; ?>
+                        </div>
+                        <div class="mt-4 flex justify-center gap-2">
+                            <button type="button" onclick="window.location.href='forgot_password.php'" class="rounded-lg border border-amber-300 bg-white px-4 py-2 text-sm font-bold text-amber-900 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-700">Cancel</button>
+                            <button type="button" onclick="window.location.href='forgot_password.php'" class="rounded-lg bg-amber-800 px-4 py-2 text-sm font-bold text-white hover:bg-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-700">OK</button>
+                        </div>
+                    <?php else: ?>
+                        <p class="font-bold text-amber-900">Request sent to the Super Admin</p>
+                        <p class="mt-1 text-sm leading-5 text-amber-800">This page checks for the code automatically. Enter it here after the Super Admin sends it to your registered phone.</p>
+                    <?php endif; ?>
                 </div>
-                <a href="forgot_password.php?request=1" class="mt-5 inline-flex text-sm font-semibold text-emerald-800 hover:text-emerald-950">Check for an updated request</a>
+                <?php if (!$return_to_request_form): ?>
+                    <a href="forgot_password.php?request=1" class="mt-5 inline-flex text-sm font-semibold text-emerald-800 hover:text-emerald-950">Check for an updated request</a>
+                <?php endif; ?>
             <?php else: ?>
                 <p class="mb-5 text-sm leading-6 text-gray-600">Enter the six-digit code sent to your registered phone. The code expires after 3 hours.</p>
                 <form method="POST" class="space-y-4">
