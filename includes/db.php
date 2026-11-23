@@ -186,6 +186,10 @@ try {
         'brand_tagline' => 'Digital Menu',
         'phone_number' => '0926862255',
         'copyright_name' => 'Tasty Pizza & Burger',
+        'storefront_background_color' => '#f7f7f2',
+        'storefront_header_color' => '#317D53',
+        'storefront_footer_color' => '#1f322e',
+        'storefront_action_color' => '#1f4d3e',
     ];
     $setting_insert = $pdo->prepare("INSERT INTO app_settings (setting_key, setting_value) VALUES (?, ?)");
     foreach ($default_settings as $key => $value) {

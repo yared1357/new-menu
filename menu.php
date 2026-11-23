@@ -63,6 +63,31 @@ $brand_logo = get_app_setting('brand_logo');
 $brand_tagline = get_app_setting('brand_tagline', 'Digital Menu');
 $brand_phone = get_app_setting('phone_number', '0926862255');
 $copyright_name = get_app_setting('copyright_name', 'Tasty Pizza & Burger');
+$storefront_background_color = get_app_setting('storefront_background_color', '#f7f7f2');
+$storefront_header_color = get_app_setting('storefront_header_color', '#317D53');
+$storefront_footer_color = get_app_setting('storefront_footer_color', '#1f322e');
+$storefront_action_color = get_app_setting('storefront_action_color', '#1f4d3e');
+if (!preg_match('/^#[0-9a-fA-F]{6}$/', $storefront_background_color)) {
+    $storefront_background_color = '#f7f7f2';
+}
+if (!preg_match('/^#[0-9a-fA-F]{6}$/', $storefront_header_color)) {
+    $storefront_header_color = '#317D53';
+}
+if (!preg_match('/^#[0-9a-fA-F]{6}$/', $storefront_footer_color)) {
+    $storefront_footer_color = '#1f322e';
+}
+if (!preg_match('/^#[0-9a-fA-F]{6}$/', $storefront_action_color)) {
+    $storefront_action_color = '#1f4d3e';
+}
+$action_rgb = array_map('hexdec', str_split(substr($storefront_action_color, 1), 2));
+$action_channels = array_map(static function (int $channel): float {
+    $normalized = $channel / 255;
+    return $normalized <= 0.04045 ? $normalized / 12.92 : (($normalized + 0.055) / 1.055) ** 2.4;
+}, $action_rgb);
+$action_luminance = 0.2126 * $action_channels[0] + 0.7152 * $action_channels[1] + 0.0722 * $action_channels[2];
+$white_contrast = 1.05 / ($action_luminance + 0.05);
+$dark_contrast = ($action_luminance + 0.05) / (0.0271 + 0.05);
+$storefront_action_text_color = $white_contrast >= $dark_contrast ? '#ffffff' : '#20332b';
 
 function social_link_icon(string $platform): string
 {
@@ -118,24 +143,33 @@ function social_link_icon(string $platform): string
         };
     </script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;600;700&family=Noto+Sans+Ethiopic:wght@300;400;600;700&family=Noto+Serif:wght@700&family=Noto+Serif+Ethiopic:wght@700&display=swap"
         rel="stylesheet">
     <script defer src="assets/js/alpine.min.js"></script>
     <style>
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Noto Sans', 'Noto Sans Ethiopic', sans-serif;
             scroll-behavior: smooth;
             background: #f7f7f2;
         }
 
         .font-heading {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Noto Serif Ethiopic', 'Noto Serif', 'Noto Sans Ethiopic', 'Noto Sans', serif;
         }
 
         .glass-nav {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(30px);
             border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .storefront-action-button {
+            background-color: <?= htmlspecialchars($storefront_action_color) ?>;
+            color: <?= $storefront_action_text_color ?>;
+        }
+
+        .storefront-action-button:hover {
+            filter: brightness(0.9);
         }
 
         .category-pill {
@@ -153,7 +187,7 @@ function social_link_icon(string $platform): string
 
         .mobile-menu-link {
             font-size: 2rem;
-            font-family: 'Playfair Display', serif;
+            font-family: 'Noto Serif Ethiopic', 'Noto Serif', 'Noto Sans Ethiopic', 'Noto Sans', serif;
             font-weight: 700;
             color: #1a1a1a;
             transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -304,7 +338,7 @@ function social_link_icon(string $platform): string
     </style>
 </head>
 
-<body class="bg-[#f7f7f2] text-[#20332b]"
+<body class="text-[#20332b]" style="background-color: <?= htmlspecialchars($storefront_background_color) ?>"
     x-data="{ mobileMenu: false, scrolled: false, searchQuery: '', dietFilter: 'all', paymentOpen: false, selectedPaymentQr: '', categoryRailHasOverflow: false, categoryRailAtStart: true, categoryRailAtEnd: false, mobilePaymentOpen: false, mobileSocialOpen: false, updateCategoryRail(rail) { if (!rail) return; this.categoryRailHasOverflow = rail.scrollWidth > rail.clientWidth + 2; this.categoryRailAtStart = rail.scrollLeft <= 2; this.categoryRailAtEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2; }, scrollCategoryRail(direction, rail) { if (rail) rail.scrollBy({ left: direction === 'left' ? -220 : 220, behavior: 'smooth' }); } }"
     @scroll.window="scrolled = window.pageYOffset > 50">
 
@@ -312,7 +346,8 @@ function social_link_icon(string $platform): string
 
     <!-- ====================== HEADER + MOBILE MENU ====================== -->
     <header
-        class="glass-nav bg-gradient-to-r from-orange-500/95 to-orange-400/95 backdrop-blur-xl sticky top-0 z-[150] py-3 md:py-4 border-b border-orange-400/30 transition-shadow duration-300"
+        class="glass-nav sticky top-0 z-[150] py-3 md:py-4 border-b border-white/10 transition-shadow duration-300 backdrop-blur-xl"
+        style="background-color: <?= htmlspecialchars($storefront_header_color) ?>; background-image: none"
         :class="scrolled ? 'shadow-2xl shadow-orange-500/30' : 'shadow-lg'">
 
         <div class="container mx-auto px-4 sm:px-6 lg:px-12">
@@ -816,7 +851,7 @@ function social_link_icon(string $platform): string
         </div>
     </main>
 
-    <footer class="mt-10 hidden border-t border-orange-300/40 bg-gradient-to-r from-[#1f322e] via-[#153b34] to-[#3a2314] text-white shadow-[0_-12px_30px_rgba(0,0,0,0.08)] md:block">
+    <footer class="mt-10 hidden border-t border-white/10 text-white shadow-[0_-12px_30px_rgba(0,0,0,0.08)] md:block" style="background-color: <?= htmlspecialchars($storefront_footer_color) ?>; background-image: <?= $storefront_footer_color === '#1f322e' ? 'linear-gradient(to right, #1f322e, #153b34, #3a2314)' : 'none' ?>">
         <div class="container mx-auto px-4 py-5 sm:px-6 lg:px-12">
             <div class="hidden md:block">
                 <div class="flex flex-col gap-6 pb-6 md:flex-row md:items-center md:justify-between">
@@ -826,7 +861,7 @@ function social_link_icon(string $platform): string
                         </span>
                         <p class="mt-3 text-lg font-semibold text-white sm:text-xl"><?= htmlspecialchars($brand_name) ?></p>
                         <button id="pwa-install-button" type="button"
-                            class="hidden mt-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold text-white transition hover:border-amber-200/50 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-amber-200/70">
+                            class="storefront-action-button hidden mt-3 inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-bold transition focus:outline-none focus:ring-2 focus:ring-amber-200/70">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" />
                             </svg>
@@ -863,7 +898,7 @@ function social_link_icon(string $platform): string
         </div>
     </footer>
 
-    <nav class="fixed inset-x-0 bottom-3 z-[180] mx-auto w-[calc(100%-1.25rem)] rounded-[1.75rem] border border-orange-200/25 bg-gradient-to-r from-[#1f322e] via-[#153b34] to-[#3a2314] p-2 text-white shadow-[0_18px_50px_rgba(20,45,36,0.28)] backdrop-blur-xl md:hidden">
+    <nav class="fixed inset-x-0 bottom-3 z-[180] mx-auto w-[calc(100%-1.25rem)] rounded-[1.75rem] border border-white/10 p-2 text-white shadow-[0_18px_50px_rgba(20,45,36,0.28)] backdrop-blur-xl md:hidden" style="background-color: <?= htmlspecialchars($storefront_footer_color) ?>; background-image: <?= $storefront_footer_color === '#1f322e' ? 'linear-gradient(to right, #1f322e, #153b34, #3a2314)' : 'none' ?>">
         <div class="grid grid-cols-4 gap-1">
             <button type="button"
                 @click="window.scrollTo({ top: 0, behavior: 'smooth' });"
@@ -1015,7 +1050,7 @@ function social_link_icon(string $platform): string
 
         <!-- Floating Feedback Button -->
         <button @click="feedbackOpen = !feedbackOpen"
-            class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-700 text-white shadow-2xl shadow-orange-500/40 transition-all duration-300 hover:scale-110 active:scale-95 relative md:h-16 md:w-16">
+            class="storefront-action-button flex h-12 w-12 items-center justify-center rounded-full shadow-2xl shadow-black/20 transition-all duration-300 hover:scale-110 active:scale-95 relative md:h-16 md:w-16">
             <!-- Pulse ring -->
             <span class="absolute inset-0 rounded-full animate-ping bg-orange-400 opacity-20"></span>
             <!-- Chat icon -->
@@ -1107,7 +1142,7 @@ function social_link_icon(string $platform): string
                     </div>
 
                     <button type="submit"
-                        class="w-full py-3 bg-gradient-to-r from-[#1f322e] to-emerald-700 hover:from-[#153b34] hover:to-emerald-800 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-emerald-900/15 hover:shadow-emerald-900/25 hover:scale-[1.02] active:scale-95">
+                        class="storefront-action-button w-full py-3 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-emerald-900/15 hover:shadow-emerald-900/25 hover:scale-[1.02] active:scale-95">
                         Submit feedback
                     </button>
                 </form>

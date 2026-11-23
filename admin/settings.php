@@ -23,20 +23,87 @@ unset($_SESSION['settings_flash']);
 $message = $settings_flash['message'] ?? '';
 $success = (bool) ($settings_flash['success'] ?? false);
 $brand_logo = get_app_setting('brand_logo');
+$storefront_colors = [
+    'storefront_background_color' => get_app_setting('storefront_background_color', '#f7f7f2'),
+    'storefront_header_color' => get_app_setting('storefront_header_color', '#317D53'),
+    'storefront_footer_color' => get_app_setting('storefront_footer_color', '#1f322e'),
+    'storefront_action_color' => get_app_setting('storefront_action_color', '#1f4d3e'),
+];
+foreach ($storefront_colors as $key => $color) {
+    if (!preg_match('/^#[0-9a-fA-F]{6}$/', $color)) {
+        $storefront_colors[$key] = [
+            'storefront_background_color' => '#f7f7f2',
+            'storefront_header_color' => '#317D53',
+            'storefront_footer_color' => '#1f322e',
+            'storefront_action_color' => '#1f4d3e',
+        ][$key];
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reset_storefront_colors') {
+    $default_storefront_colors = [
+        'storefront_background_color' => '#f7f7f2',
+        'storefront_header_color' => '#317D53',
+        'storefront_footer_color' => '#1f322e',
+        'storefront_action_color' => '#1f4d3e',
+    ];
+
+    try {
+        $pdo->beginTransaction();
+        $update_setting = $pdo->prepare('UPDATE app_settings SET setting_value = ? WHERE setting_key = ?');
+        foreach ($default_storefront_colors as $key => $value) {
+            $update_setting->execute([$value, $key]);
+            if ($update_setting->rowCount() === 0) {
+                $exists = $pdo->prepare('SELECT 1 FROM app_settings WHERE setting_key = ?');
+                $exists->execute([$key]);
+                if (!$exists->fetchColumn()) {
+                    $pdo->prepare('INSERT INTO app_settings (setting_key, setting_value) VALUES (?, ?)')
+                        ->execute([$key, $value]);
+                }
+            }
+        }
+        $pdo->commit();
+        $_SESSION['settings_flash'] = ['message' => 'Storefront colors restored to their defaults.', 'success' => true];
+        header('Location: settings.php');
+        exit;
+    } catch (PDOException $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        $message = 'Could not restore the default storefront colors.';
+        $success = false;
+        $storefront_colors = $default_storefront_colors;
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'branding') {
     $current_logo = $brand_logo;
     $uploaded_logo = '';
+    $colors_valid = true;
+    foreach ($storefront_colors as $key => $current_color) {
+        $posted_color = trim($_POST[$key] ?? '');
+        if (preg_match('/^#[0-9a-fA-F]{6}$/', $posted_color)) {
+            $storefront_colors[$key] = $posted_color;
+        } else {
+            $colors_valid = false;
+        }
+    }
     $branding = [
         'brand_name' => trim($_POST['brand_name'] ?? ''),
         'brand_short_name' => trim($_POST['brand_short_name'] ?? ''),
         'brand_tagline' => trim($_POST['brand_tagline'] ?? ''),
         'phone_number' => trim($_POST['phone_number'] ?? ''),
         'copyright_name' => trim($_POST['copyright_name'] ?? ''),
+        'storefront_background_color' => $storefront_colors['storefront_background_color'],
+        'storefront_header_color' => $storefront_colors['storefront_header_color'],
+        'storefront_footer_color' => $storefront_colors['storefront_footer_color'],
+        'storefront_action_color' => $storefront_colors['storefront_action_color'],
     ];
 
     if ($branding['brand_name'] === '' || $branding['brand_short_name'] === '') {
         $message = 'Business name and short name are required.';
+    } elseif (!$colors_valid) {
+        $message = 'Choose a valid color for each storefront color setting.';
     } else {
         try {
             if (isset($_FILES['brand_logo']) && ($_FILES['brand_logo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
@@ -119,7 +186,7 @@ include 'header.php';
             </div>
         <?php endif; ?>
 
-        <form method="POST" enctype="multipart/form-data" class="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <form id="branding-form" method="POST" enctype="multipart/form-data" data-confirm-message="Save these business branding and storefront color changes?" class="grid grid-cols-1 gap-5 md:grid-cols-2">
             <input type="hidden" name="action" value="branding">
             <label class="text-sm font-semibold text-gray-700">
                 Business name
@@ -147,6 +214,30 @@ include 'header.php';
                     class="mt-2 w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-4 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
             </label>
             <div class="md:col-span-2">
+                <h3 class="text-sm font-bold text-gray-800">Storefront colors</h3>
+                <p class="mt-1 text-xs text-gray-500">The default header and footer match the admin sidebar and footer gradients. Choosing a different color uses it as a solid background.</p>
+            </div>
+            <label class="text-sm font-semibold text-gray-700">
+                Page background
+                <input type="color" name="storefront_background_color" required value="<?= htmlspecialchars($storefront_colors['storefront_background_color']) ?>"
+                    class="mt-2 h-12 w-full cursor-pointer rounded-xl border border-gray-200 bg-white p-1">
+            </label>
+            <label class="text-sm font-semibold text-gray-700">
+                Header background
+                <input type="color" name="storefront_header_color" required value="<?= htmlspecialchars($storefront_colors['storefront_header_color']) ?>"
+                    class="mt-2 h-12 w-full cursor-pointer rounded-xl border border-gray-200 bg-white p-1">
+            </label>
+            <label class="text-sm font-semibold text-gray-700 md:col-span-2">
+                Footer and mobile navigation background
+                <input type="color" name="storefront_footer_color" required value="<?= htmlspecialchars($storefront_colors['storefront_footer_color']) ?>"
+                    class="mt-2 h-12 w-full cursor-pointer rounded-xl border border-gray-200 bg-white p-1">
+            </label>
+            <label class="text-sm font-semibold text-gray-700 md:col-span-2">
+                Primary button color
+                <input type="color" name="storefront_action_color" required value="<?= htmlspecialchars($storefront_colors['storefront_action_color']) ?>"
+                    class="mt-2 h-12 w-full cursor-pointer rounded-xl border border-gray-200 bg-white p-1">
+            </label>
+            <div class="md:col-span-2">
                 <label for="brand_logo" class="block text-sm font-semibold text-gray-700">Header logo</label>
                 <?php if ($brand_logo !== ''): ?>
                     <div class="mt-3 flex items-center gap-4">
@@ -161,11 +252,90 @@ include 'header.php';
                     class="mt-3 block w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-4 py-3 text-sm text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-emerald-800 file:px-4 file:py-2 file:font-semibold file:text-white">
                 <p class="mt-2 text-xs text-gray-500">Upload a JPG, PNG, GIF, or WebP image. Choosing a new logo replaces the current one.</p>
             </div>
-            <button type="submit" class="rounded-2xl bg-gradient-to-r from-[#1f322e] via-[#17503d] to-[#246447] px-6 py-4 font-bold text-white shadow-lg md:col-span-2">
+        </form>
+        <div class="mt-5 flex w-full flex-nowrap gap-3">
+            <button type="submit" form="branding-form" class="min-w-0 flex-1 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#1f322e] via-[#17503d] to-[#246447] px-1.5 py-3 text-[10px] font-bold text-white shadow-lg transition hover:brightness-110 focus:outline-none focus:ring-4 focus:ring-emerald-700/20 sm:rounded-2xl sm:px-6 sm:py-4 sm:text-sm">
                 Save branding
             </button>
-        </form>
+            <form method="POST" class="min-w-0 flex-1" data-confirm-message="Restore the storefront background, header, footer, and button colors to their default colors?">
+                <input type="hidden" name="action" value="reset_storefront_colors">
+                <button type="submit" class="w-full whitespace-nowrap rounded-xl bg-amber-500 px-1.5 py-3 text-[10px] font-bold text-white shadow-md transition hover:bg-amber-600 focus:outline-none focus:ring-4 focus:ring-amber-500/25 sm:rounded-2xl sm:px-4 sm:py-4 sm:text-sm">
+                    <span class="sm:hidden">Reset defaults</span>
+                    <span class="hidden sm:inline">Reset colors to defaults</span>
+                </button>
+            </form>
+        </div>
     </div>
 </section>
+
+<div id="settings-confirmation" class="fixed inset-0 z-[100] hidden items-center justify-center bg-[#102720]/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="settings-confirmation-title" aria-describedby="settings-confirmation-message">
+    <div class="w-full max-w-md rounded-3xl border border-white/80 bg-white p-6 text-center shadow-2xl sm:p-8">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800">
+            <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v3m0 4h.01M10.3 3.9 1.8 18.5A1.7 1.7 0 0 0 3.3 21h17.4a1.7 1.7 0 0 0 1.5-2.5L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+            </svg>
+        </div>
+        <h2 id="settings-confirmation-title" class="mt-4 text-xl font-bold text-[#20332b]">Confirm settings change</h2>
+        <p id="settings-confirmation-message" class="mt-2 text-sm leading-6 text-gray-600"></p>
+        <div class="mt-6 flex justify-center gap-3">
+            <button type="button" id="settings-confirmation-cancel" class="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-300/50">Cancel</button>
+            <button type="button" id="settings-confirmation-continue" class="rounded-xl bg-emerald-800 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-900 focus:outline-none focus:ring-4 focus:ring-emerald-700/25">Yes, continue</button>
+        </div>
+    </div>
+</div>
+<script>
+    (() => {
+        const dialog = document.getElementById('settings-confirmation');
+        const message = document.getElementById('settings-confirmation-message');
+        const cancelButton = document.getElementById('settings-confirmation-cancel');
+        const continueButton = document.getElementById('settings-confirmation-continue');
+        let pendingForm = null;
+        let pendingSubmitter = null;
+        let bypassConfirmation = false;
+
+        document.querySelectorAll('form[data-confirm-message]').forEach((form) => {
+            form.addEventListener('submit', (event) => {
+                if (bypassConfirmation) {
+                    bypassConfirmation = false;
+                    return;
+                }
+                event.preventDefault();
+                pendingForm = form;
+                pendingSubmitter = event.submitter;
+                message.textContent = form.dataset.confirmMessage;
+                dialog.classList.remove('hidden');
+                dialog.classList.add('flex');
+                cancelButton.focus();
+            });
+        });
+
+        const closeDialog = () => {
+            dialog.classList.add('hidden');
+            dialog.classList.remove('flex');
+            pendingForm = null;
+            pendingSubmitter = null;
+        };
+
+        cancelButton.addEventListener('click', closeDialog);
+        dialog.addEventListener('click', (event) => {
+            if (event.target === dialog) closeDialog();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !dialog.classList.contains('hidden')) closeDialog();
+        });
+        continueButton.addEventListener('click', () => {
+            if (!pendingForm) return;
+            const form = pendingForm;
+            const submitter = pendingSubmitter;
+            closeDialog();
+            bypassConfirmation = true;
+            if (submitter) {
+                form.requestSubmit(submitter);
+            } else {
+                form.requestSubmit();
+            }
+        });
+    })();
+</script>
 
 <?php include 'footer.php'; ?>
