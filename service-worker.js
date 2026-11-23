@@ -49,7 +49,10 @@ self.addEventListener('fetch', event => {
             const cache = await caches.open(CACHE_NAME);
 
             try {
-                const response = await fetch(request);
+                const forceNetwork = url.searchParams.has('_refresh');
+                const response = forceNetwork
+                    ? await fetch(request, { cache: 'no-store' })
+                    : await fetch(request);
                 if (response.ok && response.type === 'basic') {
                     await cache.put(request, response.clone());
                     const menuPages = (await cache.keys()).filter(key => {

@@ -368,7 +368,7 @@ function social_link_icon(string $platform): string
 </head>
 
 <body class="text-[#20332b]" style="background-color: <?= htmlspecialchars($storefront_background_color) ?>"
-    x-data="{ mobileMenu: false, scrolled: false, searchQuery: '', dietFilter: 'all', paymentOpen: false, selectedPaymentQr: '', categoryRailHasOverflow: false, categoryRailAtStart: true, categoryRailAtEnd: false, mobilePaymentOpen: false, mobileSocialOpen: false, updateCategoryRail(rail) { if (!rail) return; this.categoryRailHasOverflow = rail.scrollWidth > rail.clientWidth + 2; this.categoryRailAtStart = rail.scrollLeft <= 2; this.categoryRailAtEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2; }, scrollCategoryRail(direction, rail) { if (rail) rail.scrollBy({ left: direction === 'left' ? -220 : 220, behavior: 'smooth' }); } }"
+    x-data="{ mobileMenu: false, scrolled: false, searchQuery: '', dietFilter: 'all', paymentOpen: false, selectedPaymentQr: '', categoryRailHasOverflow: false, categoryRailAtStart: true, categoryRailAtEnd: false, mobilePaymentOpen: false, mobileSocialOpen: false, refreshing: false, refreshMenu() { if (this.refreshing) return; this.refreshing = true; const url = new URL(window.location.href); url.searchParams.set('_refresh', '1'); window.location.assign(url.href); }, updateCategoryRail(rail) { if (!rail) return; this.categoryRailHasOverflow = rail.scrollWidth > rail.clientWidth + 2; this.categoryRailAtStart = rail.scrollLeft <= 2; this.categoryRailAtEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2; }, scrollCategoryRail(direction, rail) { if (rail) rail.scrollBy({ left: direction === 'left' ? -220 : 220, behavior: 'smooth' }); } }"
     @scroll.window="scrolled = window.pageYOffset > 50">
 
 
@@ -402,6 +402,14 @@ function social_link_icon(string $platform): string
 
                 <!-- Desktop payment menu -->
                 <div class="hidden md:flex items-center gap-5 lg:gap-6">
+                    <button type="button" @click="refreshMenu()" :disabled="refreshing" title="Refresh menu" aria-label="Refresh menu"
+                        class="storefront-header-text inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2.5 text-xs font-bold transition-colors hover:bg-white/20 disabled:cursor-wait disabled:opacity-70">
+                        <svg class="h-4 w-4" :class="refreshing ? 'animate-spin' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                d="M20 7v5h-5M4 17v-5h5m10.5-2A7.5 7.5 0 0 0 6.2 6.5L4 9m16 6-2.2 2.5A7.5 7.5 0 0 1 4.5 14" />
+                        </svg>
+                        Refresh
+                    </button>
                     <a href="tel:<?= htmlspecialchars(preg_replace('/[^0-9+]/', '', $brand_phone)) ?>" aria-label="Call <?= htmlspecialchars($brand_name) ?>" title="Call us"
                         class="storefront-header-text call-action inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 transition-colors hover:border-amber-200/70 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/70">
                         <svg class="call-action-icon h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -510,6 +518,13 @@ function social_link_icon(string $platform): string
 
                 <!-- Mobile payment menu -->
                 <div class="md:hidden flex items-center gap-2">
+                    <button type="button" @click="refreshMenu()" :disabled="refreshing" title="Refresh menu" aria-label="Refresh menu"
+                        class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white transition-colors hover:bg-white/20 disabled:cursor-wait disabled:opacity-70">
+                        <svg class="h-4 w-4" :class="refreshing ? 'animate-spin' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                d="M20 7v5h-5M4 17v-5h5m10.5-2A7.5 7.5 0 0 0 6.2 6.5L4 9m16 6-2.2 2.5A7.5 7.5 0 0 1 4.5 14" />
+                        </svg>
+                    </button>
                     <a href="tel:<?= htmlspecialchars(preg_replace('/[^0-9+]/', '', $brand_phone)) ?>" aria-label="Call <?= htmlspecialchars($brand_name) ?>" title="Call us"
                         class="call-action inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white transition-colors hover:border-amber-200/70 hover:bg-white/20 hover:text-amber-100 focus:outline-none focus:ring-2 focus:ring-white/70">
                         <svg class="call-action-icon h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -1226,6 +1241,12 @@ function social_link_icon(string $platform): string
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./service-worker.js')
                     .catch(error => console.error('Service worker registration failed:', error));
+            }
+
+            const pageUrl = new URL(window.location.href);
+            if (pageUrl.searchParams.has('_refresh')) {
+                pageUrl.searchParams.delete('_refresh');
+                window.history.replaceState(window.history.state, '', pageUrl.href);
             }
         })();
     </script>

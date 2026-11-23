@@ -70,7 +70,7 @@ $admin_brand_initial = strtoupper(mb_substr(trim($admin_brand_name), 0, 1, 'UTF-
     </style>
 </head>
 
-<body class="bg-[#f7f7f2]" x-data="{ sidebarOpen: false, search: '', confirmOpen: false, confirmMessage: '', confirmAction: null, requestConfirmation(message, action) { this.confirmMessage = message; this.confirmAction = action; this.confirmOpen = true; } }">
+<body class="bg-[#f7f7f2]" x-data="{ sidebarOpen: false, search: '', confirmOpen: false, confirmMessage: '', confirmAction: null, confirmDanger: true, requestConfirmation(message, action, danger = true) { this.confirmMessage = message; this.confirmAction = action; this.confirmDanger = danger; this.confirmOpen = true; } }">
     <?php if ($admin_flash): ?>
         <div x-data="{ visible: true }" x-show="visible" x-cloak x-init="setTimeout(() => visible = false, 2800)"
             x-transition:enter="transition ease-out duration-300"
@@ -123,7 +123,10 @@ $admin_brand_initial = strtoupper(mb_substr(trim($admin_brand_name), 0, 1, 'UTF-
                 </button>
                 <button type="button"
                     @click="confirmOpen = false; if (confirmAction) confirmAction()"
-                    class="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-rose-700">
+                    :class="confirmDanger
+                        ? 'bg-rose-600 text-white hover:bg-rose-700'
+                        : 'bg-gradient-to-r from-amber-300 to-orange-300 text-[#25342d] hover:from-amber-200 hover:to-orange-200'"
+                    class="rounded-xl px-4 py-2.5 text-sm font-bold transition">
                     Yes, continue
                 </button>
             </div>

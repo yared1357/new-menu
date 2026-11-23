@@ -134,13 +134,22 @@ include 'header.php';
                     <?php if ($edit_mode): ?>
                         <input type="hidden" name="id" value="<?= $edit_id ?>">
                     <?php endif; ?>
+                    <input type="hidden" name="<?= $edit_mode ? 'update_category' : 'add_category' ?>" value="1">
                     <div class="mb-6">
                         <label class="block text-sm font-semibold text-gray-600 mb-2">Name</label>
                         <input type="text" name="name" required value="<?= htmlspecialchars($edit_name) ?>"
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500 text-gray-900">
                     </div>
                     <div class="flex gap-3">
-                        <button type="submit" name="<?= $edit_mode ? 'update_category' : 'add_category' ?>"
+                        <button type="button"
+                            @click="requestConfirmation(
+                                <?= $edit_mode
+                                    ? "'Are you sure you want to update this category?'"
+                                    : "'Are you sure you want to add this category?'"
+                                ?>,
+                                () => $el.closest('form').requestSubmit(),
+                                false
+                            )"
                             class="flex-1 py-3 bg-gradient-to-r from-amber-300 to-orange-300 hover:from-amber-200 hover:to-orange-200 text-[#25342d] rounded-xl font-bold transition-all transform hover:-translate-y-0.5 shadow-lg shadow-orange-950/10">
                             <?= $edit_mode ? 'Update' : 'Create Category' ?>
                         </button>
@@ -196,8 +205,13 @@ include 'header.php';
                                 </td>
                                 <td class="px-6 py-2.5 text-right">
                                     <div class="flex justify-end gap-1.5">
-                                        <a href="?toggle=<?= $cat['id'] ?>"
+                                        <button type="button"
                                             title="<?= $is_active ? 'Disable Category' : 'Enable Category' ?>"
+                                            @click="requestConfirmation(
+                                                'Are you sure you want to <?= $is_active ? 'disable' : 'enable' ?> this category?',
+                                                () => window.location.href = '?toggle=<?= (int) $cat['id'] ?>',
+                                                <?= $is_active ? 'true' : 'false' ?>
+                                            )"
                                             class="w-8 h-8 flex items-center justify-center rounded-lg transition-all <?= $is_active ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white' : 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white' ?>">
                                             <?php if ($is_active): ?>
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,7 +225,7 @@ include 'header.php';
                                                         d="M5 13l4 4L19 7"></path>
                                                 </svg>
                                             <?php endif; ?>
-                                        </a>
+                                        </button>
                                         <a href="?edit=<?= $cat['id'] ?>" title="Edit Category"
                                             class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-all">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
