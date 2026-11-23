@@ -10,8 +10,11 @@ if (isset($_SESSION['admin_logged_in'])) {
 
 $error = '';
 $brand_name = get_app_setting('brand_name', 'Tasty Pizza & Burger');
+$brand_short_name = get_app_setting('brand_short_name', 'Tasty Pizza');
 $brand_logo = get_app_setting('brand_logo');
-$brand_initial = strtoupper(mb_substr(trim($brand_name), 0, 1, 'UTF-8') ?: 'A');
+$brand_tagline = get_app_setting('brand_tagline', 'Digital Menu');
+$brand_initial_source = trim($brand_short_name) !== '' ? trim($brand_short_name) : trim($brand_name);
+$brand_initial = strtoupper(mb_substr($brand_initial_source, 0, 1, 'UTF-8') ?: 'T');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = normalize_ethiopian_phone($_POST['phone'] ?? '');
@@ -81,8 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-xl font-black text-white shadow-lg shadow-orange-600/20 transition-transform group-hover:-rotate-3 group-hover:scale-105"><?= htmlspecialchars($brand_initial) ?></span>
                 <?php endif; ?>
                 <span class="leading-tight">
-                    <span class="block text-sm font-black uppercase tracking-wide text-[#20332b]"><?= htmlspecialchars($brand_name) ?></span>
-                    <span class="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-800">Management portal</span>
+                    <span class="block text-sm font-black uppercase tracking-wide text-[#20332b]"><?= htmlspecialchars($brand_short_name) ?></span>
+                    <span class="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-800"><?= htmlspecialchars($brand_tagline) ?></span>
                 </span>
             </a>
             <a href="../index.php" class="rounded-full border border-gray-200 bg-white/70 px-4 py-2 text-xs font-bold text-gray-600 transition-colors hover:border-emerald-700/30 hover:text-emerald-800">Back to Home</a>
@@ -98,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-300"></span>
                             Admin Portal
                         </span>
-                        <h1 class="mt-6 max-w-lg text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">Welcome to ሚራክል ሆቴል Admin Portal</h1>
+                        <h1 class="mt-6 max-w-lg text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">Welcome to <?= htmlspecialchars($brand_name) ?> Admin Portal</h1>
                     </div>
                 </div>
 
