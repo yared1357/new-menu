@@ -127,19 +127,14 @@ include 'header.php';
         }
     }"
     x-init="setInterval(() => { if (!document.hidden) checkRequests() }, 15000)">
-    <header class="mb-6 flex items-center justify-between gap-2 rounded-2xl bg-gradient-to-r from-[#1f322e] via-[#17503d] to-[#28704f] p-3 text-white shadow-xl sm:gap-5 sm:p-8">
-        <div class="min-w-0 flex-1">
-            <h2 class="truncate text-sm font-bold tracking-tight sm:text-3xl">Password reset requests</h2>
-        </div>
-        <div class="flex shrink-0 items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[10px] font-semibold text-white sm:gap-2 sm:px-3 sm:py-2 sm:text-xs">
-                <span class="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5">
-                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-60"></span>
-                    <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-300 sm:h-2.5 sm:w-2.5"></span>
-                </span>
-                <span><span x-text="pendingCount"><?= (int) ($request_stats['pending_count'] ?? 0) ?></span> pending</span>
+    <header class="mb-6 flex justify-end">
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800">
+            <span class="relative flex h-2 w-2">
+                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60"></span>
+                <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
             </span>
-        </div>
+            <span><span x-text="pendingCount"><?= (int) ($request_stats['pending_count'] ?? 0) ?></span> pending</span>
+        </span>
     </header>
 
     <div x-show="newRequestCount > 0" x-cloak x-transition role="status" aria-live="polite"
@@ -152,14 +147,9 @@ include 'header.php';
             </span>
             <div>
                 <p class="font-bold"><span x-text="newRequestCount"></span> new password reset request<span x-show="newRequestCount !== 1">s</span></p>
-                <p class="mt-1 text-sm text-amber-900/75">Refresh the list to review the latest requests.</p>
+                <p class="mt-1 text-sm text-amber-900/75">Use the page refresh button to review the latest requests.</p>
             </div>
         </div>
-        <button type="button" @click="window.location.reload()"
-            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#1f322e] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#294b3e]">
-            Refresh requests
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7v5h-5M4 17v-5h5m-4-1a7 7 0 0 1 12-4l3 3M4 17l3 3a7 7 0 0 0 12-4" /></svg>
-        </button>
     </div>
 
     <div x-show="pollError" x-cloak role="alert"

@@ -129,7 +129,6 @@ include 'header.php';
     <header class="mb-6 flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-[#1f322e] via-[#17503d] to-[#28704f] p-4 text-white shadow-xl sm:p-8">
         <div class="min-w-0">
             <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-100 sm:text-xs sm:tracking-[0.2em]">Super Admin</p>
-            <h2 class="mt-1 truncate text-2xl font-bold tracking-tight sm:text-3xl">Manage admins</h2>
         </div>
         <button type="button" @click="createOpen = true"
             class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-amber-300 px-3 py-2.5 text-sm font-bold text-[#20332b] shadow-lg transition hover:bg-amber-200 focus:outline-none focus:ring-4 focus:ring-white/40 sm:gap-2 sm:px-5 sm:py-3 sm:text-base">

@@ -165,3 +165,17 @@ $admin_brand_initial = strtoupper(mb_substr(trim($admin_brand_name), 0, 1, 'UTF-
         <?php include 'sidebar.php'; ?>
         <main class="flex-1 flex flex-col min-h-screen">
             <div class="admin-page-content flex-1 px-5 pt-6 sm:px-8 sm:pt-8 lg:px-12 lg:pt-12">
+                <header class="sticky top-[64px] lg:top-0 z-30 -mx-5 -mt-6 mb-8 flex items-center justify-between gap-4 border-b border-gray-200/50 bg-gray-50/95 px-5 pb-4 pt-5 shadow-sm backdrop-blur-xl sm:-mx-8 sm:-mt-8 sm:px-8 sm:pt-6 lg:-mx-12 lg:-mt-12 lg:px-12 lg:pt-8">
+                    <h1 class="min-w-0 truncate text-2xl font-bold text-gray-900 sm:text-3xl">
+                        <?= htmlspecialchars($page_title ?? 'Admin Panel', ENT_QUOTES, 'UTF-8') ?>
+                    </h1>
+                    <button type="button" onclick="window.location.reload()" title="Refresh admin page"
+                        aria-label="Refresh admin page"
+                        class="inline-flex shrink-0 items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-bold text-[#20332b] shadow-sm transition hover:border-orange-300 hover:bg-orange-50 focus:outline-none focus:ring-4 focus:ring-orange-500/15 sm:px-4">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                d="M20 7v5h-5M4 17v-5h5m10.5-2A7.5 7.5 0 0 0 6.2 6.5L4 9m16 6-2.2 2.5A7.5 7.5 0 0 1 4.5 14" />
+                        </svg>
+                        <span>Refresh</span>
+                    </button>
+                </header>

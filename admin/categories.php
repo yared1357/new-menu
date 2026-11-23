@@ -93,14 +93,9 @@ include 'header.php';
 ?>
 
 <div x-data="{ showForm: <?= $edit_mode ? 'true' : 'false' ?> }">
-    <header
-        class="sticky top-[64px] lg:top-0 z-30 bg-gray-50/95 backdrop-blur-xl pb-6 pt-8 lg:pt-12 -mt-8 lg:-mt-12 -mx-8 lg:-mx-12 px-8 lg:px-12 border-b border-gray-200/50 shadow-sm mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="hidden md:block">
-            <h2 class="text-3xl font-bold text-gray-900">Manage Categories</h2>
-        </div>
-        <!-- Right side actions -->
-        <div class="flex flex-row items-center gap-3 w-full md:w-auto">
-            <div class="relative flex-1 sm:w-64 md:w-72">
+    <header class="mb-10 w-full">
+        <div class="flex w-full items-center justify-between gap-2 sm:gap-4">
+            <div class="relative min-w-0 flex-1 sm:max-w-md">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -112,10 +107,11 @@ include 'header.php';
             </div>
 
             <button @click="showForm = !showForm"
-                class="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 bg-gradient-to-r from-amber-300 to-orange-300 hover:from-amber-200 hover:to-orange-200 text-[#25342d] rounded-xl font-bold transition-all transform hover:-translate-y-0.5 shadow-lg shadow-orange-950/10 whitespace-nowrap shrink-0">
+                class="flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-300 to-orange-300 px-3 py-2.5 text-xs font-bold text-[#25342d] shadow-lg shadow-orange-950/10 transition-all hover:from-amber-200 hover:to-orange-200 sm:gap-2 sm:px-6 sm:text-sm">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
+                <span class="sm:hidden">Add</span>
                 <span class="hidden sm:inline">Add Category</span>
             </button>
         </div>

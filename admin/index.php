@@ -23,20 +23,14 @@ include 'header.php';
 ?>
 
 <div x-data="{ categoryFilter: 'all' }">
-    <header
-        class="sticky top-[64px] lg:top-0 z-30 bg-gray-50/95 backdrop-blur-xl pb-6 pt-8 lg:pt-12 -mt-8 lg:-mt-12 -mx-8 lg:-mx-12 px-8 lg:px-12 border-b border-gray-200/50 shadow-sm mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div class="hidden md:block">
-            <h2 class="text-3xl font-bold text-gray-900 leading-tight">Manage <span class="text-orange-500">Menu</span>
-            </h2>
-        </div>
-
-        <div class="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+    <header class="mb-10 w-full">
+        <div class="flex w-full items-center gap-2 sm:gap-4">
             <!-- Filters & Search -->
-            <div class="flex items-center gap-3 w-full sm:w-auto">
+            <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
                 <div
-                    class="relative w-1/2 sm:w-48 bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:border-orange-500 focus-within:border-orange-500 transition-colors">
+                    class="relative w-[40%] min-w-0 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-colors hover:border-orange-500 focus-within:border-orange-500 sm:w-[38%] sm:max-w-md sm:rounded-2xl">
                     <select x-model="categoryFilter"
-                        class="w-full h-full bg-transparent pl-4 pr-8 py-3 outline-none text-sm appearance-none font-semibold text-gray-700">
+                        class="h-full w-full appearance-none bg-transparent py-3 pl-2 pr-6 text-xs font-semibold text-gray-700 outline-none sm:pl-4 sm:pr-8 sm:text-sm">
                         <option value="all">All Categories</option>
                         <?php foreach ($categories as $cat): ?>
                             <option value="<?= htmlspecialchars(strtolower($cat['name'])) ?>">
@@ -52,7 +46,7 @@ include 'header.php';
                     </div>
                 </div>
                 <!-- Search bar -->
-                <div class="relative group w-1/2 sm:w-auto">
+                <div class="relative group min-w-0 flex-1">
                     <span
                         class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 group-focus-within:text-orange-500 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,17 +55,19 @@ include 'header.php';
                         </svg>
                     </span>
                     <input type="text" x-model="search" placeholder="Search menu..."
-                        class="w-full md:w-64 bg-white border border-gray-200 rounded-2xl pl-10 pr-4 py-3 focus:outline-none focus:border-orange-500 transition-all text-sm shadow-sm">
+                        class="w-full rounded-xl border border-gray-200 bg-white py-3 pl-8 pr-2 text-xs shadow-sm transition-all focus:border-orange-500 focus:outline-none sm:rounded-2xl sm:pl-10 sm:pr-4 sm:text-sm">
                 </div>
             </div>
 
             <a href="add_item.php"
-                class="flex w-full sm:w-auto justify-center items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-amber-300 to-orange-300 hover:from-amber-200 hover:to-orange-200 text-[#25342d] rounded-[1.2rem] font-bold transition-all transform hover:-translate-y-0.5 shadow-lg shadow-orange-950/10 group shrink-0">
-                <svg class="w-5 h-5 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
+                class="flex shrink-0 items-center justify-center gap-1 rounded-xl bg-gradient-to-r from-amber-300 to-orange-300 px-2.5 py-3 text-xs font-bold text-[#25342d] shadow-lg shadow-orange-950/10 transition-all hover:from-amber-200 hover:to-orange-200 sm:gap-2 sm:rounded-[1.2rem] sm:px-6 sm:py-3.5 sm:text-base"
+                aria-label="Add Item">
+                <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
-                <span class="inline">Add Item</span>
+                <span class="sm:hidden">Add</span>
+                <span class="hidden sm:inline">Add Item</span>
             </a>
         </div>
     </header>

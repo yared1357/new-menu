@@ -87,7 +87,6 @@ include 'header.php';
 <div class="max-w-4xl mx-auto">
     <header class="mb-6">
         <span class="text-orange-500 font-bold uppercase tracking-widest text-[10px] mb-1 block">Refine Details</span>
-        <h2 class="text-3xl font-bold text-gray-900 leading-tight">Edit Masterpiece</h2>
         <p class="text-gray-500 mt-2 text-sm">Update ingredients, pricing, or visuals for
             "<?= htmlspecialchars($item['name']) ?>".</p>
     </header>

@@ -52,7 +52,6 @@ include 'header.php';
                     <span class="h-1.5 w-1.5 rounded-full bg-amber-300"></span>
                     Guest voices
                 </span>
-                <h2 class="whitespace-nowrap text-lg font-bold tracking-tight sm:mt-4 sm:text-4xl">Customer feedback</h2>
                 </div>
             <div class="flex shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.08] px-2.5 py-2 backdrop-blur-sm sm:gap-3 sm:rounded-2xl sm:px-4 sm:py-3">
                 <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-300 text-amber-950 sm:h-11 sm:w-11 sm:rounded-xl">

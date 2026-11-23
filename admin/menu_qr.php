@@ -33,7 +33,6 @@ include 'header.php';
     <div class="glass-card overflow-hidden rounded-3xl border border-white p-6 shadow-[0_20px_60px_rgba(27,52,43,0.10)] sm:p-9">
         <div class="text-center">
             <p class="text-xs font-bold uppercase tracking-[0.2em] text-emerald-800">Welcome to <?= htmlspecialchars($brand_short_name) ?></p>
-            <h2 class="mt-2 text-2xl font-bold text-[#20332b] sm:text-3xl">Your menu QR code</h2>
             <p class="mt-2 text-sm leading-6 text-gray-600">Scan the code to open the live menu.</p>
         </div>
 

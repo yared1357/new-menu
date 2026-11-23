@@ -123,7 +123,6 @@ include 'header.php';
 
 <div class="mx-auto max-w-5xl" x-data="{ accountFormOpen: <?= $account_form_open ? 'true' : 'false' ?> }">
     <header class="mb-6 flex items-center justify-between gap-3">
-        <h2 class="min-w-0 text-2xl font-bold text-gray-900 sm:text-3xl">Payment Accounts</h2>
         <button type="button" @click="accountFormOpen = !accountFormOpen"
             :aria-expanded="accountFormOpen.toString()"
             class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-[#1f322e] to-emerald-700 px-3 py-2.5 text-xs font-bold text-white shadow-md transition hover:to-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-700/20 sm:px-5 sm:text-sm">

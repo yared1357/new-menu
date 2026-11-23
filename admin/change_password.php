@@ -53,7 +53,6 @@ include 'header.php';
             <span class="inline-flex items-center gap-2 rounded-full border border-emerald-800/10 bg-emerald-800/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-800">
                 Account security
             </span>
-            <h2 class="mt-4 text-3xl font-bold tracking-tight text-[#20332b] sm:text-4xl">Change password</h2>
              </header>
 
         <div class="glass-card rounded-[2rem] border border-white p-6 shadow-[0_20px_60px_rgba(27,52,43,0.10)] sm:p-9">
