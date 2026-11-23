@@ -15,13 +15,17 @@ $total_feedback = $pdo->query("SELECT COUNT(*) FROM feedback")->fetchColumn();
 $avg_rating = $pdo->query("SELECT AVG(stars) FROM feedback")->fetchColumn() ?: 0;
 $total_fasting = $pdo->query("SELECT COUNT(*) FROM menu_items WHERE is_fasting = 1")->fetchColumn();
 $total_non_fasting = $pdo->query("SELECT COUNT(*) FROM menu_items WHERE is_fasting = 0")->fetchColumn();
+$total_not_applicable = $pdo->query("SELECT COUNT(*) FROM menu_items WHERE is_fasting = 2")->fetchColumn();
+$unread_feedback = (int) $pdo->query("SELECT COUNT(*) FROM feedback WHERE COALESCE(is_read, 0) = 0")->fetchColumn();
+$total_payment_accounts = (int) $pdo->query("SELECT COUNT(*) FROM payment_accounts")->fetchColumn();
+$active_payment_accounts = (int) $pdo->query("SELECT COUNT(*) FROM payment_accounts WHERE is_active = 1")->fetchColumn();
+$total_social_links = (int) $pdo->query("SELECT COUNT(*) FROM social_links")->fetchColumn();
+$active_social_links = (int) $pdo->query("SELECT COUNT(*) FROM social_links WHERE is_active = 1")->fetchColumn();
+$total_admins = (int) $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
+$pending_password_resets = (int) $pdo->query("SELECT COUNT(*) FROM password_reset_requests WHERE status = 'pending'")->fetchColumn();
 
 // Recent feedback
 $recent_feedback = $pdo->query("SELECT * FROM feedback ORDER BY created_at DESC LIMIT 3")->fetchAll();
-
-// Mock stats for "International Dashboard" look
-$total_orders = 1250; // Mock
-$revenue = 24500.50; // Mock
 
 $page_title = "Dashboard";
 include 'header.php';
@@ -95,6 +99,21 @@ include 'header.php';
             </svg>
         </div>
     </a>
+    <a href="index.php"
+        class="glass-card p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border-l-4 border-violet-500 overflow-hidden relative group transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-violet-500/10 active:scale-95">
+        <div class="relative z-10">
+            <p class="text-gray-400 text-[8px] md:text-[10px] font-bold uppercase tracking-wider mb-2">Not Applicable Items</p>
+            <p class="text-2xl md:text-3xl font-bold text-gray-900"><?= (int) $total_not_applicable ?></p>
+            <p class="text-[9px] md:text-[10px] text-violet-500 font-bold mt-2 flex items-center gap-1">
+                Not Applicable Items
+            </p>
+        </div>
+        <div class="absolute bottom-0 right-0 w-24 h-16 opacity-10 group-hover:opacity-20 transition-opacity">
+            <svg class="w-full h-full" viewBox="0 0 100 40">
+                <path d="M0,20 Q20,5 40,25 T80,10 T100,20" fill="none" stroke="#8b5cf6" stroke-width="4" />
+            </svg>
+        </div>
+    </a>
     <a href="feedback.php"
         class="glass-card p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border-l-4 border-emerald-500 overflow-hidden relative group transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-500/10 active:scale-95">
         <div class="relative z-10">
@@ -112,24 +131,45 @@ include 'header.php';
             </svg>
         </div>
     </a>
-    <a href="feedback.php"
-        class="glass-card p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border-l-4 border-amber-500 overflow-hidden relative group transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-amber-500/10 active:scale-95">
-        <div class="relative z-10">
-            <p class="text-gray-400 text-[8px] md:text-[10px] font-bold uppercase tracking-wider mb-2">Exp. Rating</p>
-            <p class="text-2xl md:text-3xl font-bold text-gray-900"><?= number_format($avg_rating, 1) ?> <span
-                    class="text-lg md:text-xl text-amber-500">⭐</span></p>
-            <p class="text-[9px] md:text-[10px] text-amber-600 font-bold mt-2 flex items-center gap-1">
-                Average Rating
-            </p>
-        </div>
-        <!-- Sparkline SVG -->
-        <div class="absolute bottom-0 right-0 w-24 h-16 opacity-10 group-hover:opacity-20 transition-opacity">
-            <svg class="w-full h-full" viewBox="0 0 100 40">
-                <path d="M0,35 L20,30 L40,35 L60,10 L80,20 L100,5" fill="none" stroke="#f59e0b" stroke-width="4" />
-            </svg>
-        </div>
-    </a>
 </div>
+
+<section class="glass-card mb-12 rounded-[2rem] p-5 md:p-8" aria-labelledby="system-overview-title">
+    <div class="mb-6">
+        <h2 id="system-overview-title" class="text-xl font-bold text-gray-900 md:text-2xl">System overview</h2>
+    </div>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+        <a href="payment_accounts.php" class="rounded-2xl border border-gray-100 border-l-4 border-l-emerald-500 bg-white p-4 transition hover:border-emerald-200 hover:bg-emerald-50/40">
+            <p class="text-xs font-semibold text-gray-500">Payment accounts</p>
+            <p class="mt-2 text-2xl font-bold text-gray-900"><?= $total_payment_accounts ?></p>
+            <p class="mt-1 text-xs text-emerald-700"><?= $active_payment_accounts ?> active</p>
+        </a>
+        <a href="social_links.php" class="rounded-2xl border border-gray-100 border-l-4 border-l-rose-500 bg-white p-4 transition hover:border-rose-200 hover:bg-rose-50/40">
+            <p class="text-xs font-semibold text-gray-500">Social links</p>
+            <p class="mt-2 text-2xl font-bold text-gray-900"><?= $total_social_links ?></p>
+            <p class="mt-1 text-xs text-emerald-700"><?= $active_social_links ?> active</p>
+        </a>
+        <a href="feedback.php" class="rounded-2xl border border-gray-100 border-l-4 border-l-emerald-500 bg-white p-4 transition hover:border-emerald-200 hover:bg-emerald-50/40">
+            <p class="text-xs font-semibold text-gray-500">Feedback</p>
+            <p class="mt-2 text-2xl font-bold text-gray-900"><?= (int) $total_feedback ?></p>
+            <p class="mt-1 text-xs text-amber-700"><?= $unread_feedback ?> unread</p>
+        </a>
+        <a href="feedback.php" class="rounded-2xl border border-gray-100 border-l-4 border-l-amber-500 bg-white p-4 transition hover:border-amber-200 hover:bg-amber-50/40">
+            <p class="text-xs font-semibold text-gray-500">Exp. Rating</p>
+            <p class="mt-2 text-2xl font-bold text-gray-900"><?= number_format($avg_rating, 1) ?> <span class="text-amber-500">⭐</span></p>
+            <p class="mt-1 text-xs text-amber-700">Average Rating</p>
+        </a>
+        <a href="admin_users.php" class="rounded-2xl border border-gray-100 border-l-4 border-l-amber-500 bg-white p-4 transition hover:border-amber-200 hover:bg-amber-50/40">
+            <p class="text-xs font-semibold text-gray-500">Admin accounts</p>
+            <p class="mt-2 text-2xl font-bold text-gray-900"><?= $total_admins ?></p>
+            <p class="mt-1 text-xs text-amber-700">Manage accounts</p>
+        </a>
+        <a href="password_reset_requests.php" class="rounded-2xl border border-gray-100 border-l-4 border-l-violet-500 bg-white p-4 transition hover:border-violet-200 hover:bg-violet-50/40">
+            <p class="text-xs font-semibold text-gray-500">Password reset requests</p>
+            <p class="mt-2 text-2xl font-bold text-gray-900"><?= $pending_password_resets ?></p>
+            <p class="mt-1 text-xs text-violet-700">Pending requests</p>
+        </a>
+    </div>
+</section>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
     <!-- Recent Feedback -->
