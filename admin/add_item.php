@@ -68,7 +68,8 @@ include 'header.php';
             </div>
         <?php endif; ?>
 
-        <form method="POST" enctype="multipart/form-data" class="space-y-5">
+        <form method="POST" enctype="multipart/form-data" class="space-y-5"
+            @submit.prevent="requestConfirmation('Are you sure you want to add this menu item?', () => $el.submit(), false)">
             <!-- Primary Info -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="space-y-1.5">

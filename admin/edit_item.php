@@ -104,7 +104,8 @@ include 'header.php';
             </div>
         <?php endif; ?>
 
-        <form method="POST" enctype="multipart/form-data" class="space-y-5">
+        <form method="POST" enctype="multipart/form-data" class="space-y-5"
+            @submit.prevent="requestConfirmation('Are you sure you want to update this menu item?', () => $el.submit(), false)">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-gray-700 ml-1 uppercase tracking-wider">Name</label>

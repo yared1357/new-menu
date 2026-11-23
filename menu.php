@@ -814,9 +814,9 @@ function social_link_icon(string $platform): string
                             x-show="(searchQuery === '' || '<?= addslashes(strtolower($item['name'])) ?>'.includes(searchQuery.toLowerCase())) && (dietFilter === 'all' || dietFilter === '<?= isset($item['is_fasting']) ? (int) $item['is_fasting'] : '0' ?>')">
                             <!-- Image Container -->
                             <div
-                                class="menu-item-image rounded-[3rem] overflow-hidden relative mb-8 shadow-sm group-hover:shadow-2xl transition-all duration-500">
+                                class="menu-item-image rounded-[3rem] overflow-hidden relative mb-8 bg-gray-50 shadow-sm group-hover:shadow-2xl transition-all duration-500">
                                 <img src="<?= $item['image_url'] ?: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800' ?>"
-                                    class="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110"
+                                    class="w-full h-full object-contain"
                                     alt="<?= htmlspecialchars($item['name']) ?>">
 
                                 <!-- Dietary Badge Overlay -->
