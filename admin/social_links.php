@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'save') {
             $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT) ?: 0;
             $platform = trim($_POST['platform'] ?? '');
-            $name = trim($_POST['name'] ?? '');
+            $name = $platforms[$platform] ?? '';
             $url = trim($_POST['url'] ?? '');
             $sort_order = filter_input(INPUT_POST, 'sort_order', FILTER_VALIDATE_INT);
             $sort_order = $sort_order === false || $sort_order === null ? 0 : $sort_order;
@@ -40,8 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (!isset($platforms[$platform])) {
                 $message = 'Select a valid social platform.';
-            } elseif ($name === '') {
-                $message = 'Enter the social media name.';
             } elseif (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\\/\\//i', $url)) {
                 $message = 'Enter a valid http or https URL.';
             } else {
@@ -120,7 +118,7 @@ include 'header.php';
 
             <label class="text-sm font-semibold text-gray-700">
                 Platform
-                <select name="platform" required class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 focus:border-orange-500 focus:outline-none">
+                <select id="social-platform" name="platform" required class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 focus:border-orange-500 focus:outline-none">
                     <?php foreach ($platforms as $value => $label): ?>
                         <option value="<?= htmlspecialchars($value) ?>" <?= ($form_values['platform'] ?? 'facebook') === $value ? 'selected' : '' ?>>
                             <?= htmlspecialchars($label) ?>
@@ -131,8 +129,8 @@ include 'header.php';
 
             <label class="text-sm font-semibold text-gray-700">
                 Display name
-                <input name="name" required maxlength="100" value="<?= htmlspecialchars($form_values['name'] ?? '') ?>" placeholder="e.g. Facebook"
-                    class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 focus:border-orange-500 focus:outline-none">
+                <input id="social-display-name" name="name" readonly value="<?= htmlspecialchars($platforms[$form_values['platform'] ?? 'facebook'] ?? '') ?>"
+                    class="mt-2 w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-gray-600">
             </label>
 
             <label class="text-sm font-semibold text-gray-700 md:col-span-2">
@@ -213,5 +211,13 @@ include 'header.php';
         <?php endforeach; ?>
     </section>
 </div>
+
+<script>
+    const socialPlatformSelect = document.getElementById('social-platform');
+    const socialDisplayName = document.getElementById('social-display-name');
+    socialPlatformSelect.addEventListener('change', () => {
+        socialDisplayName.value = socialPlatformSelect.selectedOptions[0].textContent.trim();
+    });
+</script>
 
 <?php include 'footer.php'; ?>

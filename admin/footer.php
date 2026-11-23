@@ -3,7 +3,7 @@
 <footer class="admin-footer fixed bottom-0 left-0 right-0 z-30 border-t border-white/10 bg-gradient-to-r from-[#1f322e] via-[#153b34] to-[#3a2314] px-4 text-white shadow-[0_-10px_30px_rgba(16,39,32,0.12)] sm:px-8 lg:px-12">
     <div class="flex h-full flex-col items-center justify-center gap-2 sm:flex-row sm:justify-between sm:gap-4">
         <div class="text-center sm:text-left">
-            <p class="text-xs font-semibold tracking-wide text-white sm:text-sm"><?= htmlspecialchars(get_app_setting('brand_name', 'Tasty Pizza & Burger')) ?></p>
+            <p class="text-xs font-semibold tracking-wide text-white sm:text-sm"><?= htmlspecialchars(get_app_setting('brand_short_name', 'Tasty Pizza')) ?></p>
            </div>
         <div class="flex flex-wrap items-center justify-center gap-2 text-[9px] font-bold uppercase tracking-[0.12em] sm:justify-end sm:gap-3 sm:text-[10px] sm:tracking-[0.16em]">
             <span class="rounded-full border border-white/15 bg-white/5 px-2.5 py-1.5 text-orange-100/80 sm:px-3">System v1.0</span>

@@ -859,7 +859,7 @@ function social_link_icon(string $platform): string
                         <span class="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-orange-100">
                             Fresh from our kitchen
                         </span>
-                        <p class="mt-3 text-lg font-semibold text-white sm:text-xl"><?= htmlspecialchars($brand_name) ?></p>
+                        <p class="mt-3 text-lg font-semibold uppercase text-white sm:text-xl"><?= htmlspecialchars($brand_short_name) ?></p>
                         <button id="pwa-install-button" type="button"
                             class="storefront-action-button hidden mt-3 inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-bold transition focus:outline-none focus:ring-2 focus:ring-amber-200/70">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

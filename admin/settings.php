@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'brand
         }
     }
     $branding = [
-        'brand_name' => trim($_POST['brand_name'] ?? ''),
+        'brand_name' => get_app_setting('brand_name', 'Tasty Pizza & Burger'),
         'brand_short_name' => trim($_POST['brand_short_name'] ?? ''),
         'brand_tagline' => trim($_POST['brand_tagline'] ?? ''),
         'phone_number' => trim($_POST['phone_number'] ?? ''),
@@ -100,8 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'brand
         'storefront_action_color' => $storefront_colors['storefront_action_color'],
     ];
 
-    if ($branding['brand_name'] === '' || $branding['brand_short_name'] === '') {
-        $message = 'Business name and short name are required.';
+    if ($branding['brand_short_name'] === '') {
+        $message = 'Header short name is required.';
     } elseif (!$colors_valid) {
         $message = 'Choose a valid color for each storefront color setting.';
     } else {
@@ -189,11 +189,6 @@ include 'header.php';
         <form id="branding-form" method="POST" enctype="multipart/form-data" data-confirm-message="Save these business branding and storefront color changes?" class="grid grid-cols-1 gap-5 md:grid-cols-2">
             <input type="hidden" name="action" value="branding">
             <label class="text-sm font-semibold text-gray-700">
-                Business name
-                <input name="brand_name" required maxlength="150" value="<?= htmlspecialchars(get_app_setting('brand_name', 'Tasty Pizza & Burger')) ?>"
-                    class="mt-2 w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-4 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
-            </label>
-            <label class="text-sm font-semibold text-gray-700">
                 Header short name
                 <input name="brand_short_name" required maxlength="80" value="<?= htmlspecialchars(get_app_setting('brand_short_name', 'Tasty Pizza')) ?>"
                     class="mt-2 w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-4 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
@@ -203,16 +198,18 @@ include 'header.php';
                 <input name="brand_tagline" maxlength="100" value="<?= htmlspecialchars(get_app_setting('brand_tagline', 'Digital Menu')) ?>"
                     class="mt-2 w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-4 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
             </label>
-            <label class="text-sm font-semibold text-gray-700">
-                Phone number
-                <input name="phone_number" maxlength="30" value="<?= htmlspecialchars(get_app_setting('phone_number', '0926862255')) ?>"
-                    class="mt-2 w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-4 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
-            </label>
-            <label class="text-sm font-semibold text-gray-700 md:col-span-2">
-                Copyright name
-                <input name="copyright_name" maxlength="150" value="<?= htmlspecialchars(get_app_setting('copyright_name', 'Tasty Pizza & Burger')) ?>"
-                    class="mt-2 w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-4 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
-            </label>
+            <div class="grid grid-cols-2 gap-3 md:col-span-2 sm:gap-5">
+                <label class="min-w-0 text-sm font-semibold text-gray-700">
+                    Phone number
+                    <input name="phone_number" maxlength="30" value="<?= htmlspecialchars(get_app_setting('phone_number', '0926862255')) ?>"
+                        class="mt-2 w-full min-w-0 rounded-2xl border border-gray-200 bg-[#f8faf8] px-3 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 sm:px-4">
+                </label>
+                <label class="min-w-0 text-sm font-semibold text-gray-700">
+                    Copyright name
+                    <input name="copyright_name" maxlength="150" value="<?= htmlspecialchars(get_app_setting('copyright_name', 'Tasty Pizza & Burger')) ?>"
+                        class="mt-2 w-full min-w-0 rounded-2xl border border-gray-200 bg-[#f8faf8] px-3 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 sm:px-4">
+                </label>
+            </div>
             <div class="md:col-span-2">
                 <h3 class="text-sm font-bold text-gray-800">Storefront colors</h3>
                 <p class="mt-1 text-xs text-gray-500">The default header and footer match the admin sidebar and footer gradients. Choosing a different color uses it as a solid background.</p>
