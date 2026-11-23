@@ -177,6 +177,12 @@ include 'header.php';
             <div>
                 <h2 class="text-lg font-bold text-[#20332b]">Business branding</h2>
                  </div>
+            <a href="menu_qr.php" class="ml-auto inline-flex shrink-0 items-center gap-2 rounded-xl bg-emerald-800 px-3 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-900 focus:outline-none focus:ring-4 focus:ring-emerald-700/20 sm:px-4 sm:text-sm">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zm4 0h2v6h-2zm-4 4h2v2h-2z" />
+                </svg>
+                <span>Menu QR code</span>
+            </a>
         </div>
 
         <?php if ($message !== ''): ?>
