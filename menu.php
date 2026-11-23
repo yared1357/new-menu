@@ -79,15 +79,24 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $storefront_footer_color)) {
 if (!preg_match('/^#[0-9a-fA-F]{6}$/', $storefront_action_color)) {
     $storefront_action_color = '#1f4d3e';
 }
-$action_rgb = array_map('hexdec', str_split(substr($storefront_action_color, 1), 2));
-$action_channels = array_map(static function (int $channel): float {
-    $normalized = $channel / 255;
-    return $normalized <= 0.04045 ? $normalized / 12.92 : (($normalized + 0.055) / 1.055) ** 2.4;
-}, $action_rgb);
-$action_luminance = 0.2126 * $action_channels[0] + 0.7152 * $action_channels[1] + 0.0722 * $action_channels[2];
-$white_contrast = 1.05 / ($action_luminance + 0.05);
-$dark_contrast = ($action_luminance + 0.05) / (0.0271 + 0.05);
-$storefront_action_text_color = $white_contrast >= $dark_contrast ? '#ffffff' : '#20332b';
+
+function storefront_contrasting_text_color(string $background_color): string
+{
+    $rgb = array_map('hexdec', str_split(substr($background_color, 1), 2));
+    $channels = array_map(static function (int $channel): float {
+        $normalized = $channel / 255;
+        return $normalized <= 0.04045 ? $normalized / 12.92 : (($normalized + 0.055) / 1.055) ** 2.4;
+    }, $rgb);
+    $luminance = 0.2126 * $channels[0] + 0.7152 * $channels[1] + 0.0722 * $channels[2];
+    $white_contrast = 1.05 / ($luminance + 0.05);
+    $dark_contrast = ($luminance + 0.05) / (0.0271 + 0.05);
+
+    return $white_contrast >= $dark_contrast ? '#ffffff' : '#20332b';
+}
+
+$storefront_header_text_color = storefront_contrasting_text_color($storefront_header_color);
+$storefront_footer_text_color = storefront_contrasting_text_color($storefront_footer_color);
+$storefront_action_text_color = storefront_contrasting_text_color($storefront_action_color);
 
 function social_link_icon(string $platform): string
 {
@@ -170,6 +179,26 @@ function social_link_icon(string $platform): string
 
         .storefront-action-button:hover {
             filter: brightness(0.9);
+        }
+
+        .storefront-header-text {
+            color: <?= $storefront_header_text_color ?> !important;
+        }
+
+        .storefront-header-text.call-action:hover {
+            color: #fef3c7 !important;
+        }
+
+        .storefront-footer-text {
+            color: <?= $storefront_footer_text_color ?> !important;
+        }
+
+        a.storefront-footer-text.group:hover {
+            color: #ea580c !important;
+        }
+
+        a.storefront-footer-text:not(.group):hover {
+            color: #fde68a !important;
         }
 
         .category-pill {
@@ -364,9 +393,9 @@ function social_link_icon(string $platform): string
                         <?php endif; ?>
                     </div>
                     <div class="flex flex-col leading-tight">
-                        <span class="text-base sm:text-lg md:text-2xl font-black tracking-tight uppercase text-white"><?= htmlspecialchars($brand_short_name) ?></span>
+                        <span class="storefront-header-text text-base sm:text-lg md:text-2xl font-black tracking-tight uppercase"><?= htmlspecialchars($brand_short_name) ?></span>
                         <span
-                            class="text-[7px] sm:text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] text-orange-100 mt-0.5">
+                            class="storefront-header-text text-[7px] sm:text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] mt-0.5">
                             <?= htmlspecialchars($brand_tagline) ?></span>
                     </div>
                 </a>
@@ -374,7 +403,7 @@ function social_link_icon(string $platform): string
                 <!-- Desktop payment menu -->
                 <div class="hidden md:flex items-center gap-5 lg:gap-6">
                     <a href="tel:<?= htmlspecialchars(preg_replace('/[^0-9+]/', '', $brand_phone)) ?>" aria-label="Call <?= htmlspecialchars($brand_name) ?>" title="Call us"
-                        class="call-action inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white transition-colors hover:border-amber-200/70 hover:bg-white/20 hover:text-amber-100 focus:outline-none focus:ring-2 focus:ring-white/70">
+                        class="storefront-header-text call-action inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 transition-colors hover:border-amber-200/70 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/70">
                         <svg class="call-action-icon h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                                 d="M3 5a2 2 0 0 1 2-2h2.3a1 1 0 0 1 .95.68l1.1 3.3a1 1 0 0 1-.5 1.2l-1.65.82a11 11 0 0 0 4.8 4.8l.82-1.65a1 1 0 0 1 1.2-.5l3.3 1.1a1 1 0 0 1 .68.95V16a2 2 0 0 1-2 2h-1C8.4 18 3 12.6 3 6V5Z" />
@@ -382,7 +411,7 @@ function social_link_icon(string $platform): string
                     </a>
                     <div class="relative" @click.away="paymentOpen = false">
                         <button type="button" @click="paymentOpen = !paymentOpen" :aria-expanded="paymentOpen"
-                            class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-white/20">
+                            class="storefront-header-text inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2.5 text-xs font-bold transition-colors hover:bg-white/20">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                                     d="M3 7h18M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2zm1 13h5" />
@@ -851,15 +880,15 @@ function social_link_icon(string $platform): string
         </div>
     </main>
 
-    <footer class="mt-10 hidden border-t border-white/10 text-white shadow-[0_-12px_30px_rgba(0,0,0,0.08)] md:block" style="background-color: <?= htmlspecialchars($storefront_footer_color) ?>; background-image: <?= $storefront_footer_color === '#1f322e' ? 'linear-gradient(to right, #1f322e, #153b34, #3a2314)' : 'none' ?>">
+    <footer class="mt-10 hidden border-t border-white/10 shadow-[0_-12px_30px_rgba(0,0,0,0.08)] md:block" style="background-color: <?= htmlspecialchars($storefront_footer_color) ?>; background-image: <?= $storefront_footer_color === '#1f322e' ? 'linear-gradient(to right, #1f322e, #153b34, #3a2314)' : 'none' ?>">
         <div class="container mx-auto px-4 py-5 sm:px-6 lg:px-12">
             <div class="hidden md:block">
                 <div class="flex flex-col gap-6 pb-6 md:flex-row md:items-center md:justify-between">
                     <div class="text-center md:text-left">
-                        <span class="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-orange-100">
+                        <span class="storefront-footer-text inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em]">
                             Fresh from our kitchen
                         </span>
-                        <p class="mt-3 text-lg font-semibold uppercase text-white sm:text-xl"><?= htmlspecialchars($brand_short_name) ?></p>
+                        <p class="storefront-footer-text mt-3 text-lg font-semibold uppercase sm:text-xl"><?= htmlspecialchars($brand_short_name) ?></p>
                         <button id="pwa-install-button" type="button"
                             class="storefront-action-button hidden mt-3 inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-bold transition focus:outline-none focus:ring-2 focus:ring-amber-200/70">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -873,7 +902,7 @@ function social_link_icon(string $platform): string
                         <?php foreach ($social_links as $social): ?>
                             <a href="<?= htmlspecialchars($social['url']) ?>" target="_blank" rel="noopener noreferrer"
                                 aria-label="<?= htmlspecialchars($social['name']) ?>" title="<?= htmlspecialchars($social['name']) ?>"
-                                class="group flex h-11 items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-200/60 hover:bg-white hover:text-orange-600">
+                                class="storefront-footer-text group flex h-11 items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-200/60 hover:bg-white hover:text-orange-600">
                                 <?= social_link_icon($social['platform']) ?>
                                 <span class="text-xs font-bold"><?= htmlspecialchars($social['name']) ?></span>
                             </a>
@@ -881,28 +910,28 @@ function social_link_icon(string $platform): string
                     </div>
 
                     <div class="text-center md:text-right">
-                        <span class="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-orange-100">
+                        <span class="storefront-footer-text inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em]">
                             Open daily
                         </span>
-                        <p class="font-heading mt-3 text-lg font-semibold leading-snug text-white sm:text-xl lg:text-2xl">Fresh Meals</p>
+                        <p class="storefront-footer-text font-heading mt-3 text-lg font-semibold leading-snug sm:text-xl lg:text-2xl">Fresh Meals</p>
                     </div>
                 </div>
             </div>
-            <div class="text-center text-xs text-orange-100/80 sm:text-sm">
+            <div class="storefront-footer-text text-center text-xs sm:text-sm">
                 <p>
                     Copyrights &copy; <?= date('Y') ?> <?= htmlspecialchars($copyright_name) ?>. All rights reserved.
-                    <span class="mx-1 text-white/40" aria-hidden="true">·</span>
-                    Developed by <a href="https://yared.infinityfreeapp.com/portfolio.php" target="_blank" rel="noopener noreferrer" class="font-semibold text-white transition-colors hover:text-amber-200">Yared</a>
+                    <span class="storefront-footer-text mx-1" aria-hidden="true">·</span>
+                    Developed by <a href="https://yared.infinityfreeapp.com/portfolio.php" target="_blank" rel="noopener noreferrer" class="storefront-footer-text font-semibold transition-colors hover:text-amber-200">Yared</a>
                 </p>
             </div>
         </div>
     </footer>
 
-    <nav class="fixed inset-x-0 bottom-3 z-[180] mx-auto w-[calc(100%-1.25rem)] rounded-[1.75rem] border border-white/10 p-2 text-white shadow-[0_18px_50px_rgba(20,45,36,0.28)] backdrop-blur-xl md:hidden" style="background-color: <?= htmlspecialchars($storefront_footer_color) ?>; background-image: <?= $storefront_footer_color === '#1f322e' ? 'linear-gradient(to right, #1f322e, #153b34, #3a2314)' : 'none' ?>">
+    <nav class="fixed inset-x-0 bottom-3 z-[180] mx-auto w-[calc(100%-1.25rem)] rounded-[1.75rem] border border-white/10 p-2 shadow-[0_18px_50px_rgba(20,45,36,0.28)] backdrop-blur-xl md:hidden" style="background-color: <?= htmlspecialchars($storefront_footer_color) ?>; background-image: <?= $storefront_footer_color === '#1f322e' ? 'linear-gradient(to right, #1f322e, #153b34, #3a2314)' : 'none' ?>; color: <?= $storefront_footer_text_color ?>">
         <div class="grid grid-cols-4 gap-1">
             <button type="button"
                 @click="window.scrollTo({ top: 0, behavior: 'smooth' });"
-                class="flex flex-col items-center justify-center gap-1 rounded-2xl px-0 py-2 text-[9px] font-semibold text-orange-50 transition hover:bg-white/10">
+                class="flex flex-col items-center justify-center gap-1 rounded-2xl px-0 py-2 text-[9px] font-semibold transition hover:bg-white/10">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1v-9.5Z" />
                 </svg>
@@ -911,7 +940,7 @@ function social_link_icon(string $platform): string
 
             <button type="button"
                 @click="document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });"
-                class="flex flex-col items-center justify-center gap-1 rounded-2xl px-0 py-2 text-[9px] font-semibold text-orange-50 transition hover:bg-white/10">
+                class="flex flex-col items-center justify-center gap-1 rounded-2xl px-0 py-2 text-[9px] font-semibold transition hover:bg-white/10">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-11Zm3 2h10M7 12h10M7 15.5h7" />
                 </svg>
@@ -920,7 +949,7 @@ function social_link_icon(string $platform): string
 
             <button type="button"
                 @click="mobilePaymentOpen = true"
-                class="flex flex-col items-center justify-center gap-1 rounded-2xl px-0 py-2 text-[9px] font-semibold text-orange-50 transition hover:bg-white/10">
+                class="flex flex-col items-center justify-center gap-1 rounded-2xl px-0 py-2 text-[9px] font-semibold transition hover:bg-white/10">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7.5A2.5 2.5 0 0 1 5.5 5h13A2.5 2.5 0 0 1 21 7.5V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5Zm0 0H21M7 11h4" />
                 </svg>
@@ -928,7 +957,7 @@ function social_link_icon(string $platform): string
             </button>
 
             <button type="button" @click="mobileSocialOpen = true" :aria-expanded="mobileSocialOpen" aria-label="Open social media"
-                class="flex flex-col items-center justify-center gap-1 rounded-2xl px-0 py-2 text-[9px] font-semibold text-orange-50 transition hover:bg-white/10">
+                class="flex flex-col items-center justify-center gap-1 rounded-2xl px-0 py-2 text-[9px] font-semibold transition hover:bg-white/10">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M18 8a3 3 0 1 0-2.83-4M6 14a3 3 0 1 0 0-4m12 11a3 3 0 1 0-2.83-4M8.7 10.7l6.6-3.4m-6.6 6 6.6 3.4" />
                 </svg>

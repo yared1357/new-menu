@@ -218,7 +218,7 @@ include 'header.php';
             </div>
             <div class="md:col-span-2">
                 <h3 class="text-sm font-bold text-gray-800">Storefront colors</h3>
-                <p class="mt-1 text-xs text-gray-500">The default header and footer match the admin sidebar and footer gradients. Choosing a different color uses it as a solid background.</p>
+                <p class="mt-1 text-xs text-gray-500">The default header and footer match the admin sidebar and footer gradients. Choosing a different color uses it as a solid background, and the text automatically switches between dark and light for readability.</p>
             </div>
             <label class="text-sm font-semibold text-gray-700">
                 Page background
