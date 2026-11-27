@@ -32,11 +32,6 @@ $safe_phone_link = preg_replace('/[^0-9+]/', '', $super_admin_phone);
             <h1 class="mt-7 text-3xl font-bold tracking-tight">Forgot password?</h1>
         </div>
         <div class="p-6 sm:p-8">
-            <p class="text-sm leading-6 text-gray-600">
-                Password resets are handled by the Super Admin. Contact them to receive a temporary password.
-                Sign in with your registered phone number and that password; you will be asked to choose a new password before continuing.
-            </p>
-
             <section class="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 p-5" aria-labelledby="super-admin-contact">
                 <h2 id="super-admin-contact" class="font-bold text-emerald-950">Contact the Super Admin</h2>
                 <?php if ($super_admin_phone !== '' || $super_admin_email !== ''): ?>
