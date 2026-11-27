@@ -129,16 +129,12 @@ if (isset($_SESSION['admin_id'])) {
                 </svg>
                 Manage Admins
             </a>
-            <?php $pending_reset_count = (int) $pdo->query("SELECT COUNT(*) FROM password_reset_requests WHERE status = 'pending'")->fetchColumn(); ?>
-            <a href="password_reset_requests.php"
-                class="group flex items-center justify-between gap-3 rounded-xl border px-3 py-3 transition-all duration-200 <?= $current_page == 'password_reset_requests.php' ? 'border-amber-200/20 bg-gradient-to-r from-amber-300 to-orange-300 font-semibold text-[#25342d] shadow-lg shadow-black/10' : 'border-transparent text-white/75 hover:border-white/10 hover:bg-white/10 hover:text-white' ?>">
-                <span class="flex items-center gap-3">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM8 3.5l-2 2m10-2 2 2"/></svg>
-                    Password Requests
-                </span>
-                <?php if ($pending_reset_count > 0): ?>
-                    <span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-300 px-1.5 text-[10px] font-bold text-[#25342d]" aria-label="<?= $pending_reset_count ?> pending password reset requests"><?= $pending_reset_count ?></span>
-                <?php endif; ?>
+            <a href="reset_admin_password.php"
+                class="group flex items-center gap-3 rounded-xl border px-3 py-3 transition-all duration-200 <?= $current_page == 'reset_admin_password.php' ? 'border-amber-200/20 bg-gradient-to-r from-amber-300 to-orange-300 font-semibold text-[#25342d] shadow-lg shadow-black/10' : 'border-transparent text-white/75 hover:border-white/10 hover:bg-white/10 hover:text-white' ?>">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 10V8a5 5 0 0 1 10 0v2m-11 0h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Zm6 4v3" />
+                </svg>
+                Reset Password
             </a>
         <?php endif; ?>
     </nav>

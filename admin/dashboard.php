@@ -22,7 +22,6 @@ $active_payment_accounts = (int) $pdo->query("SELECT COUNT(*) FROM payment_accou
 $total_social_links = (int) $pdo->query("SELECT COUNT(*) FROM social_links")->fetchColumn();
 $active_social_links = (int) $pdo->query("SELECT COUNT(*) FROM social_links WHERE is_active = 1")->fetchColumn();
 $total_admins = (int) $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
-$pending_password_resets = (int) $pdo->query("SELECT COUNT(*) FROM password_reset_requests WHERE status = 'pending'")->fetchColumn();
 
 // Recent feedback
 $recent_feedback = $pdo->query("SELECT * FROM feedback ORDER BY created_at DESC LIMIT 3")->fetchAll();
@@ -161,12 +160,7 @@ include 'header.php';
         <a href="admin_users.php" class="rounded-2xl border border-gray-100 border-l-4 border-l-amber-500 bg-white p-4 transition hover:border-amber-200 hover:bg-amber-50/40">
             <p class="text-xs font-semibold text-gray-500">Admin accounts</p>
             <p class="mt-2 text-2xl font-bold text-gray-900"><?= $total_admins ?></p>
-            <p class="mt-1 text-xs text-amber-700">Manage accounts</p>
-        </a>
-        <a href="password_reset_requests.php" class="rounded-2xl border border-gray-100 border-l-4 border-l-violet-500 bg-white p-4 transition hover:border-violet-200 hover:bg-violet-50/40">
-            <p class="text-xs font-semibold text-gray-500">Password reset requests</p>
-            <p class="mt-2 text-2xl font-bold text-gray-900"><?= $pending_password_resets ?></p>
-            <p class="mt-1 text-xs text-violet-700">Pending requests</p>
+            <p class="mt-1 text-xs text-amber-700">Manage accounts and temporary passwords</p>
         </a>
     </div>
 </section>

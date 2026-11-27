@@ -23,6 +23,7 @@ unset($_SESSION['settings_flash']);
 $message = $settings_flash['message'] ?? '';
 $success = (bool) ($settings_flash['success'] ?? false);
 $brand_logo = get_app_setting('brand_logo');
+$super_admin_email = get_app_setting('super_admin_email');
 $storefront_colors = [
     'storefront_background_color' => get_app_setting('storefront_background_color', '#f7f7f2'),
     'storefront_header_color' => get_app_setting('storefront_header_color', '#317D53'),
@@ -93,15 +94,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'brand
         'brand_short_name' => trim($_POST['brand_short_name'] ?? ''),
         'brand_tagline' => trim($_POST['brand_tagline'] ?? ''),
         'phone_number' => trim($_POST['phone_number'] ?? ''),
+        'super_admin_email' => trim($_POST['super_admin_email'] ?? ''),
         'copyright_name' => trim($_POST['copyright_name'] ?? ''),
         'storefront_background_color' => $storefront_colors['storefront_background_color'],
         'storefront_header_color' => $storefront_colors['storefront_header_color'],
         'storefront_footer_color' => $storefront_colors['storefront_footer_color'],
         'storefront_action_color' => $storefront_colors['storefront_action_color'],
     ];
+    $super_admin_email = $branding['super_admin_email'];
 
     if ($branding['brand_short_name'] === '') {
         $message = 'Header short name is required.';
+    } elseif ($branding['super_admin_email'] !== '' && !filter_var($branding['super_admin_email'], FILTER_VALIDATE_EMAIL)) {
+        $message = 'Enter a valid Super Admin contact email address.';
     } elseif (!$colors_valid) {
         $message = 'Choose a valid color for each storefront color setting.';
     } else {
@@ -136,6 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'brand
             }
 
             $brand_logo = $branding['brand_logo'];
+            $super_admin_email = $branding['super_admin_email'];
             $message = 'Business branding updated successfully.';
             $success = true;
             if ($current_logo !== '' && $current_logo !== $brand_logo) {
@@ -216,6 +222,12 @@ include 'header.php';
                         class="mt-2 w-full min-w-0 rounded-2xl border border-gray-200 bg-[#f8faf8] px-3 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 sm:px-4">
                 </label>
             </div>
+            <label class="text-sm font-semibold text-gray-700 md:col-span-2">
+                Super Admin contact email (optional)
+                <input type="email" name="super_admin_email" maxlength="150" value="<?= htmlspecialchars($super_admin_email, ENT_QUOTES, 'UTF-8') ?>"
+                    class="mt-2 w-full rounded-2xl border border-gray-200 bg-[#f8faf8] px-4 py-3.5 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
+                <span class="mt-1 block text-xs font-normal text-gray-500">Shown on the forgot-password page with the Super Admin phone number.</span>
+            </label>
             <div class="md:col-span-2">
                 <h3 class="text-sm font-bold text-gray-800">Storefront colors</h3>
                 <p class="mt-1 text-xs text-gray-500">The default header and footer match the admin sidebar and footer gradients. Choosing a different color uses it as a solid background, and the text automatically switches between dark and light for readability.</p>
