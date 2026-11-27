@@ -7,13 +7,17 @@ if (isset($_SESSION['admin_logged_in'])) {
     exit;
 }
 
-$super_admin_query = $pdo->query("SELECT phone FROM users WHERE role = 'Super Admin' ORDER BY id LIMIT 1");
-$super_admin_phone = $super_admin_query->fetchColumn() ?: '';
+$super_admin_query = $pdo->query(
+    "SELECT full_name, username, phone
+     FROM users
+     WHERE role = 'Super Admin'
+     ORDER BY id"
+);
+$super_admins = $super_admin_query->fetchAll();
 $super_admin_email = get_app_setting('super_admin_email');
 if (!filter_var($super_admin_email, FILTER_VALIDATE_EMAIL)) {
     $super_admin_email = '';
 }
-$safe_phone_link = preg_replace('/[^0-9+]/', '', $super_admin_phone);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -33,28 +37,38 @@ $safe_phone_link = preg_replace('/[^0-9+]/', '', $super_admin_phone);
         </div>
         <div class="p-6 sm:p-8">
             <section class="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 p-5" aria-labelledby="super-admin-contact">
-                <h2 id="super-admin-contact" class="font-bold text-emerald-950">Contact the Super Admin</h2>
-                <?php if ($super_admin_phone !== '' || $super_admin_email !== ''): ?>
+                <h2 id="super-admin-contact" class="font-bold text-emerald-950">Contact a super admin to reset your password.</h2>
+                <?php if (!empty($super_admins)): ?>
                     <div class="mt-3 space-y-3 text-sm">
-                        <?php if ($super_admin_phone !== ''): ?>
-                            <p>
-                                <span class="font-semibold text-gray-600">Phone: </span>
-                                <a href="tel:<?= htmlspecialchars($safe_phone_link, ENT_QUOTES, 'UTF-8') ?>" class="font-bold text-emerald-900 underline underline-offset-2">
-                                    <?= htmlspecialchars($super_admin_phone, ENT_QUOTES, 'UTF-8') ?>
-                                </a>
-                            </p>
-                        <?php endif; ?>
-                        <?php if ($super_admin_email !== ''): ?>
-                            <p>
-                                <span class="font-semibold text-gray-600">Email: </span>
-                                <a href="mailto:<?= htmlspecialchars($super_admin_email, ENT_QUOTES, 'UTF-8') ?>" class="break-all font-bold text-emerald-900 underline underline-offset-2">
-                                    <?= htmlspecialchars($super_admin_email, ENT_QUOTES, 'UTF-8') ?>
-                                </a>
-                            </p>
-                        <?php endif; ?>
+                        <?php foreach ($super_admins as $super_admin): ?>
+                            <?php
+                            $super_admin_name = trim($super_admin['full_name'] ?: $super_admin['username']);
+                            $super_admin_phone = trim($super_admin['phone'] ?? '');
+                            $safe_phone_link = preg_replace('/[^0-9+]/', '', $super_admin_phone);
+                            ?>
+                            <div>
+                                <p class="font-bold text-emerald-950"><?= htmlspecialchars($super_admin_name, ENT_QUOTES, 'UTF-8') ?></p>
+                                <?php if ($super_admin_phone !== ''): ?>
+                                    <p class="mt-1">
+                                        <span class="font-semibold text-gray-600">Phone: </span>
+                                        <a href="tel:<?= htmlspecialchars($safe_phone_link, ENT_QUOTES, 'UTF-8') ?>" class="font-bold text-emerald-900 underline underline-offset-2">
+                                            <?= htmlspecialchars($super_admin_phone, ENT_QUOTES, 'UTF-8') ?>
+                                        </a>
+                                    </p>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <p class="mt-2 text-sm leading-6 text-gray-600">No Super Admin phone number or email is currently configured. Please contact the system administrator directly.</p>
+                    <p class="mt-2 text-sm leading-6 text-gray-600">No Super Admin is currently configured. Please contact the system administrator directly.</p>
+                <?php endif; ?>
+                <?php if ($super_admin_email !== ''): ?>
+                    <p class="mt-4 border-t border-emerald-100 pt-3 text-sm">
+                        <span class="font-semibold text-gray-600">Email: </span>
+                        <a href="mailto:<?= htmlspecialchars($super_admin_email, ENT_QUOTES, 'UTF-8') ?>" class="break-all font-bold text-emerald-900 underline underline-offset-2">
+                            <?= htmlspecialchars($super_admin_email, ENT_QUOTES, 'UTF-8') ?>
+                        </a>
+                    </p>
                 <?php endif; ?>
             </section>
 

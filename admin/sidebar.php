@@ -19,7 +19,7 @@ if (isset($_SESSION['admin_id'])) {
         $admin_role = $current_admin['role'] ?? 'Admin';
         $_SESSION['admin_user'] = $admin_name;
         $_SESSION['admin_role'] = $admin_role;
-        $is_super_admin = strtolower(trim($admin_name)) === 'yared' && $admin_role === 'Super Admin';
+        $is_super_admin = $admin_role === 'Super Admin';
     }
 }
 ?>

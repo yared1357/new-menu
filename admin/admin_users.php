@@ -11,7 +11,6 @@ $current_admin_query = $pdo->prepare('SELECT username, full_name, role FROM user
 $current_admin_query->execute([$_SESSION['admin_id']]);
 $current_admin = $current_admin_query->fetch();
 $is_super_admin = $current_admin
-    && strtolower(trim($current_admin['username'])) === 'yared'
     && $current_admin['role'] === 'Super Admin';
 
 if (!$is_super_admin) {
@@ -34,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (($_POST['action'] ?? '') === 'create') {
         $full_name = trim($_POST['full_name'] ?? '');
         $phone = normalize_ethiopian_phone($_POST['phone'] ?? '');
+        $role = $_POST['role'] ?? '';
         $password = $_POST['password'] ?? '';
         $confirm_password = $_POST['confirm_password'] ?? '';
 
@@ -41,31 +41,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = 'Enter a full name between 2 and 150 characters.';
         } elseif ($phone === null) {
             $message = 'Enter a valid Ethiopian mobile number.';
+        } elseif (!in_array($role, ['Admin', 'Super Admin'], true)) {
+            $message = 'Select a valid account role.';
         } elseif (strlen($password) < 4) {
             $message = 'The password must be at least 4 characters.';
         } elseif ($password !== $confirm_password) {
             $message = 'The passwords do not match.';
         } else {
             try {
-                $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE phone = ? AND role = 'Super Admin'");
+                $stmt = $pdo->prepare('SELECT COUNT(*) FROM users WHERE phone = ?');
                 $stmt->execute([$phone]);
                 if ((int) $stmt->fetchColumn() > 0) {
-                    $message = 'The Super Admin phone number is reserved and cannot be assigned to another admin.';
+                    $message = 'That phone number is already assigned to an account.';
                 } else {
-                    $stmt = $pdo->prepare('SELECT COUNT(*) FROM users WHERE phone = ?');
-                    $stmt->execute([$phone]);
-                    if ((int) $stmt->fetchColumn() > 0) {
-                        $message = 'That phone number is already assigned to an account.';
-                    } else {
-                        $stmt = $pdo->prepare('INSERT INTO users (username, full_name, password, role, phone, must_change_password) VALUES (?, ?, ?, ?, ?, ?)');
-                        $stmt->execute([$phone, $full_name, password_hash($password, PASSWORD_DEFAULT), 'Admin', $phone, 1]);
-                        $_SESSION['admin_flash'] = [
-                            'title' => 'Admin created',
-                            'message' => $full_name . ' can sign in with their phone and temporary password. They will be asked to change it on first login.',
-                        ];
-                        header('Location: admin_users.php');
-                        exit;
-                    }
+                    $stmt = $pdo->prepare('INSERT INTO users (username, full_name, password, role, phone, must_change_password) VALUES (?, ?, ?, ?, ?, ?)');
+                    $stmt->execute([$phone, $full_name, password_hash($password, PASSWORD_DEFAULT), $role, $phone, 1]);
+                    $_SESSION['admin_flash'] = [
+                        'title' => $role . ' created',
+                        'message' => $full_name . ' can sign in with their phone and temporary password. They will be asked to change it on first login.',
+                    ];
+                    header('Location: admin_users.php');
+                    exit;
                 }
             } catch (PDOException $e) {
                 $message = 'That phone number is already assigned or the account could not be created.';
@@ -249,6 +245,13 @@ include 'header.php';
                     Phone number
                     <input type="tel" name="phone" required maxlength="20" autocomplete="tel" inputmode="tel" placeholder="Enter phone number" value="<?= htmlspecialchars($_POST['phone'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                         class="mt-2 w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
+                </label>
+                <label class="text-sm font-semibold text-gray-700">
+                    Role
+                    <select name="role" required class="mt-2 w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">
+                        <option value="Admin" <?= ($_POST['role'] ?? 'Admin') === 'Admin' ? 'selected' : '' ?>>Admin</option>
+                        <option value="Super Admin" <?= ($_POST['role'] ?? '') === 'Super Admin' ? 'selected' : '' ?>>Super Admin</option>
+                    </select>
                 </label>
                 <label class="text-sm font-semibold text-gray-700">
                     Password
